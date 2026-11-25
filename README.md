@@ -1,12 +1,10 @@
 # HitzBira
 
-**2.3.0 · Gramatika, aditzak eta ikasketa-ibilbide bateratua.**
+**2.2.0 · Gramatika, aditzak eta ikasketa-ibilbide bateratua.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
 Gordailu honek `hitzbira-gramatika` proiektuko 29 adarren lana bateratzen du. Oinarria `p1-04-world-pilot` da; `main` adarreko eguneko bolada eta UI Kit GOLD 1.0.1 gehitu dira. [Adarren azterketa eta bateratze-erabakiak](docs/BRANCH_UNIFICATION_2026-11-25.md).
-
-Ikaslearen 2.3.0 esperientzia: hasierako ekintza bakarra, adibidetik praktikara eta aurrerapen ulergarria. [Diseinuaren eta datuen kontratua](docs/STUDENT_EXPERIENCE_2_3.md).
 
 ## Lokalean erabili
 
@@ -14,7 +12,7 @@ Zerbitzatu gordailuaren erroa HTTP bidez, adibidez `python -m http.server 8000`,
 
 ## Egiaztapenak
 
-Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 232 egiaztapen, bederatzi bateriatan. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
+Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 194 egiaztapen, zazpi bateriatan. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
 
 ## Antolaketa
 
