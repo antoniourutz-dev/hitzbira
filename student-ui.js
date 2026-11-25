@@ -34,6 +34,9 @@ function studentLaunchPlan(plan){
   try{startCurriculum(plan.node,null,!!plan.policy,plan.intent==="spaced"?plan.id||plan.lesson:null)}finally{studentGuidedVerb=false}return;
  }
  studentGuidedVerb=false;
+ if(plan.type==="browse"){catalogRoot();return}
+ if(plan.type==="explore"){catalogFamily(plan.family);return}
+ if(plan.type==="assess"){startAssessment();return}
  if(plan.type==="review"||plan.type==="compare"){startTarget(plan.id,plan.type);return}
  const family=plan.family&&F(plan.family)?plan.family:D.cards.find(c=>!h[c.id]?.n)?.family||D.cards[0].family;
  startAdventureFamily(family,plan.type==="write");
