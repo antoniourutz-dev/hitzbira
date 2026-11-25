@@ -1,6 +1,6 @@
 /* HitzBira private pilot account gateway. No privileged key is sent to the browser. */
 const BASE=Deno.env.get("SUPABASE_URL"), SERVICE=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"), ANON=Deno.env.get("SUPABASE_ANON_KEY"), ROLE="hitzbira_isolated", RELEASE="hb-1.2-e461f43";
-const allowedOrigin=o=>o==="https://hitzbira.vercel.app"||o==="https://hitzbira-gramatika.vercel.app"||/^https:\/\/hitzbira-gramatika(?:-[a-z0-9-]+)?-antoniourutz-devs-projects\.vercel\.app$/.test(o);
+const allowedOrigin=o=>o==="https://hitzbira.antonio-urutz.workers.dev"||o==="https://hitzbira.vercel.app"||o==="https://hitzbira-gramatika.vercel.app"||/^https:\/\/hitzbira-gramatika(?:-[a-z0-9-]+)?-antoniourutz-devs-projects\.vercel\.app$/.test(o);
 const adminHeaders={apikey:SERVICE,Authorization:"Bearer "+SERVICE,"Content-Type":"application/json"};
 function response(status,data,origin){return new Response(JSON.stringify(data),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Vary":"Origin",...(origin&&allowedOrigin(origin)?{"Access-Control-Allow-Origin":origin,"Access-Control-Allow-Headers":"authorization,apikey,content-type,x-client-info","Access-Control-Allow-Methods":"POST,OPTIONS"}:{})}})}
 function params(x){return new URLSearchParams(x).toString()}
