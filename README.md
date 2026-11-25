@@ -14,7 +14,7 @@ Zerbitzatu gordailuaren erroa HTTP bidez, adibidez `python -m http.server 8000`,
 
 ## Egiaztapenak
 
-Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 229 egiaztapen, bederatzi bateriatan. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
+Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 232 egiaztapen, bederatzi bateriatan. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
 
 ## Antolaketa
 

@@ -12,6 +12,6 @@ Helburua: ikasleak hurrengo jarduera berehala aurkitzea, saioa konfiguratu behar
 - Barneko curriculum osoa eta auditoretza-funtzioak mantendu dira iturburuan, baina ez dute ikaslearen pantailan sarbiderik. Ez da irakasleentzako rol edo administrazio baimen berririk sortu.
 - Kontuak, datuen identifikatzaileak, kontu arteko isolamendua eta erantzun ezezagunen tratamendua mantendu dira. Supabaseko aldaketarik ez.
 
-Egiaztapen automatikoak: 229, bederatzi bateriatan. Besteak beste, hasi/jarraitu, lagundutako erantzuna, erantzun ezezaguna, saioa amaitzea, gordetako jardunaren kontserbazioa eta tresnetarako zuzeneko estekak.
+Egiaztapen automatikoak: 232, bederatzi bateriatan. Besteak beste, hasi/jarraitu, lagundutako erantzuna, erantzun ezezaguna, saioa amaitzea, gordetako jardunaren kontserbazioa eta tresnetarako zuzeneko estekak.
 
 Interfazea sinplifikatzeak ez du eduki guztien adin-egokitasuna edo baliozkotze akademikoa ziurtatzen. Ez da haurrekin egindako erabilgarritasun-probarik aldarrikatzen.
