@@ -1,0 +1,8 @@
+{
+  "name": "hitzbira",
+  "version": "2.2.0",
+  "private": true,
+  "description": "HitzBira: gramatika, aditzak eta ikasketa-ibilbide bateratua",
+  "scripts": { "test": "node tests/run.cjs" },
+  "engines": { "node": ">=22" }
+}
