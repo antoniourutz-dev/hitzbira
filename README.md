@@ -31,6 +31,8 @@ Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 194 egiaztapen, z
 
 ## Kontuak eta datuak
 
+Supabase Auth-en `@hitzbira.app` kontu baieztatuek lehen saio-hasieran jasotzen dute HitzBirako erregistroa automatikoki; ez da eskuzko bigarren altarik behar. Auth-ek domeinuko kontuei rol isolatua esleitzen die. Pasahitza eta benetako saioa behar dira, eta blokeoak nahiz lehendik desgaitutako kontuak errespetatzen dira. Ikus [sarbide automatikoaren arauak](docs/ACCOUNT_ADMISSION.md).
+
 Gonbidatuaren jarduna gailu eta domeinu honetan gordetzen da. Baimendutako kontuen gramatika- eta aditz-jardunaren zati bat lehendik dagoen Supabase zerbitzuarekin sinkronizatzen da; koadernoko bisitak eta curriculumeko errepaso-egutegia tokikoak dira. Ez aldatu datuen release-identifikatzailea bertsio bisuala eguneratze hutsagatik.
 
 Gordailuak bezeroan erabiltzeko gako argitaragarria du. Ez gehitu service-role gakorik, pasahitzik, token pribaturik edo erabiltzaileen daturik. Gordailua bateratzeak ez ditu Supabaseko migrazioak edo funtzioak hedatzen.

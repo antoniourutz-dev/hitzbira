@@ -6,7 +6,27 @@ function response(status,data,origin){return new Response(JSON.stringify(data),{
 function params(x){return new URLSearchParams(x).toString()}
 async function admin(path,method="GET",body,prefer){const r=await fetch(BASE+path,{method,headers:{...adminHeaders,...(prefer?{Prefer:prefer}:{})},...(body!==undefined?{body:JSON.stringify(body)}:{})});if(!r.ok)throw Error("backend_failure");if(r.status===204)return null;const t=await r.text();return t?JSON.parse(t):null}
 function jwtClaims(token){try{const part=token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");return JSON.parse(atob(part.padEnd(Math.ceil(part.length/4)*4,"=")))}catch{return {}}}
-async function userFor(req){const token=req.headers.get("authorization")||"";if(!/^Bearer [A-Za-z0-9_.-]{20,4096}$/.test(token))return null;const r=await fetch(BASE+"/auth/v1/user",{headers:{apikey:ANON,Authorization:token}});if(!r.ok)return null;const u=await r.json();const claims=jwtClaims(token.slice(7));if(u.role!==ROLE||u.app_metadata?.hitzbira_pilot!==true||claims.role!==ROLE||claims.sub!==u.id||!u.email_confirmed_at)return null;const rows=await admin("/rest/v1/hb_registered_accounts?"+params({select:"user_id,username,email",user_id:"eq."+u.id,enabled:"eq.true",limit:"1"}));return rows?.[0]?.email===u.email?rows[0]:null}
+async function userFor(req){
+ const token=req.headers.get("authorization")||"";
+ if(!/^Bearer [A-Za-z0-9_.-]{20,4096}$/.test(token))return null;
+ // The Auth server validates the token; decoded claims alone never authorize access.
+ const r=await fetch(BASE+"/auth/v1/user",{headers:{apikey:ANON,Authorization:token}});
+ if(!r.ok)return null;
+ const verified=await r.json(),claims=jwtClaims(token.slice(7));
+ if(!verified.id||claims.sub!==verified.id||claims.role!==ROLE)return null;
+ // Check current administrative status too: a ban must apply to existing tokens.
+ const u=await admin("/auth/v1/admin/users/"+encodeURIComponent(verified.id));
+ if(u.id!==verified.id||u.email!==verified.email||u.role!==ROLE||u.app_metadata?.hitzbira_pilot!==true||u.is_anonymous||!u.email_confirmed_at||u.deleted_at||(u.banned_until&&(!Number.isFinite(Date.parse(u.banned_until))||Date.parse(u.banned_until)>Date.now()))||!/^[a-z0-9][a-z0-9._-]{2,23}@hitzbira[.]app$/.test(u.email||""))return null;
+ const path="/rest/v1/hb_registered_accounts?"+params({select:"user_id,username,email,enabled",user_id:"eq."+u.id,limit:"1"});
+ let rows=await admin(path);
+ if(!rows?.length){
+  // Idempotent first-login enrollment. Never re-enable an existing disabled account.
+  await admin("/rest/v1/hb_registered_accounts?on_conflict=user_id","POST",{user_id:u.id,username:u.email.split("@")[0],email:u.email,enabled:true},"resolution=ignore-duplicates,return=minimal");
+  rows=await admin(path);
+ }
+ const account=rows?.[0];
+ return account?.enabled===true&&account.email===u.email&&account.username===u.email.split("@")[0]?account:null;
+}
 async function read(b,req,origin){
  const u=await userFor(req);if(!u)return response(403,{error:"Kontu piloturako baimenik ez."},origin);
  if(b.action==="check")return response(200,{ok:true,username:u.username,release:RELEASE},origin);
