@@ -150,29 +150,29 @@ function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-fir
  <section class="bd-hello"><div class="bd-hello-bira">${bira(x>=GOAL?"celebrate":"hello","bd-bira-md")}</div><div class="bd-bubble"><strong>${esc(g)} ${esc(line)}</strong>${help()?`<small>${esc(gEs)} ${esc(lineEs)}</small>`:""}</div></section>
  ${todayCard()}${tools()}</div><div class="bd-col bd-side">
  <section class="bd-stats" aria-label="Zure aurrerapena"><div class="bd-goal">${ring(x,GOAL)}<span>${x>=GOAL?svg("check","bd-goal-ok"):`<b>${x}</b>/${GOAL}`}</span></div><div><strong>Eguneko helburua</strong><small>${x>=GOAL?"Lortuta! Ederki.":`${GOAL-x} XP falta dira`}</small></div><div class="bd-stat bd-stat-fire">${svg("fire")}<b>${sk}</b><small>egun</small></div><div class="bd-stat">${svg("star")}<b>${totalStars()}</b><small>izar</small></div></section>
- <button class="bd-maplink" onclick="go(4)">${svg("map")}<span><strong>${esc(island().title)} · ${esc(island().level)}</strong><small>Ikusi mapa osoa</small></span>${svg("arrow")}</button>
+ <button class="bd-maplink" onclick="go(3)">${svg("map")}<span><strong>${esc(island().title)} · ${esc(island().level)}</strong><small>Ikusi nire bidea</small></span>${svg("arrow")}</button>
  ${auditPanel()}</div></div>`}
-/* Bidea dagoenean, hasierako pantailako gainerako atalak «Esploratu gehiago» atzean geratzen dira. */
+/* Bidea dagoenean, hasierako pantaila garbia da: gomendioa bakarrik. */
 function focused(){return true}
+function isAuditor(){syncState();return !!S.auditor}
 
-/* ---------- Mapa ---------- */
+/* ---------- Bidea (mapa + aurrerapena bateratuta) ---------- */
 function islandPath(I){const cur=I.id===S.level,ls=I.chapters[0].lessons,ni=cur?nextLesson():-1;
  return `<div class="bd-chapter is-open"><div class="bd-ch-head"><span class="bd-ch-n">1</span><div><strong>${esc(I.chapters[0].title)}</strong>${help()?`<small>${esc(I.chapters[0].es)}</small>`:""}</div><span class="bd-chip">${ls.filter(l=>done(l.id)).length}/${ls.length}</span></div>
   <ol class="bd-path">${ls.map((l,i)=>{const st=S.lessons[l.id],open=cur&&unlocked(i),now=i===ni;return `<li class="bd-node${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}${l.challenge?" is-boss":""}" style="--i:${i}"><button class="bd-dot" ${open?`onclick="HBBidea.start(${i})"`:"disabled"} aria-label="${esc(l.title)}${open?"":" (blokeatuta)"}">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</button><span class="bd-label">${esc(l.title)}${help()?`<small>${esc(l.es)}</small>`:""}${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:""}</span></li>`}).join("")}</ol></div>
   ${I.chapters.slice(1).map((c,i)=>`<div class="bd-chapter is-locked"><div class="bd-ch-head"><span class="bd-ch-n">${i+2}</span><div><strong>${esc(c.title)}</strong>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${svg("lock")} Laster</span></div></div>`).join("")}`}
-function mapa(){applyLevel();if(!S.level)return `<div class="bd-mapa">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id);
- return `<div class="bd-mapa"><section class="bd-card bd-island bd-island-${I.id}"><span class="bd-kicker">${esc(I.level)} · ZURE UHARTEA</span><h1>${esc(I.title)}</h1><p>${esc(I.blurb)}</p>${islandPath(I)}</section>
- ${other.map(o=>`<section class="bd-card bd-switch"><div><span class="bd-kicker">${esc(o.level)}</span><strong>${esc(o.title)}</strong><small>${esc(o.blurb)}</small></div><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}')">Joan hara</button></section>`).join("")}
- <button class="bd-linkbtn" onclick="HBBidea.startTest()">Egin berriro maila-proba</button></div>`}
-
-/* ---------- Ni: ikaslearen ikuspegia ---------- */
-function ni(){applyLevel();if(!S.level)return `<div class="bd-ni">${onboarding()}</div>`;const I=island(),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson();
- const keys=[...new Set(d.flatMap(l=>l.keys))];
- return `<div class="bd-ni"><section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${esc(I.level)} · ${esc(chapter().title)}: ${d.length}/${ls.length} ikasgai</p>
+function bidea(){applyLevel();if(!S.level)return `<div class="bd-mapa">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson(),keys=[...new Set(d.flatMap(l=>l.keys))];
+ return `<div class="bd-mapa">
+ <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${esc(chapter().title)}: ${d.length}/${ls.length} ikasgai</p>
   <div class="bd-ni-bar"><span style="width:${Math.round(d.length/ls.length*100)}%"></span></div></div></section>
  <section class="bd-ni-stats">${[[svg("bolt"),S.xp,"XP guztira"],[svg("star"),totalStars(),"izar"],[svg("fire"),sk,"egun jarraian"],[svg("check"),Object.keys(S.days).filter(k=>S.days[k]>0).length,"egun ikasten"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
- <section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira ikasitako hitzak eta egiturak.</p>`}
- ${ni>=0?`<button class="bd-btn bd-btn-main bd-ni-go" onclick="HBBidea.start(${ni})">${svg("play")} Hurrengoa: ${esc(ls[ni].title)}</button>`:""}</section></div>`}
+ <section class="bd-card bd-island bd-island-${I.id}">${islandPath(I)}</section>
+ <section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
+  ${ni>=0?`<button class="bd-btn bd-btn-main bd-ni-go" onclick="HBBidea.start(${ni})">${svg("play")} Hurrengoa: ${esc(ls[ni].title)}</button>`:""}</section>
+ ${other.map(o=>`<section class="bd-card bd-switch"><div><span class="bd-kicker">${esc(o.level)}</span><strong>${esc(o.title)}</strong><small>${esc(o.blurb)}</small></div><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}')">Aldatu maila</button></section>`).join("")}
+ <div class="bd-bidea-foot"><button class="bd-linkbtn" onclick="HBBidea.startTest()">Egin berriro maila-proba</button>${root.HBData?.isRemote?.()?"":`<button class="bd-linkbtn bd-linkbtn-muted" onclick="reset()">Tokiko datuak ezabatu</button>`}</div></div>`}
+function mapa(){return bidea()}
+function ni(){return bidea()}
 
 /* ---------- Ikasgaia ---------- */
 let player=null;
@@ -296,6 +296,6 @@ document.addEventListener("keydown",e=>{if(!player)return;const tag=e.target&&e.
  if(/^[1-4]$/.test(e.key)&&tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){const b=document.querySelectorAll("#bd-player .bd-opt:not([disabled])")[+e.key-1];if(b){e.preventDefault();b.click()}return}
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
-root.HBBidea={...api,gaur,mapa,ni,focused,start,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

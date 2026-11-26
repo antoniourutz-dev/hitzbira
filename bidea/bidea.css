@@ -203,9 +203,11 @@ html.bd-lock,html.bd-lock body{overflow:hidden}
 @keyframes bd-fall{to{transform:translateY(110vh) rotate(540deg)}}
 @media (prefers-reduced-motion:reduce){.bd-gaur *,.bd-mapa *,#bd-player *{animation:none!important;transition:none!important}.bd-bigstars span{transform:none}}
 @media (max-width:420px){.bd-today h2{font-size:1.5rem}.bd-q{font-size:1.2rem}.bd-stats{grid-template-columns:auto 1fr auto auto;gap:8px;padding:10px 12px}.bd-picker-grid{gap:8px}.bd-bira-md{width:76px}.bd-scene .bd-bira{width:90px}}
-/* Nabigazio nagusia: bost fitxa (Gaur, Mapa, Ikasi, Praktikatu, Ni) */
-nav>#nav{grid-template-columns:repeat(5,minmax(0,1fr))}
-@media (max-width:420px){nav>#nav{gap:2px;padding:6px 6px}nav>#nav button{font-size:11.5px;padding:6px 1px}}
+/* Nabigazio nagusia: lau fitxa garbi (Gaur, Bidea, Ikasi, Praktikatu) */
+nav>#nav{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:420px){nav>#nav{gap:4px;padding:6px 8px}nav>#nav button{font-size:12px;padding:6px 2px}}
+.bd-bidea-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:14px;padding:4px 0}
+.bd-linkbtn-muted{color:var(--bd-muted);opacity:.85}
 .bd-instr.bd-warn{color:var(--bd-bad);font-weight:700}
 html[data-theme=dark] .bd-audit,html[data-theme=dark] .bd-audit-sum{background:#2b2313;border-color:#d97706}
 html[data-theme=dark] .bd-audit .bd-kicker,html[data-theme=dark] .bd-audit-sum .bd-kicker{color:#fbbf24}

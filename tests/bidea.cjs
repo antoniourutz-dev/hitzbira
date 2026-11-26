@@ -64,8 +64,10 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('remote account state stored under account key',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
  w.HBBidea.reset();
  check('remote account reset is blocked',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
- check('Ni screen uses honest LANDU DITUZU label',w.HBBidea.ni().includes('LANDU DITUZU')&&!w.HBBidea.ni().includes('MENPERATZEN DITUZU'));
+ check('Bidea screen combines map and honest LANDU DITUZU progress and hides guest reset for remote accounts',(()=>{const b=w.HBBidea.bidea();return b.includes('bd-map')&&b.includes('LANDU DITUZU')&&!b.includes('MENPERATZEN DITUZU')&&!b.includes('Tokiko datuak ezabatu')})());
+ check('isAuditor defaults to false and toggles cleanly',(()=>{const def=w.HBBidea.isAuditor();w.HBBidea.auditor(true);const on=w.HBBidea.isAuditor();w.HBBidea.auditor(false);const off=w.HBBidea.isAuditor();return def===false&&on===true&&off===false})());
  remote=false;uid=null;
+ check('guest Bidea screen exposes local reset action',w.HBBidea.bidea().includes('Tokiko datuak ezabatu'));
  w.HBBidea.reset();
  check('guest reset clears guest state without touching remote account',!store.has('hitzbira-bidea-v1')&&JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
 })();

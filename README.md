@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.3.0 · Bidea: Gaur, Mapa, adin-profilak eta B1–B2ko lehen kapitulua.**
+**2.5.0 · Produktu garbia: 4 atal nagusi (Gaur, Bidea, Ikasi, Praktikatu), barne-erreferentziarik gabe.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
