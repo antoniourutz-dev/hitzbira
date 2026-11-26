@@ -140,7 +140,17 @@ function aux(s=-1,m=-1){let n=count(s,m);return cached("aux:"+s+":"+m,async()=>{
  return validate(rows,n,d=>(s===-1||d.s===s)&&(m===-1||d.m===m)&&typeof d.form==="string"&&Array.isArray(d.roles))})}
 function synthetic(){return cached("synthetic",async()=>{let rows;if(authorized){try{rows=await query("synthetic",META.synthetic)}catch(e){if(e.status===401||e.status===403)throw e}}return validate(rows||await staticBlock("synthetic"),META.synthetic,d=>typeof d.form==="string"&&typeof d.lemma==="string")})}
 function grammar(n){if(!["decl","bank05","bank06","bank07","bank08"].includes(n))throw Error("Banku ezezaguna");return cached("grammar:"+n,async()=>{if(authorized){try{const rows=await query("grammar_bank",1,{record_id:"eq."+n});return rows[0].payload}catch(e){if(e.status===401||e.status===403)throw e}}const r=await fetch("/legacy/"+n+".js");if(!r.ok)throw Error("Bankua ezin izan da kargatu.");const m=(await r.text()).match(/^\s*const\s+(?:BANK|DATA)\s*=\s*([\s\S]*);\s*$/);if(!m)throw Error("Datu-formatua ez da zuzena.");return JSON.parse(m[1])})}
-window.HBData={meta:META,count,aux,synthetic,grammar,isRemote:()=>authorized,release:RELEASE,keyFor,save,activity,flush,clearLocalStreak};
+function commonCycle(units){
+ if(!window.HitzBiraCycle||!window.HitzBiraCurriculum)throw Error("Ikaskuntza-motorra ez dago prest.");
+ return window.HitzBiraCycle.createCycle(units,window.HitzBiraCurriculum,{createAdaptive,createSpaced});
+}
+function openCycleSync(cycle){
+ if(!authorized||!session?.uid||!window.HitzBiraCycleSync)throw Error("Hasi saioa.");
+ const uid=session.uid,key=keyFor("hitzbira-cycle-v1");
+ const call=async(body)=>{if(!authorized||session?.uid!==uid)throw Error("Saioa aldatu da.");const token=await currentToken();if(!authorized||session?.uid!==uid)throw Error("Saioa aldatu da.");return gateway(body,token)};
+ return window.HitzBiraCycleSync.createSync({storage:localStorage,key,cycle,newId:()=>crypto.randomUUID(),transport:{load:()=>call({action:"cycle_load"}),commit:checkpoint=>call({action:"cycle_commit",checkpoint})}});
+}
+window.HBData={commonCycle,openCycleSync,meta:META,count,aux,synthetic,grammar,isRemote:()=>authorized,release:RELEASE,keyFor,save,activity,flush,clearLocalStreak};
 const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop");
 function setStreakOpen(open){if(!streakBtn||!streakPop)return;streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
 if(streakBtn&&streakPop){
@@ -151,7 +161,7 @@ if(streakBtn&&streakPop){
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(Error("Aplikazioa ezin izan da kargatu."));document.head.appendChild(script)})}
 function showLogin(){modal.hidden=false;msg.textContent="";form.elements.identifier.focus()}
 function hideLogin(){modal.hidden=true;form.reset();msg.textContent="";login.focus()}
-async function start(){if(starting)return;starting=true;status.textContent=authorized?"Kaixo, "+session.username:"Gonbidatua";login.hidden=authorized;out.hidden=!authorized;paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
+async function start(){if(starting)return;starting=true;status.textContent=authorized?"Kaixo, "+session.username:"Gonbidatua";login.hidden=authorized;out.hidden=!authorized;paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/learning/cycle.js","/learning/sync.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
 function busy(on){submit.disabled=on;form.setAttribute("aria-busy",String(on));submit.textContent=on?"Saioa egiaztatzen…":"Sartu"}
 login.onclick=showLogin;close.onclick=hideLogin;
 out.onclick=async()=>{if(!confirm("Saioa itxi? Sinkronizatu gabeko jarduna gailu honetan mantenduko da."))return;await Promise.race([flush(),new Promise(resolve=>setTimeout(resolve,2500))]);const old=session;clearSession();try{if(old?.access_token)await fetch(BASE+"/auth/v1/logout?scope=local",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+old.access_token},cache:"no-store",signal:AbortSignal.timeout(2500)})}catch{}location.reload()};
