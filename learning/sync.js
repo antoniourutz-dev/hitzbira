@@ -1,7 +1,7 @@
 /* Revision-checked practice checkpoints. No academic evidence; no automatic guest import. */
 (function(root){
 "use strict";
-const STREAM="hitzbira-cycle-v1",same=(a,b)=>JSON.stringify(a)===JSON.stringify(b),clone=x=>JSON.parse(JSON.stringify(x)),rev=x=>Number.isSafeInteger(x)&&x>=0;
+const STREAM="hitzbira-cycle-v1",canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==="object"?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x,same=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b)),clone=x=>JSON.parse(JSON.stringify(x)),rev=x=>Number.isSafeInteger(x)&&x>=0;
 function createSync({storage,key,transport,cycle,newId}){
  if(!storage||typeof key!=="string"||!key.includes("::hb::")||!transport||typeof newId!=="function")throw Error("account-scoped storage required");
  let raw=storage.getItem(key),box=null,busy=false;
@@ -13,7 +13,7 @@ function createSync({storage,key,transport,cycle,newId}){
  async function open(){if(busy)throw Error("sync busy");busy=true;try{const r=remoteShape(await transport.load());
  if(box&&(box.dirty||box.pending))return {status:r.revision===box.remoteRevision?"pending":"needs_reconcile",snapshot:clone(box.snapshot),remoteRevision:r.revision};
  const snapshot=r.snapshot===null?cycle.fresh():r.snapshot;write({schema:1,remoteRevision:r.revision,snapshot:clone(snapshot),dirty:false,pending:null});return {status:"ready",snapshot:clone(snapshot),remoteRevision:r.revision}}finally{busy=false}}
- function save(next){if(!box)throw Error("open first");if(!validSnapshot(next)||next.revision<box.snapshot.revision||next.events.length<box.snapshot.events.length||!box.snapshot.events.every((e,i)=>same(e,next.events[i])))throw Error("invalid or regressive snapshot");if(same(next,box.snapshot))return;write({...box,snapshot:clone(next),dirty:true})}
+ function save(next){if(!box)throw Error("open first");if(same(next,box.snapshot))return;if(!validSnapshot(next)||next.revision<=box.snapshot.revision||next.events.length<box.snapshot.events.length||!box.snapshot.events.every((e,i)=>same(e,next.events[i])))throw Error("invalid or regressive snapshot");write({...box,snapshot:clone(next),dirty:true})}
  async function flush(){if(busy)return {status:"busy"};if(!box)throw Error("open first");if(!box.dirty&&!box.pending)return {status:"clean",revision:box.remoteRevision};busy=true;
  try{if(!box.pending)write({...box,pending:{id:newId(),expected:box.remoteRevision,snapshot:clone(box.snapshot)}});
  const p=clone(box.pending);let a;try{a=await transport.commit(p)}catch{return {status:"pending"}}
