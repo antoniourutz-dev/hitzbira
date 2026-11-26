@@ -91,5 +91,63 @@
       "name": "guest key blocked",
       "pass": true
     }
-  ]
+  ],
+  "final": {
+    "date": "2026-11-26",
+    "referenceTests": {
+      "cases": 29,
+      "actualLabArchivePassed": 29,
+      "syntheticFixturePassed": 29,
+      "note": "same cases on two catalogs; not additive; V8 execution, not full Node CI",
+      "testFile": "tests/common-cycle.cjs"
+    },
+    "database": {
+      "migration": "20261126061048_hb_cycle_checkpoint_v1",
+      "snapshotValidator": {
+        "passed": 16,
+        "total": 16,
+        "actualPostgres": true
+      },
+      "transactionalCheckpoint": {
+        "passed": 12,
+        "total": 12,
+        "actualPostgres": true,
+        "rollbackVerified": true,
+        "cases": [
+          "initial_write",
+          "second_checkpoint",
+          "event_count_correct",
+          "regression_rejected",
+          "same_event_idempotent",
+          "stale_revision_rejected",
+          "disabled_account_blocked",
+          "two_accounts_independent",
+          "rollback_no_test_accounts",
+          "rollback_no_test_progress",
+          "no_streak_or_academic_credit",
+          "same_id_different_payload_rejected"
+        ]
+      },
+      "noAccountBlocked": true,
+      "afterTestNewStreamStateRows": 0,
+      "afterTestNewStreamEventRows": 0,
+      "permissions": "service_role only; RLS unchanged; no direct anon/authenticated table access",
+      "securityAdvisor": "INFO no-policy on both restricted tables; global audit not completed"
+    },
+    "gateway": {
+      "deployedVersion": 7,
+      "candidateOnly": true,
+      "featureFlag": "HB_CYCLE_CHECKPOINT_ENABLED",
+      "liveRoleClaim": "hitzbira_isolated",
+      "postgresRoleExists": false,
+      "authenticatedHTTPTest": false
+    },
+    "limitations": [
+      "No merge to main, no manual deployment, no UI activation.",
+      "No real learner data or answer keys; practice only; C1 pending.",
+      "Bounded checkpoint: 300000 bytes and 1500 events, future compaction/ledger required.",
+      "No cross-origin LAB history migration; explicit account mapping and consent needed.",
+      "No complete browser or Node regression or academic approval."
+    ]
+  }
 }
