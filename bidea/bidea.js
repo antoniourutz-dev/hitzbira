@@ -1,10 +1,10 @@
-/* HitzBira · Bidea 0.2: maila-proba, Gaur, Mapa, Ni eta ikasgai-erreproduzitzailea.
+/* HitzBira · Bidea 0.3: maila-proba, Gaur (errepaso banatuarekin), Bidea (kapitulu anitz) eta ikasgai-erreproduzitzailea (pista + 2. saiakera).
    Ez dago adin-hautatzailerik: ikaslearen mailak (A1–A2 / B1–B2) erabakitzen du zein uharte ikusten duen.
-   app.js-ek deitzen ditu: HBBidea.gaur(), HBBidea.mapa(), HBBidea.ni(), HBBidea.focused().
+   app.js-ek deitzen ditu: HBBidea.gaur(), HBBidea.bidea(), HBBidea.focused(), HBBidea.isAuditor().
    Aurrerapena gailu honetan gordetzen da (hitzbira-bidea-v1). Ikuskatzailearen oharrak ere bai (hitzbira-bidea-audit-v1). */
 (function(root){
 "use strict";
-const KEY="hitzbira-bidea-v1",AKEY="hitzbira-bidea-audit-v1",GOAL=30;
+const KEY="hitzbira-bidea-v1",AKEY="hitzbira-bidea-audit-v1",GOAL=30,REVIEW_DAYS=[1,3,7,14,30],DAY_MS=86400000;
 
 /* ---------- Funtzio puruak (probetan ere erabiltzen dira) ---------- */
 function norm(s){return String(s||"").toLowerCase().normalize("NFC").replace(/[«»"“”.,;:!?¿¡()]/g," ").replace(/\s+/g," ").trim()}
@@ -18,7 +18,7 @@ function chipsFor(item,groups,rnd=Math.random){if(item.ch)return shuffle(item.ch
  const pool=[];for(const [g,list] of Object.entries(groups))if(!gs.has(g))pool.push(list[0]);
  return shuffle([right,...shuffle(pool,rnd).slice(0,3)],rnd).map(w=>caseLike(w,cap))}
 /* Esaldia eraikitzeko fitxak: lokailu konposatuak fitxa bakarrean. */
-function tilesFor(sentence){const words=sentence.split(/\s+/).filter(Boolean),out=[];for(let i=0;i<words.length;i++){const w=words[i],nx=words[i+1];if(nx&&/^(izan|hala|esate)$/i.test(w)&&/^(ere|baterako),?$/i.test(nx)){out.push(w+" "+nx);i++}else out.push(w)}return out}
+function tilesFor(sentence){const words=sentence.split(/\s+/).filter(Boolean),out=[];for(let i=0;i<words.length;i++){const w=words[i],nx=words[i+1];if(nx&&/^(izan|hala|esate|nahiz)$/i.test(w)&&/^(ere|baterako|eta),?$/i.test(nx)){out.push(w+" "+nx);i++}else out.push(w)}return out}
 function fixTokens(item){const i=item.q.indexOf(item.w);if(i<0)return item.q.split(/\s+/);const before=item.q.slice(0,i).trim(),after=item.q.slice(i+item.w.length).trim();return [...(before?before.split(/\s+/):[]),item.w,...(after?after.split(/\s+/):[])]}
 function fixOptions(item,groups,rnd=Math.random){if(item.opts)return shuffle(item.opts,rnd);const gr=groupOf(item.r,groups),gw=groupOf(item.w,groups),pool=[];for(const [g,list] of Object.entries(groups))if(g!==gr&&g!==gw)pool.push(list[0]);return shuffle([item.r,...shuffle(pool,rnd).slice(0,2)],rnd)}
 function starsFor(first,total){const r=total?first/total:0;return r>=.9?3:r>=.7?2:1}
@@ -31,8 +31,33 @@ function solvedParts(item){
  if(item.t==="build"){const s=item.a[0],k=item.k||"",i=k?s.indexOf(k):-1;return i<0?[s,"",""]:[s.slice(0,i),k,s.slice(i+k.length)]}
  if(item.q&&item.q.includes("____")){const [b,...rest]=item.q.split("____");const ans=caseLike(item.a[0],capitalFor(item.q));return [b,ans,rest.join(item.a[0])]}
  return null}
-function writeCheckList(t){const s=String(t||"");return [["Abiapuntua (-tik)",/\p{L}{2,}tik\b/iu],["Geldialdia (-n)",/\b(?!(?:izan|eman|esan|edan|jan|joan|egon|zen|duen|den|nuen|zuen|baina)\b)\p{L}{3,}(?:an|ean)\b/iu],["Helmuga (-ra)",/\b(?!(?:gara|zara|dira|atera|euskara|bira|aurrera|hara|gura)\b)\p{L}{3,}ra\b/iu],["Ordena (lehenik, gero, azkenik)",/\b(lehenik|gero|azkenik|ondoren|bukatzeko)\b/i]].map(([l,re])=>[l,re.test(s)])}
-const api={norm,isAccepted,groupOf,capitalFor,chipsFor,tilesFor,fixTokens,fixOptions,starsFor,placeLevel,greetingFor,solvedParts,writeCheckList};
+function writeCheckList(t,kind){const s=String(t||"");
+ if(kind==="nornork")return [["NOR ekintza (naiz / gara / da / dira)",/\b(naiz|zara|da|gara|zarete|dira)\b/i],["NOR-NORK ekintza (dut / ditut / dugu / du / dute)",/\b(dut|ditut|duzu|dituzu|du|ditu|dugu|ditugu|duzue|dituzue|dute|dituzte)\b/i],["Bi esaldi gutxienez",/[^\s.!?]+[.!?]\s+[^\s.!?]+/]].map(([l,re])=>[l,re.test(s)]);
+ return [["Abiapuntua (-tik)",/\p{L}{2,}tik\b/iu],["Geldialdia (-n)",/\b(?!(?:izan|eman|esan|edan|jan|joan|egon|zen|duen|den|nuen|zuen|baina)\b)\p{L}{3,}(?:an|ean)\b/iu],["Helmuga (-ra)",/\b(?!(?:gara|zara|dira|atera|euskara|bira|aurrera|hara|gura)\b)\p{L}{3,}ra\b/iu],["Ordena (lehenik, gero, azkenik)",/\b(lehenik|gero|azkenik|ondoren|bukatzeko)\b/i]].map(([l,re])=>[l,re.test(s)])}
+/* Pista progresiboa: erantzuna zuzenean eman gabe lagundu. */
+function hintFor(item,groups,patterns){
+ if(!item)return "";
+ if(item.hint)return item.hint;
+ if(item.h)return "Begiratu pistari: "+item.h+".";
+ const key=item.t==="fix"?item.r:item.t==="build"?item.k:(item.a&&item.a[0]);
+ const g=key&&groups?groupOf(key,groups):null;
+ if(g&&patterns&&patterns[g]?.why)return patterns[g].why;
+ if(item.t==="fix")return "Irakurri esaldia osorik eta pentsatu zein hitzek ematen dion zentzu egokia.";
+ if(item.t==="build")return "Hasi lehen ideiarekin eta ordenatu hitzak poliki.";
+ return "Irakurri esaldia osorik eta begiratu aditzari eta esanahiari."}
+/* Errepaso banatua: 1 · 3 · 7 · 14 · 30 egun, izar eta errepaso kopuruaren arabera. */
+function dueReviews(lessonsState,lessonList,now=Date.now()){
+ const out=[];
+ for(const L of lessonList||[]){
+  const st=lessonsState&&lessonsState[L.id];
+  if(!st||!st.stars||!st.at)continue;
+  const base=Math.min(2,Math.max(0,(st.stars||1)-1)),step=Math.min(REVIEW_DAYS.length-1,base+(st.reviews||0));
+  const last=st.reviewAt||st.at,wait=REVIEW_DAYS[step]*DAY_MS,overdue=now-last-wait;
+  if(overdue>=0)out.push({lesson:L,overdue,days:REVIEW_DAYS[step]});
+ }
+ return out.sort((a,b)=>b.overdue-a.overdue);
+}
+const api={norm,isAccepted,groupOf,capitalFor,chipsFor,tilesFor,fixTokens,fixOptions,starsFor,placeLevel,greetingFor,solvedParts,writeCheckList,hintFor,dueReviews};
 if(typeof module!=="undefined"&&module.exports){module.exports=api;return}
 
 /* ---------- Egoera ---------- */
@@ -59,13 +84,16 @@ const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth
 const help=()=>S.help==="es";
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const bira=(pose,cls="")=>`<img class="bd-bira ${cls}" src="/assets/bira/${POSES[pose]||POSES.hello}" alt="" width="400" height="400" decoding="async" aria-hidden="true">`;
-const ICONS={map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',play:'<path d="M8 5v14l11-7z"/>',check:'<path d="m5 12 5 5L20 7"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',bolt:'<path d="m13 2-9 12h7l-1 8 10-12h-7z"/>',arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',sound:'<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',mute:'<path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/>',fire:'<path d="M12.6 2.2c.3 3.2-1.9 5-3.2 6.8-1.4 1.9-2.4 3.5-2.4 5.7a5.8 5.8 0 0 0 11.7-.2c0-3.3-2-5.8-3.3-7.4-.5 1.3-1.4 2-2.2 2.2.7-2.2.6-4.8-.6-7.1z"/>',pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',into:'<path d="M3 12h11m-4-5 5 5-5 5"/><path d="M19 4v16"/>',outof:'<path d="M5 4v16"/><path d="M9 12h11m-4-5 5 5-5 5"/>',mountain:'<path d="m2 20 7-12 4 6 3-4 6 10z"/>',trees:'<path d="M7 3 3 11h3l-3 6h8l-3-6h3zM17 6l-3 6h2l-2 5h6l-2-5h2zM7 17v4M17 17v4"/>',river:'<path d="M2 8c3-2 5 2 8 0s5-2 8 0 4 0 4 0M2 14c3-2 5 2 8 0s5-2 8 0 4 0 4 0"/>',path:'<path d="M8 21c0-6 8-6 8-12 0-3-2-5-4-6" stroke-dasharray="3 3"/>',bridge:'<path d="M2 16h20M4 16v4M20 16v4M3 16c3-6 15-6 18 0"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'};
+const ICONS={map:'<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/>',star:'<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',play:'<path d="M8 5v14l11-7z"/>',check:'<path d="m5 12 5 5L20 7"/>',x:'<path d="M6 6l12 12M18 6 6 18"/>',bolt:'<path d="m13 2-9 12h7l-1 8 10-12h-7z"/>',arrow:'<path d="M5 12h14m-6-6 6 6-6 6"/>',flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>',sound:'<path d="M4 9v6h4l5 4V5L8 9zM16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',mute:'<path d="M4 9v6h4l5 4V5L8 9zM17 9l5 6M22 9l-5 6"/>',fire:'<path d="M12.6 2.2c.3 3.2-1.9 5-3.2 6.8-1.4 1.9-2.4 3.5-2.4 5.7a5.8 5.8 0 0 0 11.7-.2c0-3.3-2-5.8-3.3-7.4-.5 1.3-1.4 2-2.2 2.2.7-2.2.6-4.8-.6-7.1z"/>',pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',into:'<path d="M3 12h11m-4-5 5 5-5 5"/><path d="M19 4v16"/>',outof:'<path d="M5 4v16"/><path d="M9 12h11m-4-5 5 5-5 5"/>',mountain:'<path d="m2 20 7-12 4 6 3-4 6 10z"/>',trees:'<path d="M7 3 3 11h3l-3 6h8l-3-6h3zM17 6l-3 6h2l-2 5h6l-2-5h2zM7 17v4M17 17v4"/>',river:'<path d="M2 8c3-2 5 2 8 0s5-2 8 0 4 0 4 0M2 14c3-2 5 2 8 0s5-2 8 0 4 0 4 0"/>',path:'<path d="M8 21c0-6 8-6 8-12 0-3-2-5-4-6" stroke-dasharray="3 3"/>',bridge:'<path d="M2 16h20M4 16v4M20 16v4M3 16c3-6 15-6 18 0"/>',globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',refresh:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'};
 const svg=(n,c="")=>`<svg class="bd-ico ${c}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||""}</svg>`;
 const island=()=>DATA.islands.find(x=>x.id===S.level)||DATA.islands[0];
-const chapter=()=>island().chapters[0],lessons=()=>chapter().lessons;
+const playableChapters=(I=island())=>I.chapters.filter(c=>Array.isArray(c.lessons)&&c.lessons.length);
+const islandLessons=(I=island())=>playableChapters(I).flatMap(c=>c.lessons);
+const chapterOf=(id,I=island())=>playableChapters(I).find(c=>c.lessons.some(l=>l.id===id))||I.chapters[0];
+const lessons=()=>islandLessons(island());
 const allLessons=()=>DATA.islands.flatMap(i=>i.chapters.flatMap(c=>c.lessons||[]));
 const done=id=>S.lessons[id]&&S.lessons[id].stars>0;
-function unlocked(i){return i===0||done(lessons()[i-1].id)}
+function unlocked(i){const ls=lessons(),L=ls[i];if(!L)return false;return i===0||L.n===1||done(ls[i-1].id)}
 function nextLesson(){const ls=lessons();for(let i=0;i<ls.length;i++)if(!done(ls[i].id))return i;return -1}
 function totalStars(){return Object.values(S.lessons).reduce((n,l)=>n+(l.stars||0),0)}
 function xpToday(){return S.days[today()]||0}
@@ -130,26 +158,35 @@ function onboarding(){const [g,gEs]=greetingFor(new Date().getHours());return `<
  <div class="bd-welcome-path" aria-hidden="true">${DATA.islands.map(x=>`<span><b>${esc(x.level)}</b>${esc(x.title)}</span>`).join(`<i></i>`)}</div>
 </section>`}
 function ring(v,max){const r=26,c=2*Math.PI*r,p=Math.min(1,v/max);return `<svg class="bd-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="${r}" class="bd-ring-bg"/><circle cx="32" cy="32" r="${r}" class="bd-ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}"/></svg>`}
-function todayCard(){const I=island(),ls=lessons(),ni=nextLesson(),all=ni<0,i=all?ls.length-1:ni,L=ls[i],st=S.lessons[L.id];
+function todayCard(){const I=island(),ls=lessons(),ni=nextLesson(),all=ni<0,i=all?ls.length-1:ni,L=ls[i],st=S.lessons[L.id],ch=chapterOf(L.id,I),chLs=ch.lessons||[L],posInCh=Math.max(0,chLs.findIndex(x=>x.id===L.id));
  return `<article class="bd-card bd-today">
-  <div class="bd-today-top"><span class="bd-kicker">GAURKO IKASGAIA · ${esc(I.level)}</span><span class="bd-chip">${i+1}/${ls.length}</span></div>
+  <div class="bd-today-top"><span class="bd-kicker">GAURKO IKASGAIA · ${esc(I.level)}</span><span class="bd-chip">${posInCh+1}/${chLs.length}</span></div>
   <h2>${esc(L.title)}</h2>${help()?`<p class="bd-es">${esc(L.es)}</p>`:""}
-  <p class="bd-meta">${esc(chapter().title)} · ${L.items.length} ariketa · ~${Math.max(3,Math.round(L.items.length/2))} min${L.challenge?" · Erronka":""}</p>
-  <div class="bd-pips" aria-label="Kapituluko aurrerapena">${ls.map((x,k)=>`<span class="bd-pip${done(x.id)?" is-done":""}${k===i&&!all?" is-now":""}"></span>`).join("")}</div>
-  <button class="bd-btn bd-btn-main" onclick="HBBidea.start(${i})">${svg("play")} ${all?"Errepasatu":st?"Berriro egin":i===0?"Hasi":"Jarraitu"}</button>
-  ${all?`<p class="bd-note">Kapitulua osatu duzu! Hurrengoa prestatzen ari gara.</p>`:""}</article>`}
+  <p class="bd-meta">${esc(ch.title)} · ${L.items.length} ariketa · ~${Math.max(3,Math.round(L.items.length/2))} min${L.challenge?" · Erronka":""}</p>
+  <div class="bd-pips" aria-label="Kapituluko aurrerapena">${chLs.map((x,k)=>`<span class="bd-pip${done(x.id)?" is-done":""}${k===posInCh&&!all?" is-now":""}"></span>`).join("")}</div>
+  <button class="bd-btn bd-btn-main" onclick="HBBidea.start(${i})">${svg("play")} ${all?"Errepasatu":st?"Berriro egin":posInCh===0&&i===0?"Hasi":"Jarraitu"}</button>
+  ${all?`<p class="bd-note">Maila honetako ikasgai guztiak osatu dituzu! Errepasatu edo probatu beste maila.</p>`:""}</article>`}
+function reviewCard(){
+ const due=dueReviews(S.lessons,lessons());
+ if(due.length){const L=due[0].lesson;
+  return `<section class="bd-card bd-review-card"><div class="bd-review-head"><span class="bd-kicker">BERRIKUSTEKO UNEA</span><span class="bd-chip">${due.length}</span></div><h3>${esc(L.title)}</h3><p>5 ariketa azkar, ikasitakoa gogoratzeko.</p><button class="bd-btn bd-btn-small" onclick="HBBidea.startReview(${jq(L.id)})">${svg("refresh")} Berrikusi</button></section>`}
+ const ag=root.HitzBiraAgenda?.agenda?.()||[],dueAg=ag.filter(r=>r.status==="due");
+ if(dueAg.length&&typeof root.startCurriculum==="function"){
+  return `<section class="bd-card bd-review-card"><div class="bd-review-head"><span class="bd-kicker">GOGORATZEKO UNEA</span><span class="bd-chip">${dueAg.length}</span></div><h3>Aurretik landutako praktika</h3><p>Saio labur bat, ikasitako egiturak finkatzeko.</p><button class="bd-btn bd-btn-small" onclick="HBBidea.startAgendaReview()">${svg("refresh")} Berrikusi</button></section>`}
+ return ""}
 function auditPanel(){if(!S.auditor)return "";const v=Object.values(AUD),ok=v.filter(x=>x.v==="ok").length,fx=v.filter(x=>x.v==="fix").length;
  return `<section class="bd-card bd-audit-sum"><span class="bd-kicker">IKUSKATZAILE MODUA</span><p><b>${ok}</b> ontzat · <b>${fx}</b> zuzentzeko · ${allLessons().reduce((n,l)=>n+l.items.length,0)} ariketa guztira</p>
  <div class="bd-row"><button class="bd-btn bd-btn-small" onclick="HBBidea.copyAudit(this)">Kopiatu oharrak</button><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.auditor(false)">Desaktibatu</button></div></section>`}
 function tools(){return `<div class="bd-tools"><button class="bd-chip-btn${help()?" is-on":""}" aria-pressed="${help()}" onclick="HBBidea.toggleHelp()" title="Laguntza gaztelaniaz">${svg("globe")} ES</button><button class="bd-chip-btn${S.sound?" is-on":""}" aria-pressed="${!!S.sound}" onclick="HBBidea.toggleSound()" aria-label="Soinua">${svg(S.sound?"sound":"mute")}</button></div>`}
 function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-first">${onboarding()}</div>`;
  const x=xpToday(),[g,gEs]=greetingFor(new Date().getHours()),ni=nextLesson(),sk=streak();
- const line=ni<0?"Kapitulu osoa eginda. Errepaso bat?":ni===0&&!S.lessons[lessons()[0].id]?"Zure lehen ikasgaia prest dago.":x>=GOAL?"Gaurko helburua lortu duzu. Zoragarri!":"Jarraitu dezagun?";
- const lineEs=ni<0?"Capítulo completo. ¿Un repaso?":ni===0&&!S.lessons[lessons()[0].id]?"Tu primera lección está lista.":x>=GOAL?"Has cumplido el objetivo de hoy. ¡Genial!":"¿Seguimos?";
+ const line=ni<0?"Ikasgai guztiak eginda. Errepaso bat?":ni===0&&!S.lessons[lessons()[0].id]?"Zure lehen ikasgaia prest dago.":x>=GOAL?"Gaurko helburua lortu duzu. Zoragarri!":"Jarraitu dezagun?";
+ const lineEs=ni<0?"Todas las lecciones hechas. ¿Un repaso?":ni===0&&!S.lessons[lessons()[0].id]?"Tu primera lección está lista.":x>=GOAL?"Has cumplido el objetivo de hoy. ¡Genial!":"¿Seguimos?";
  return `<div class="bd-gaur"><div class="bd-col">
  <section class="bd-hello"><div class="bd-hello-bira">${bira(x>=GOAL?"celebrate":"hello","bd-bira-md")}</div><div class="bd-bubble"><strong>${esc(g)} ${esc(line)}</strong>${help()?`<small>${esc(gEs)} ${esc(lineEs)}</small>`:""}</div></section>
  ${todayCard()}${tools()}</div><div class="bd-col bd-side">
  <section class="bd-stats" aria-label="Zure aurrerapena"><div class="bd-goal">${ring(x,GOAL)}<span>${x>=GOAL?svg("check","bd-goal-ok"):`<b>${x}</b>/${GOAL}`}</span></div><div><strong>Eguneko helburua</strong><small>${x>=GOAL?"Lortuta! Ederki.":`${GOAL-x} XP falta dira`}</small></div><div class="bd-stat bd-stat-fire">${svg("fire")}<b>${sk}</b><small>egun</small></div><div class="bd-stat">${svg("star")}<b>${totalStars()}</b><small>izar</small></div></section>
+ ${reviewCard()}
  <button class="bd-maplink" onclick="go(3)">${svg("map")}<span><strong>${esc(island().title)} · ${esc(island().level)}</strong><small>Ikusi nire bidea</small></span>${svg("arrow")}</button>
  ${auditPanel()}</div></div>`}
 /* Bidea dagoenean, hasierako pantaila garbia da: gomendioa bakarrik. */
@@ -157,14 +194,18 @@ function focused(){return true}
 function isAuditor(){syncState();return !!S.auditor}
 
 /* ---------- Bidea (mapa + aurrerapena bateratuta) ---------- */
-function islandPath(I){const cur=I.id===S.level,ls=I.chapters[0].lessons,ni=cur?nextLesson():-1;
- return `<div class="bd-chapter is-open"><div class="bd-ch-head"><span class="bd-ch-n">1</span><div><strong>${esc(I.chapters[0].title)}</strong>${help()?`<small>${esc(I.chapters[0].es)}</small>`:""}</div><span class="bd-chip">${ls.filter(l=>done(l.id)).length}/${ls.length}</span></div>
-  <ol class="bd-path">${ls.map((l,i)=>{const st=S.lessons[l.id],open=cur&&unlocked(i),now=i===ni;return `<li class="bd-node${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}${l.challenge?" is-boss":""}" style="--i:${i}"><button class="bd-dot" ${open?`onclick="HBBidea.start(${i})"`:"disabled"} aria-label="${esc(l.title)}${open?"":" (blokeatuta)"}">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</button><span class="bd-label">${esc(l.title)}${help()?`<small>${esc(l.es)}</small>`:""}${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:""}</span></li>`}).join("")}</ol></div>
-  ${I.chapters.slice(1).map((c,i)=>`<div class="bd-chapter is-locked"><div class="bd-ch-head"><span class="bd-ch-n">${i+2}</span><div><strong>${esc(c.title)}</strong>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${svg("lock")} Laster</span></div></div>`).join("")}`}
+function islandPath(I){const cur=I.id===S.level,ni=cur?nextLesson():-1;let offset=0;
+ return I.chapters.map((c,ci)=>{
+  const ls=c.lessons;
+  if(!Array.isArray(ls)||!ls.length)return `<div class="bd-chapter is-locked"><div class="bd-ch-head"><span class="bd-ch-n">${ci+1}</span><div><strong>${esc(c.title)}</strong>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${svg("lock")} Laster</span></div></div>`;
+  const startIdx=offset;offset+=ls.length;
+  return `<div class="bd-chapter is-open"><div class="bd-ch-head"><span class="bd-ch-n">${ci+1}</span><div><strong>${esc(c.title)}</strong>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${ls.filter(l=>done(l.id)).length}/${ls.length}</span></div>
+   <ol class="bd-path">${ls.map((l,k)=>{const idx=startIdx+k,st=S.lessons[l.id],open=cur&&unlocked(idx),now=idx===ni;return `<li class="bd-node${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}${l.challenge?" is-boss":""}" style="--i:${k}"><button class="bd-dot" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"} aria-label="${esc(l.title)}${open?"":" (blokeatuta)"}">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</button><span class="bd-label">${esc(l.title)}${help()?`<small>${esc(l.es)}</small>`:""}${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:""}</span></li>`}).join("")}</ol></div>`;
+ }).join("")}
 function bidea(){applyLevel();if(!S.level)return `<div class="bd-mapa">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson(),keys=[...new Set(d.flatMap(l=>l.keys))];
  return `<div class="bd-mapa">
- <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${esc(chapter().title)}: ${d.length}/${ls.length} ikasgai</p>
-  <div class="bd-ni-bar"><span style="width:${Math.round(d.length/ls.length*100)}%"></span></div></div></section>
+ <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${playableChapters(I).length} kapitulu irekita · ${d.length}/${ls.length} ikasgai</p>
+  <div class="bd-ni-bar"><span style="width:${Math.round(d.length/Math.max(1,ls.length)*100)}%"></span></div></div></section>
  <section class="bd-ni-stats">${[[svg("bolt"),S.xp,"XP guztira"],[svg("star"),totalStars(),"izar"],[svg("fire"),sk,"egun jarraian"],[svg("check"),Object.keys(S.days).filter(k=>S.days[k]>0).length,"egun ikasten"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
  <section class="bd-card bd-island bd-island-${I.id}">${islandPath(I)}</section>
  <section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
@@ -179,11 +220,15 @@ let player=null;
 function ensureEl(){let el=document.getElementById("bd-player");if(!el){el=document.createElement("div");el.id="bd-player";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Ikasgaia");document.body.appendChild(el)}document.documentElement.classList.add("bd-lock");el.hidden=false;return el}
 function start(i){syncState();const L=lessons()[i];if(!L||!unlocked(i))return;player={mode:"lesson",i,L,phase:"intro",queue:L.items.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,state:null,quit:false};
  const el=ensureEl();render();el.focus?.()}
+function startReview(lessonId){syncState();const L=allLessons().find(x=>x.id===lessonId);if(!L)return;const pool=L.items.filter(x=>x.t!=="write");const picked=shuffle(pool.length?pool:L.items).slice(0,5);
+ player={mode:"review",i:-1,L,phase:"play",queue:picked.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,state:null,quit:false,totalInit:picked.length};
+ player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
+function startAgendaReview(){const ag=root.HitzBiraAgenda?.agenda?.()||[],due=ag.find(r=>r.status==="due");if(due&&typeof root.startCurriculum==="function")root.startCurriculum(due.node,null,true,due.key)}
 function startTest(){syncState();player={mode:"test",phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,score:0,row:0,state:null,quit:false,xp:0,combo:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function close(silent){const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;if(!silent)refresh()}
 function askQuit(){if(!player)return;if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
 function cur(){return player.queue[player.pos]}
-function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:[],tapped:null,mistap:false,checked:false,ok:false};
+function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:[],tapped:null,mistap:false,checked:false,ok:false,tries:0,wrongSel:[],hintOn:false,hintUsed:false};
  if(it.t==="chips")st.opts=chipsFor(it,DATA.groups);
  if(it.t==="mc")st.opts=player&&player.mode==="test"?shuffle(it.ch):it.ch;
  if(it.t==="build"){const t=tilesFor(it.a[0]);if(it.x)t.push(it.x);st.tiles=shuffle(t.map((w,k)=>({w,k})));}
@@ -201,16 +246,23 @@ function learnHtml(L){
  if(L.learn==="words"){const ic={mendia:"mountain",basoa:"trees",erreka:"river",bidea:"path",zubia:"bridge"};return `<div class="bd-words">${L.keys.map(k=>`<div class="bd-word-card">${svg(ic[k]||"star")}<b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</div>`).join("")}</div>`}
  if(L.learn==="table"){const rows=[["baso","basoan","basora","basotik"],["eskola","eskolan","eskolara","eskolatik"],["parke","parkean","parkera","parketik"]];
   return `<table class="bd-table"><thead><tr><th></th><th class="c-in">${svg("pin")}NON?</th><th class="c-to">${svg("into")}NORA?</th><th class="c-from">${svg("outof")}NONDIK?</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th>${r.slice(1).map(w=>`<td>${caseWord(w)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+ if(L.learn==="nornork"){const rows=[["Ni / Nik","joan naiz","liburua irakurri dut"],["Zu / Zuk","itzuli zara","kafea prestatu duzu"],["Ane / Anek","etorri da","ogia erosi du"]];
+  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
+ if(L.learn==="nornork_pl"){const rows=[["Gu / Guk","iritsi gara","giltza hartu dugu"],["Bi lagun / Bi lagunek","etorri dira","ogia erosi dute"]];
+  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
+ if(L.learn==="obj_num"){const rows=[["Nik","liburu bat → dut","bi liburu → ditut"],["Zuk","txartel bat → duzu","bi txartel → dituzu"],["Guk","liburu bat → dugu","bi liburu → ditugu"],["Bi lagunek","tomate bat → dute","hiru tomate → dituzte"]];
+  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">1 objektu</th><th class="c-to">2+ objektu</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
  if(L.learn==="order")return `<div class="bd-order">${L.keys.map((k,i)=>`<span><i>${i+1}</i><b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</span>`).join(svg("arrow"))}</div>`;
  /* B1–B2: lokailuen norabidea */
- const seen=new Set(),rows=[];for(const k of L.keys){const g=k==="-lako"?"lako":groupOf(k,DATA.groups);if(!g||seen.has(g))continue;seen.add(g);rows.push([k,DATA.patterns[g]])}
- return `<div class="bd-flows">${rows.map(([k,p])=>flow(p,k)).join("")}</div>`}
+ const special={"-lako":"lako",baina:"baina",arren:"arren","nahiz eta":"nahiz"};
+ const seen=new Set(),rows=[];for(const k of L.keys){const g=special[k.toLowerCase()]||groupOf(k,DATA.groups);if(!g||seen.has(g)||!DATA.patterns[g])continue;seen.add(g);rows.push([k,DATA.patterns[g],g])}
+ return `<div class="bd-flows">${rows.map(([k,p,g])=>flow(p,special[k.toLowerCase()]?"":k)).join("")}</div>`}
 function flow(p,k,compact){const kk=k&&k!=="-lako"?caseLike(k,true)+",":p.k;
  return `<div class="bd-flow bd-flow-${p.dir}${compact?" is-compact":""}"><span class="bd-flow-tag">${p.dir==="back"?"←":p.dir==="cross"?"⇄":"→"} ${esc(p.tag)}</span><div class="bd-flow-row"><span class="bd-flow-a">${esc(p.a)}</span>${kk?`<b class="bd-flow-k">${esc(kk)}</b>`:""}<span class="bd-flow-b">${esc(p.b)}</span></div>${compact?"":`<small>${esc(p.why)}${help()?` · <i>${esc(p.es)}</i>`:""}</small>`}</div>`}
 function sceneHtml(L){if(L.talk)return `<div class="bd-talk">${L.talk.map(([w,t,es],k)=>`<div class="bd-say${w==="bira"?" is-bira":""}" style="--k:${k}">${face(w)}<div><small class="bd-who">${esc((DATA.cast[w]||{}).name||w)}</small><p>${esc(t)}</p>${help()?`<small class="bd-es">${esc(es)}</small>`:""}</div></div>`).join("")}</div>`;
  return `<div class="bd-scene">${bira("curious","bd-bira-lg")}<div class="bd-bubble bd-bubble-big"><p>${esc(L.scene)}</p>${help()?`<small>${esc(L.sceneEs)}</small>`:""}</div></div>`}
-function intro(){const L=player.L;return `<div class="bd-pwrap">${top()}<main class="bd-intro">
- <span class="bd-kicker">${esc(chapter().title.toUpperCase())} · ${L.n}. IKASGAIA</span><h1>${esc(L.title)}</h1>${help()?`<p class="bd-es">${esc(L.es)}</p>`:""}
+function intro(){const L=player.L,ch=chapterOf(L.id);return `<div class="bd-pwrap">${top()}<main class="bd-intro">
+ <span class="bd-kicker">${esc(ch.title.toUpperCase())} · ${L.n}. IKASGAIA</span><h1>${esc(L.title)}</h1>${help()?`<p class="bd-es">${esc(L.es)}</p>`:""}
  ${sceneHtml(L)}${L.map?`<div class="bd-mapwrap">${MAPS[L.map]}</div>`:""}
  <div class="bd-keys"><span class="bd-kicker">GAURKO GILTZAK</span>${learnHtml(L)}<p class="bd-tip">${svg("bolt")}<span>${esc(L.tip)}${help()?`<small>${esc(L.tipEs)}</small>`:""}</span></p></div>
  </main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.begin()">Goazen! ${svg("arrow")}</button></footer></div>`}
@@ -218,36 +270,41 @@ function begin(){player.phase="play";player.pos=0;player.state=fresh(cur());rend
 const TYPE={mc:"Aukeratu erantzun egokia",gap:"Idatzi falta dena",chips:"Osatu esaldia",fix:"Aurkitu akatsa eta zuzendu",build:"Eraiki esaldia",match:"Lotu bikoteak",write:"Zure txanda: idatzi"};
 const TYPE_B={mc:"Aukeratu lokailu egokia",gap:"Idatzi falta den lokailua",build:"Eraiki esaldi berria"};
 function blankHtml(q,fill){const parts=esc(q).split("____");return parts.join(`<span class="bd-blank${fill?" is-filled":""}">${fill?esc(fill):"&nbsp;"}</span>`)}
-function optBtns(opts,it,st,cls=""){return `<div class="bd-opts${cls}">${opts.map((o,k)=>{let c="";if(st.checked){if(isAccepted(o,it.a))c=" is-right";else if(o===st.sel)c=" is-wrong"}else if(o===st.sel)c=" is-sel";return `<button class="bd-opt${c}" ${st.checked?"disabled":""} onclick="HBBidea.sel(${jq(o)})"><kbd>${k+1}</kbd>${esc(o)}</button>`}).join("")}</div>`}
+function optBtns(opts,it,st,cls=""){return `<div class="bd-opts${cls}">${opts.map((o,k)=>{const tried=st.wrongSel.includes(o);let c="";if(st.checked){if(isAccepted(o,it.a))c=" is-right";else if(o===st.sel||tried)c=" is-wrong"}else if(tried)c=" is-tried";else if(o===st.sel)c=" is-sel";return `<button class="bd-opt${c}" ${st.checked||tried?"disabled":""} onclick="HBBidea.sel(${jq(o)})"><kbd>${k+1}</kbd>${esc(o)}</button>`}).join("")}</div>`}
 function body(){const it=cur().item,st=player.state,dis=st.checked?"disabled":"";const mp=it.map?`<div class="bd-mapwrap is-small">${MAPS[it.map]}</div>`:"";
  if(it.t==="mc"||it.t==="chips"){return `${mp}<p class="bd-q">${blankHtml(it.q,st.sel)}</p>${optBtns(st.opts,it,st,it.t==="chips"&&!it.ch?" bd-chips":it.t==="chips"?" bd-chips bd-chips-3":"")}`}
  if(it.t==="gap")return `${mp}<p class="bd-q">${blankHtml(it.q,st.typed&&st.checked?st.typed:"")}</p>${it.h?`<p class="bd-hint">${svg("bolt")}${esc(it.h)}</p>`:""}<form class="bd-type" onsubmit="event.preventDefault();HBBidea.check()"><label class="bd-sr" for="bd-in">Zure erantzuna</label><input id="bd-in" data-focus autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Idatzi hemen…" value="${esc(st.typed)}" ${dis} oninput="HBBidea.typed(this.value)" class="${st.checked?(st.ok?"is-right":"is-wrong"):""}"></form>`;
  if(it.t==="build"){const used=new Set(st.picked);return `${mp}<p class="bd-src">${esc(it.q)}</p><p class="bd-instr">${it.instr?esc(it.instr):`Erabili <b>«${esc(it.k)}»</b> eta idatzi berriro bi esaldi gisa.`}</p><div class="bd-line${st.checked?(st.ok?" is-right":" is-wrong"):""}" aria-live="polite">${st.picked.length?st.picked.map(k=>{const t=st.tiles.find(x=>x.k===k);return `<button class="bd-tile is-placed" ${dis} onclick="HBBidea.untile(${k})">${esc(t.w)}</button>`}).join(""):`<span class="bd-ph">Sakatu fitxak ordenan</span>`}</div><div class="bd-bank">${st.tiles.map(t=>`<button class="bd-tile${used.has(t.k)?" is-used":""}" ${dis||used.has(t.k)?"disabled":""} onclick="HBBidea.tile(${t.k})">${esc(t.w)}</button>`).join("")}</div>`}
  if(it.t==="fix"){return `${mp}<p class="bd-instr${st.mistap?" bd-warn":""}" aria-live="polite">${st.tapped===null?(st.mistap?"Ez da hori. Begiratu berriro.":"Sakatu gaizki dagoen hitza."):"Ondo! Zein hitz jarri behar da?"}</p><p class="bd-q bd-fixq${st.mistap?" bd-shake":""}">${st.tokens.map((w,k)=>{const isW=w===it.w;let c="";if(st.tapped!==null&&isW)c=" is-struck";return `<button class="bd-word${c}" ${st.tapped!==null||st.checked?"disabled":""} onclick="HBBidea.tap(${k})">${esc(w)}</button>`}).join(" ")}</p>${st.tapped!==null?optBtns(st.opts,{a:[it.r]},st," bd-chips bd-chips-3"):""}`}
  if(it.t==="match"){return `${mp}<p class="bd-instr">${esc(it.q)}</p><div class="bd-match${it.pairs.some(p=>p[1].length>16)?" is-long":""}"><div>${it.pairs.map((p,k)=>{const m=st.matched.includes(k);return `<button class="bd-m bd-m-l${m?" is-done":""}${st.left===k?" is-sel":""}${st.flash&&st.flash[0]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mL(${k})">${esc(p[0])}</button>`}).join("")}</div><div>${st.right.map(k=>{const m=st.matched.includes(k),p=it.pairs[k];return `<button class="bd-m bd-m-r${m?" is-done":""}${st.flash&&st.flash[1]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mR(${k})">${esc(p[1])}</button>`}).join("")}</div></div>`}
- if(it.t==="write"){return `${mp}<p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p><label class="bd-sr" for="bd-wr">Zure testua</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="Lehenik, etxetik…" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${st.checked?writeChecks(st.typed):""}`}
+ if(it.t==="write"){return `${mp}<p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p><label class="bd-sr" for="bd-wr">Zure testua</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="${it.check==="nornork"?"Gaur goizean…":"Lehenik, etxetik…"}" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${st.checked?writeChecks(st.typed,it.check):""}`}
  return ""}
-function writeChecks(t){return `<ul class="bd-checks">${writeCheckList(t).map(([l,ok])=>`<li class="${ok?"is-ok":""}">${svg(ok?"check":"x")}${esc(l)}</li>`).join("")}</ul>`}
+function writeChecks(t,kind){return `<ul class="bd-checks">${writeCheckList(t,kind).map(([l,ok])=>`<li class="${ok?"is-ok":""}">${svg(ok?"check":"x")}${esc(l)}</li>`).join("")}</ul>`}
 function ready(){const it=cur().item,st=player.state;if(it.t==="gap")return !!st.typed.trim();if(it.t==="write")return st.typed.trim().length>=10;if(it.t==="build")return st.picked.length>0;if(it.t==="fix")return st.tapped!==null&&!!st.sel;if(it.t==="match")return st.matched.length===it.pairs.length;return !!st.sel}
 function auditBox(){if(!S.auditor)return "";const it=cur().item,a=AUD[it.id]||{};return `<aside class="bd-audit"><div class="bd-audit-h"><span class="bd-kicker">IKUSKARITZA</span><code>${esc(it.src)}</code>${it.rv?`<span class="bd-flag">Berrikusteko markatua</span>`:""}</div>
  <p><b>Onartuak:</b> ${it.a.map(esc).join(" · ")}</p>${it.ex?`<p><b>Azalpena:</b> ${esc(it.ex)}</p>`:""}
  <div class="bd-row"><button class="bd-btn bd-btn-small${a.v==="ok"?" is-on":""}" onclick="HBBidea.audit('ok')">${svg("check")} Ontzat</button><button class="bd-btn bd-btn-small bd-btn-warn${a.v==="fix"?" is-on":""}" onclick="HBBidea.audit('fix')">Zuzentzeko</button></div>
  <label class="bd-sr" for="bd-anote">Oharra</label><textarea id="bd-anote" rows="2" placeholder="Oharra (aukerakoa)…" onchange="HBBidea.auditNote(this.value)">${esc(a.note||"")}</textarea></aside>`}
+function nudgeHtml(){const it=cur().item,st=player.state;if(st.checked||!st.hintOn||player.mode==="test")return "";
+ const retryTry=st.tries>0;
+ return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
 /* Feedbacka: esaldi zuzena osorik + zergatia, laburra eta bisuala. Azalpen teknikoa nahi duenarentzat. */
 function feedback(){const it=cur().item,st=player.state;if(!st.checked)return "";
  const parts=solvedParts(it),key=it.t==="fix"?it.r:it.t==="build"?it.k:it.a[0],g=S.level==="b1b2"&&key?groupOf(key,DATA.groups):null,p=g&&DATA.patterns[g],gl=key&&DATA.gloss[norm(key)];
  const sentence=it.t==="write"?`<p class="bd-model"><span>Eredu bat:</span> ${esc(it.model)}</p>`:it.t==="match"?`<p class="bd-full">${it.pairs.map(p=>`<span>${esc(p[0])} <b>${esc(p[1])}</b></span>`).join(" · ")}</p>`:parts?`<p class="bd-full">${esc(parts[0])}<mark>${esc(parts[1])}</mark>${esc(parts[2])}</p>`:(st.ok?"":`<p class="bd-full"><mark>${esc(it.a[0])}</mark></p>`);
- const title=it.t==="write"?"Bikain! Zure ibilbidea idatzita.":st.msg;
+ const title=it.t==="write"?"Bikain! Zure testua idatzita.":st.msg;
  return `<section class="bd-fb ${st.ok?"is-ok":"is-bad"}" role="status" aria-live="assertive">${bira(st.ok?(Math.random()<.5?"celebrate":"calm"):"retry","bd-bira-sm")}<div><strong>${esc(title)}</strong>${sentence}
  ${p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
  ${help()&&gl?`<small class="bd-es">ES · ${esc(key)} = ${esc(gl)}</small>`:""}
  ${p&&it.ex?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
-function play(){const it=cur().item,st=player.state,test=player.mode==="test";const label=test?"MAILA-PROBA":(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
- return `<div class="bd-pwrap">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Ikasgai honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
- <main class="bd-item bd-t-${it.t}${st.checked?(st.ok?" bd-pop":" bd-shake"):""}"><div class="bd-ihead">${cur().retry?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${body()}</main>
- ${test?"":feedback()+auditBox()}
- ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button>`}</footer>`}</div>`}
-function sel(o){const st=player.state;if(st.checked)return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}if(cur().item.t==="fix"){render();return}render()}
+function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"MAILA-PROBA":(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
+ const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
+ return `<div class="bd-pwrap">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
+ <main class="bd-item bd-t-${it.t}${st.checked?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${body()}</main>
+ ${test?"":nudgeHtml()+feedback()+auditBox()}
+ ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button></div>`}</footer>`}</div>`}
+function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
+function sel(o){const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}render()}
 function typed(v){player.state.typed=v;const b=document.querySelector(".bd-pfoot .bd-btn-main");if(b)b.disabled=!ready()}
 function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))return;st.picked.push(k);sfx("tap");render()}
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
@@ -256,24 +313,32 @@ function mL(k){const st=player.state;if(st.checked||st.matched.includes(k))retur
 function mR(k){const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
 function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=!e.miss;else ok=isAccepted(st.sel,it.a);
+ /* Lehen hutsean: pista erakutsi eta bigarren aukera eman, erantzuna zuzenean erakutsi aurretik. */
+ if(!ok&&st.tries===0&&!e.retry&&it.t!=="match"&&it.t!=="write"){
+  st.tries=1;st.hintOn=true;player.combo=0;player.errors.add(it.id);
+  if((it.t==="mc"||it.t==="chips"||it.t==="fix")&&st.sel){if(!st.wrongSel.includes(st.sel))st.wrongSel.push(st.sel);st.sel=null}
+  sfx("bad");render();return;
+ }
  st.checked=true;st.ok=ok;
- if(ok){player.combo++;player.best=Math.max(player.best,player.combo);const gain=e.retry?5:10;player.xp+=gain;if(!e.retry&&!player.errors.has(it.id))player.first++;st.msg=pick(PRAISE)+` +${gain} XP`;sfx("ok")}
+ if(ok){player.combo++;player.best=Math.max(player.best,player.combo);const gain=e.retry?5:(st.tries>0||st.hintUsed)?7:10;player.xp+=gain;if(!e.retry&&st.tries===0&&!st.hintUsed&&!player.errors.has(it.id))player.first++;st.msg=(st.tries>0?"Ederki! Bigarren saiakeran":pick(PRAISE))+` +${gain} XP`;sfx("ok")}
  else{player.combo=0;player.errors.add(it.id);if(!e.retry)player.queue.push({item:it,retry:true});st.msg=pick(OOPS);sfx("bad")}
  render();const fb=document.querySelector("#bd-player .bd-fb");if(fb&&fb.scrollIntoView)fb.scrollIntoView({block:"nearest",behavior:"smooth"})}
 function next(){if(!player)return;player.pos++;if(player.pos>=player.queue.length){finish();return}player.state=fresh(cur());render()}
-function finish(){const L=player.L,total=L.items.length,stars=starsFor(player.first,total),bonus=L.challenge?40:20;player.xp+=bonus;player.stars=stars;player.bonus=bonus;
- const prev=S.lessons[L.id]||{};S.lessons[L.id]={stars:Math.max(stars,prev.stars||0),best:Math.max(player.first,prev.best||0),runs:(prev.runs||0)+1,at:Date.now()};
+function finish(){const L=player.L,isRev=player.mode==="review",total=isRev?(player.totalInit||player.queue.length):L.items.length,stars=starsFor(player.first,total),bonus=isRev?15:L.challenge?40:20;player.xp+=bonus;player.stars=stars;player.bonus=bonus;
+ const prev=S.lessons[L.id]||{};
+ if(isRev){S.lessons[L.id]={...prev,stars:Math.max(prev.stars||1,stars),reviewAt:Date.now(),reviews:(prev.reviews||0)+1}}
+ else{S.lessons[L.id]={...prev,stars:Math.max(stars,prev.stars||0),best:Math.max(player.first,prev.best||0),runs:(prev.runs||0)+1,at:Date.now(),reviewAt:Date.now()}}
  S.xp+=player.xp;S.days[today()]=(S.days[today()]||0)+player.xp;save();
- try{root.HBData?.activity?.({kind:"bidea_lesson",item:L.id,answer:String(stars)})}catch{}
+ try{root.HBData?.activity?.({kind:"bidea_lesson",item:L.id,answer:isRev?"review":String(stars)})}catch{}
  player.phase="end";sfx("done");render()}
-function end(){const L=player.L,ni=nextLesson(),total=L.items.length,s=player.stars;
- const msg=s===3?"Ikasgai bikaina!":s===2?"Oso ondo!":"Eginda! Errepasoak lagunduko dizu.";
- return `<div class="bd-pwrap bd-endwrap">${top()}<main class="bd-end">${s>=2?`<div class="bd-confetti" aria-hidden="true">${Array.from({length:22},(_,k)=>`<i style="--k:${k}"></i>`).join("")}</div>`:""}
- ${bira(s>=2?"celebrate":"effort","bd-bira-lg")}<h1>${msg}</h1><div class="bd-bigstars" aria-label="${s} izar">${[0,1,2].map(k=>`<span class="${k<s?"on":""}" style="--k:${k}">★</span>`).join("")}</div>
+function end(){const L=player.L,isRev=player.mode==="review",ni=nextLesson(),total=isRev?(player.totalInit||player.queue.length):L.items.length,s=player.stars;
+ const msg=isRev?"Errepasoa eginda!":s===3?"Ikasgai bikaina!":s===2?"Oso ondo!":"Eginda! Errepasoak lagunduko dizu.";
+ return `<div class="bd-pwrap bd-endwrap">${top()}<main class="bd-end">${s>=2||isRev?`<div class="bd-confetti" aria-hidden="true">${Array.from({length:22},(_,k)=>`<i style="--k:${k}"></i>`).join("")}</div>`:""}
+ ${bira(s>=2||isRev?"celebrate":"effort","bd-bira-lg")}<h1>${msg}</h1><div class="bd-bigstars" aria-label="${s} izar">${[0,1,2].map(k=>`<span class="${k<s?"on":""}" style="--k:${k}">★</span>`).join("")}</div>
  <div class="bd-endstats"><div><b>${player.first}/${total}</b><small>lehen saiakeran</small></div><div><b>+${player.xp}</b><small>XP</small></div><div><b>${player.best}</b><small>jarraian</small></div></div>
- <div class="bd-learned"><span class="bd-kicker">IKASI DUZU</span><div>${L.keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b></span>`).join("")}</div></div>
- ${player.errors.size?`<p class="bd-note">Errepasoan ${player.errors.size} ariketa landu dituzu. Hurrengoan, lehen saiakeran!</p>`:""}</main>
- <footer class="bd-pfoot">${ni>=0&&ni!==player.i?`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.start(${ni})">Hurrengo ikasgaia ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button>`:`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button>`}</footer></div>`}
+ <div class="bd-learned"><span class="bd-kicker">${isRev?"BERRIKUSI DUZU":"IKASI DUZU"}</span><div>${L.keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b></span>`).join("")}</div></div>
+ ${player.errors.size?`<p class="bd-note">${player.errors.size} ariketa landu dituzu berriro. Hurrengoan, lehen saiakeran!</p>`:""}</main>
+ <footer class="bd-pfoot">${!isRev&&ni>=0&&ni!==player.i?`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.start(${ni})">Hurrengo ikasgaia ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button>`:`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button>`}</footer></div>`}
 
 /* ---------- Maila-proba ---------- */
 function testAnswer(ok){const p=player;if(p.busy)return;p.busy=true;p.state.checked=false;if(ok){p.score++;p.row=0}else p.row++;render();
@@ -282,7 +347,7 @@ function dunno(){if(player&&player.mode==="test")testAnswer(false)}
 function placed(){const I=DATA.islands.find(x=>x.id===player.level),o=DATA.islands.find(x=>x.id!==player.level);
  return `<div class="bd-pwrap bd-endwrap">${top()}<main class="bd-end bd-placed">${bira("celebrate","bd-bira-lg")}
  <span class="bd-kicker">ZURE ABIAPUNTUA</span><h1>${esc(I.title)}</h1><span class="bd-level">${esc(I.level)}</span><p>${esc(I.blurb)}</p><p class="bd-es">${esc(I.es)}</p>
- <p class="bd-note">${player.score} erantzun zuzen. Mapan beti alda dezakezu maila.</p></main>
+ <p class="bd-note">${player.score} erantzun zuzen. Bidean beti alda dezakezu maila.</p></main>
  <footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.setLevel('${I.id}',true)">${svg("play")} Hasi lehen ikasgaia</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}',true)">Nahiago dut ${esc(o.title)} (${esc(o.level)})</button></footer></div>`}
 
 /* ---------- Ikuskaritza ---------- */
@@ -293,9 +358,9 @@ async function copyAudit(btn){const t=auditText();try{await navigator.clipboard.
 function auditor(on){syncState();S.auditor=!!on;save();refresh()}
 
 document.addEventListener("keydown",e=>{if(!player)return;const tag=e.target&&e.target.tagName;if(e.key==="Escape"){askQuit();return}
- if(/^[1-4]$/.test(e.key)&&tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){const b=document.querySelectorAll("#bd-player .bd-opt:not([disabled])")[+e.key-1];if(b){e.preventDefault();b.click()}return}
+ if(/^[1-4]$/.test(e.key)&&tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){const b=document.querySelectorAll("#bd-player .bd-opt")[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}return}
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
-root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

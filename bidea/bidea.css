@@ -384,3 +384,21 @@ b.c-in,b.c-to,b.c-from{color:var(--cc);font-weight:900}
 html[data-theme=dark] .bd-today .bd-kicker{color:var(--bd-sun)}
 html[data-theme=dark] body[data-hb-level=a1a2] .bd-kicker{color:#6ee7b7}
 html[data-theme=dark] body[data-hb-level=a1a2] .bd-today .bd-kicker{color:var(--bd-sun)}
+
+/* 0.3 · Errepaso banatua + pista progresiboa + 2. saiakera */
+.bd-review-card{display:grid;gap:6px;border-left:4px solid var(--bd-acc);background:color-mix(in srgb,var(--bd-lav) 45%,var(--bd-paper))}
+.bd-review-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.bd-review-card h3{margin:0;font-size:1.08rem}
+.bd-review-card p{margin:0 0 4px;color:var(--bd-muted);font-size:.9rem}
+.bd-review-card .bd-btn{justify-self:start}
+.bd-nudge{display:flex;gap:12px;align-items:flex-start;border-radius:var(--bd-r);padding:12px 15px;margin:0 0 12px;background:color-mix(in srgb,var(--bd-sun) 26%,var(--bd-paper));border:1.5px solid color-mix(in srgb,#f59e0b 45%,transparent);animation:bd-up 240ms var(--bd-ease)}
+.bd-nudge.is-retry{background:color-mix(in srgb,#fef3c7 55%,var(--bd-paper))}
+.bd-nudge strong{display:block;font-size:1rem;color:#92400e}
+.bd-nudge p{margin:.25em 0 0;font-size:.94rem;line-height:1.45;color:var(--bd-ink)}
+html[data-theme=dark] .bd-nudge{background:#2d2515;border-color:#d97706}
+html[data-theme=dark] .bd-nudge strong{color:#fcd34d}
+.bd-opt.is-tried{opacity:.48;text-decoration:line-through;border-color:var(--bd-line);background:var(--bd-canvas)}
+.bd-pfoot-row{display:flex;gap:10px;align-items:stretch}
+.bd-pfoot-row .bd-btn-main{flex:1}
+.bd-btn-hint{flex:none;padding:12px 16px;font-size:.92rem}
+.bd-btn-hint .bd-ico{width:16px;height:16px;color:#f59e0b}

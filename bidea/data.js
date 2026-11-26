@@ -118,9 +118,58 @@ const lessons=[
  ]}
 ];
 
+const b1b2K2Lessons=[
+{id:"b1b2-k2-i1",n:1,title:"Baina eta hala ere",es:"«Baina» y «hala ere»: marcar contraste",
+ scene:"Bira eta lagunak txangora joan dira. Eguraldia ez da ona izan, baina egun polita pasatu dute.",
+ sceneEs:"Bira y sus amigos han ido de excursión. El tiempo no ha sido bueno, pero han pasado un buen día.",
+ keys:["Hala ere","Baina","Aitzitik"],
+ tip:"Esaldi berean: «…, baina …». Bi esalditan: «Egoera. Hala ere, espero ez zena.»",
+ tipEs:"En la misma frase: «…, baina …». En dos frases: «Situación. Hala ere, lo inesperado.»",
+ items:[
+ {id:"KON-1-1",src:"HB-K2-S01#1",t:"mc",q:"Euria ari zuen. ____, kalera atera ginen.",ch:["Hala ere","Beraz","Izan ere"],a:["Hala ere"],hint:"Espero ez zen gertakaria: kontrastea.",ex:"Euria egin arren kalera atera ziren: kontrastea → Hala ere."},
+ {id:"KON-1-2",src:"HB-K2-S01#2",t:"mc",q:"Liburua luzea da, ____ oso interesgarria.",ch:["baina","beraz","zeren"],a:["baina"],hint:"Bi ezaugarri esaldi berean kontrajartzeko.",ex:"Esaldi berean bi ideia kontrajartzeko → baina."},
+ {id:"KON-1-3",src:"HB-K2-S01#3",t:"gap",q:"Nekatuta nengoen. ____, lan guztia amaitu nuen.",hint:"Kontraste-lokailua, bi hitzez osatua.",a:["Hala ere"],ex:"Nekea gorabehera lana amaitu da → Hala ere."},
+ {id:"KON-1-4",src:"HB-K2-S01#4",t:"chips",q:"Garaiz abiatu gara; ____, trafiko handia dago eta berandu iritsiko gara.",ch:["hala ere","beraz","gainera"],a:["hala ere"],hint:"Garaiz abiatu eta berandu iritsi: kontrastea da.",ex:"Espero zenaren aurkako egoera → hala ere."},
+ {id:"KON-1-5",src:"HB-K2-S01#5",t:"mc",q:"Ez dut kafea nahi; ____, tea hartuko dut.",ch:["aitzitik","beraz","adibidez"],a:["aitzitik"],hint:"Aurreko aukera baztertu eta kontrakoa aukeratu.",ex:"Aurrekoaren kontrako aukera emateko → aitzitik."},
+ {id:"KON-1-6",src:"HB-K2-S01#6",t:"build",q:"Hotz handia egiten du. Parkera joan gara.",k:"Hala ere",x:"Beraz,",hint:"Bi esaldi bereizi, kontraste-lokailuarekin.",a:["Hotz handia egiten du. Hala ere, parkera joan gara."],ex:"Hotza egon arren parkera joan dira: kontrastea → Hala ere."},
+ {id:"KON-1-7",src:"HB-K2-S01#7",t:"fix",q:"Garestia da. Beraz, oso kalitate onekoa da eta erosi egin dugu.",w:"Beraz,",r:"Hala ere",opts:["Hala ere","Izan ere","Adibidez"],hint:"Garestia izanda ere erosi dute: ez da ondorioa.",a:["Garestia da. Hala ere, oso kalitate onekoa da eta erosi egin dugu."],ex:"Garestia izanik ere erosi dute: kontrastea da, ez ondorioa."}
+ ]},
+{id:"b1b2-k2-i2",n:2,title:"Arren eta nahiz eta",es:"«Arren» y «nahiz eta»: a pesar de",
+ scene:"Anek lasterketa egin nahi du, nahiz eta haizea egon. Oztopoak adierazten ikasiko dugu.",
+ sceneEs:"Ane quiere correr la carrera aunque haga viento. Aprenderemos a expresar obstáculos.",
+ keys:["arren","Nahiz eta","Hala ere"],
+ tip:"«Euria egin arren, …» (amaieran) · «Nahiz eta euria egin, …» (hasieran).",
+ tipEs:"«Euria egin arren, …» (al final) · «Nahiz eta euria egin, …» (al principio).",
+ items:[
+ {id:"KON-2-1",src:"HB-K2-S02#1",t:"mc",q:"Euria egin ____, mendira joan ginen.",ch:["arren","baino","beraz"],a:["arren"],hint:"Aditz partizipioaren ondoren oztopoa adierazteko.",ex:"Partizipioa («egin») + «arren» → oztopoa gorabehera."},
+ {id:"KON-2-2",src:"HB-K2-S02#2",t:"mc",q:"____ berandu izan, deitu lasai.",ch:["Nahiz eta","Hala ere","Horregatik"],a:["Nahiz eta"],hint:"Esaldiaren hasieran oztopoa aurkezteko.",ex:"Hasieran jartzen den kontzesio-egitura → Nahiz eta."},
+ {id:"KON-2-3",src:"HB-K2-S02#3",t:"chips",q:"Nekatuta egon ____, korrika egitera atera da.",ch:["arren","delako","baina"],a:["arren"],hint:"«Egon» partizipioaren ondoren doa.",ex:"«Nekatuta egon arren» egiturak oztopoa adierazten du."},
+ {id:"KON-2-4",src:"HB-K2-S02#4",t:"gap",q:"Hotza egin ____, igerilekura joan gara.",h:"oztopoa · partizipioaren ondoren",hint:"Hitza «a» letraz hasten da.",a:["arren"],ex:"«Hotza egin arren» → kontzesioa."},
+ {id:"KON-2-5",src:"HB-K2-S02#5",t:"match",q:"Lotu esaldiaren hasiera eta amaiera.",pairs:[["Euria egin arren,","paseatzera atera gara."],["Nahiz eta nekatuta egon,","lana bukatu dugu."],["Garestia da, baina","oso ona da."],["Trafikoa dago; hala ere,","garaiz iritsi gara."]],a:["4 lotura"],ex:"Arren, nahiz eta, baina eta hala ere: laurak kontrastea edo oztopoa markatzen dute."},
+ {id:"KON-2-6",src:"HB-K2-S02#6",t:"build",q:"Berandu da. Filma ikusten jarraituko dugu.",k:"Hala ere",x:"Horregatik,",hint:"Berandu da, baina jarraitzen dugu: kontrastea.",a:["Berandu da. Hala ere, filma ikusten jarraituko dugu."],ex:"Berandu izan arren jarraitzen dute → Hala ere."},
+ {id:"KON-2-7",src:"HB-K2-S02#7",t:"gap",q:"____ garestia izan, liburu hau erosi dut.",h:"esaldi hasieran · kontzesioa",hint:"Bi hitz: «Nahiz …».",a:["Nahiz eta"],ex:"«Nahiz eta … izan» egiturak oztopoa aurkezten du hasieran."}
+ ]},
+{id:"b1b2-k2-i3",n:3,title:"Kontrastearen erronka",es:"Reto: causa, consecuencia y contraste",challenge:true,
+ scene:"Orain hiru norabideak nahastuko ditugu: zergatia (izan ere), ondorioa (beraz) eta kontrastea (hala ere, arren).",
+ sceneEs:"Ahora mezclamos las tres direcciones: causa (izan ere), consecuencia (beraz) y contraste (hala ere, arren).",
+ keys:["Izan ere","Beraz","Hala ere","arren"],
+ tip:"Pentsatu beti harremanean: zergatik? (←) · zer ondorio? (→) · oztopoa/kontrastea? (⇄)",
+ tipEs:"Piensa siempre en la relación: ¿por qué? (←) · ¿consecuencia? (→) · ¿obstáculo/contraste? (⇄)",
+ items:[
+ {id:"KON-3-1",src:"HB-K2-S03#1",t:"mc",q:"Autobusa galdu dugu. ____, oinez joango gara.",ch:["Beraz","Hala ere","Izan ere"],a:["Beraz"],hint:"Bigarren esaldia lehenengoaren ondorioa da.",ex:"Autobusa galtzetik ateratako erabakia → Beraz."},
+ {id:"KON-3-2",src:"HB-K2-S03#2",t:"mc",q:"Oinez etorri gara. ____, autobusa matxuratu da.",ch:["Izan ere","Beraz","Hala ere"],a:["Izan ere"],hint:"Bigarren esaldiak zergatia azaltzen du.",ex:"Oinez etortzearen arrazoia ematen da → Izan ere."},
+ {id:"KON-3-3",src:"HB-K2-S03#3",t:"mc",q:"Autobusa garaiz iritsi da. ____, trafikoagatik berandu heldu gara.",ch:["Hala ere","Beraz","Izan ere"],a:["Hala ere"],hint:"Espero ez zen emaitza da.",ex:"Garaiz iritsi arren berandu heldu dira → Hala ere."},
+ {id:"KON-3-4",src:"HB-K2-S03#4",t:"fix",q:"Garaiz iritsi gara. Beraz, bidean arazo asko izan ditugu.",w:"Beraz,",r:"Hala ere",opts:["Hala ere","Izan ere","Horregatik"],hint:"Arazoak izanda ere garaiz iritsi dira: kontrastea.",a:["Garaiz iritsi gara. Hala ere, bidean arazo asko izan ditugu."],ex:"Arazoak eta garaiz iristea kontrastean daude → Hala ere."},
+ {id:"KON-3-5",src:"HB-K2-S03#5",t:"chips",q:"Lan handia eduki ____, laguntzera etorri da.",ch:["arren","beraz","zeren"],a:["arren"],hint:"«Eduki» partizipioaren ondoren doa.",ex:"Oztopoa gaindituta etorri da → arren."},
+ {id:"KON-3-6",src:"HB-K2-S03#6",t:"fix",q:"Ezin izan dugu sartu. Hala ere, atea itxita zegoen.",w:"Hala ere,",r:"Izan ere",opts:["Izan ere","Beraz","Gainera"],hint:"Atea itxita egotea da sartu ezin izanaren arrazoia.",a:["Ezin izan dugu sartu. Izan ere, atea itxita zegoen."],ex:"Bigarren esaldiak lehenengoaren zergatia azaltzen du → Izan ere."},
+ {id:"KON-3-7",src:"HB-K2-S03#7",t:"gap",q:"Plana aldatu dugu. ____, eguraldia txarra iragarri dute.",hint:"Bigarren esaldiak zergatia ematen du.",a:["Izan ere","Zeren"],ex:"Plan-aldaketaren arrazoia ematen da → Izan ere."},
+ {id:"KON-3-8",src:"HB-K2-S03#8",t:"build",q:"Euria ari zuen, baina plazara joan gara.",k:"Hala ere",x:"Horregatik,",hint:"Bi esaldi bereizi, kontrastea markatuz.",a:["Euria ari zuen. Hala ere, plazara joan gara."],ex:"Bi esaldi bereizitan kontrastea markatzeko → Hala ere."}
+ ]}
+];
+
 const chapters=[
  {id:"b1b2-k1",title:"Zer gertatu zen?",es:"Contar qué pasó y por qué",lessons},
- {id:"b1b2-k2",title:"Nola sentitzen zara?",es:"Emociones"},
+ {id:"b1b2-k2",title:"Baina, hala ere, arren",es:"Contraste y concesión",lessons:b1b2K2Lessons},
  {id:"b1b2-k3",title:"Nire iritzia",es:"Dar tu opinión"},
  {id:"b1b2-k4",title:"Esan zidan…",es:"Contar lo que dijo otro"},
  {id:"b1b2-k5",title:"Noiz eta non",es:"Planes y tiempo"},
@@ -134,6 +183,9 @@ const patterns={
  cause:{tag:"ZERGATIA",dir:"back",a:"Berandu iritsi naiz.",k:"Izan ere,",b:"autobusa matxuratu da.",why:"Bigarren esaldiak zergatia ematen du.",es:"La segunda frase da el motivo."},
  result:{tag:"ONDORIOA",dir:"fwd",a:"Autobusa matxuratu da.",k:"Beraz,",b:"berandu iritsi naiz.",why:"Bigarren esaldia lehenengoaren ondorioa da.",es:"La segunda frase es la consecuencia de la primera."},
  contrast:{tag:"USTEKABEA",dir:"cross",a:"Euria ari zuen.",k:"Hala ere,",b:"kalera atera ginen.",why:"Bigarren esaldian espero ez zena gertatzen da.",es:"En la segunda frase pasa lo que no se esperaba."},
+ baina:{tag:"KONTRASTEA",dir:"cross",a:"Liburua luzea da,",k:"baina",b:"oso interesgarria.",why:"«Baina»k esaldi berean bi ideia kontrajartzen ditu.",es:"«Baina» contrapone dos ideas en la misma frase."},
+ arren:{tag:"OZTOPOA",dir:"cross",a:"Euria egin arren,",k:"",b:"mendira joan ginen.",why:"«Arren» partizipioaren ondoren doa eta oztopoa adierazten du.",es:"«Arren» va tras el participio y expresa un obstáculo."},
+ nahiz:{tag:"OZTOPOA",dir:"cross",a:"Nahiz eta berandu izan,",k:"",b:"deitu lasai.",why:"«Nahiz eta» esaldiaren hasieran doa oztopoa markatzeko.",es:"«Nahiz eta» abre la frase para marcar un obstáculo."},
  add:{tag:"GEHIAGO",dir:"fwd",a:"Herria polita da.",k:"Gainera,",b:"jende jatorra dago.",why:"Bigarren esaldiak informazio gehiago ematen du.",es:"La segunda frase añade información."},
  example:{tag:"ADIBIDEA",dir:"fwd",a:"Kirol asko egiten ditut.",k:"Adibidez,",b:"igeri egiten dut.",why:"Bigarren esaldiak adibide bat ematen du.",es:"La segunda frase da un ejemplo."},
  lako:{tag:"ZERGATIA",dir:"back",a:"Berandu iritsi naiz,",k:"",b:"autobusa matxuratu delako.",why:"«-lako» aditzari lotzen zaio eta zergatia ematen du.",es:"«-lako» se une al verbo y da el motivo."}};
@@ -210,13 +262,71 @@ const a1Lessons=[
  {id:"A1-5-6",src:A+"S05#6",t:"mc",map:"herria",q:"Mapan: eskola → plaza → liburutegia. Zein esaldik azaltzen du ibilbidea?",ch:["Eskolatik plazara joan naiz, eta gero liburutegira.","Eskolan plazara joan naiz, eta gero liburutegian.","Liburutegitik plazara joan naiz, eta gero eskolara."],a:["Eskolatik plazara joan naiz, eta gero liburutegira."],ex:"Abiapuntua eskola da (-tik), gero plaza eta azkenik liburutegia (-ra)."},
  {id:"A1-5-7",src:A+"S05#7",t:"write",map:"zurea",q:"Orain zu! Idatzi ibilbide hau: etxea → parkea → museoa.",instr:"Idatzi bi edo hiru esaldi. Erabili lehenik, gero eta azkenik.",model:"Lehenik, etxetik parkera joan naiz. Gero, parkean jolastu naiz. Azkenik, museora joan naiz.",a:["(irekia)"],ex:"Zure testua ez da automatikoki zuzentzen. Konparatu ereduarekin eta begiratu hiru zatiak dituen."}]}
 ];
+
+/* ---------- A1–A2 · 2. kapitulua: Zer egin dut gaur? (GOLD-A1-001 · NOR / NOR-NORK) ---------- */
+const G="GOLD-A1-001-";
+const a1K2Lessons=[
+{id:"a1a2-k2-i1",n:1,title:"Ni naiz, nik dut",es:"«Ni naiz» frente a «nik dut»",
+ talk:[["bira","Gaur eguneko bi ekintza kontatuko ditugu. Begiratu bi esaldiei!","Hoy contaremos dos acciones del día. ¡Fíjate en las dos frases!"],["ane","Ni etxera joan naiz.","Yo he ido a casa."],["iker","Nik liburua irakurri dut.","Yo he leído el libro."]],
+ learn:"nornork",keys:["ni · naiz","nik · dut","zu · zara","zuk · duzu"],
+ tip:"Nor joan da? Ni (naiz). Nork irakurri du? Nik (dut). Ez dute aditz guztiek eredu bera.",
+ tipEs:"¿Quién ha ido? Ni (naiz). ¿Quién ha leído? Nik (dut). No todos los verbos siguen el mismo patrón.",
+ items:[
+ {id:"G1-1-1",src:G+"D01",t:"mc",q:"Ane etxera joan ____.",ch:["da","du","naiz"],a:["da"],hint:"Nor joan da? «Joan» aditzak NOR eredua du.",ex:"«Joan» aditzak NOR laguntzailea behar du: Ane etxera joan da."},
+ {id:"G1-1-2",src:G+"D02",t:"mc",q:"Nik ura edan ____.",ch:["dut","naiz","da"],a:["dut"],hint:"«Nik» + objektua («ura»): NOR-NORK eredua da.",ex:"«Edan» aditzarekin NORK («nik») eta objektua («ura») daude → dut."},
+ {id:"G1-1-3",src:G+"P01",t:"chips",q:"____ eskolara joan naiz.",ch:["Ni","Nik","Zu"],a:["Ni"],hint:"Begiratu laguntzaileari: «naiz» NOR da.",ex:"«Joan naiz» NOR egitura da, beraz izenordaina «Ni» da."},
+ {id:"G1-1-4",src:G+"P02",t:"chips",q:"____ sagarra jan dut.",ch:["Nik","Ni","Zuk"],a:["Nik"],hint:"Begiratu laguntzaileari: «dut» NOR-NORK da.",ex:"«Jan dut» egituran subjektuak -k darama: «Nik»."},
+ {id:"G1-1-5",src:G+"P03",t:"mc",q:"Zu etxera itzuli ____.",ch:["zara","duzu","naiz"],a:["zara"],hint:"«Zu» NOR da, ez «zuk».",ex:"«Itzuli» NOR ereduan doa: Zu etxera itzuli zara."},
+ {id:"G1-1-6",src:G+"P04",t:"mc",q:"Zuk kafea prestatu ____.",ch:["duzu","zara","dut"],a:["duzu"],hint:"«Zuk» NORK da, eta «kafea» objektu singularra.",ex:"«Zuk» subjektuarekin eta objektu singularrarekin → duzu."},
+ {id:"G1-1-7",src:G+"P00",t:"gap",q:"Nik liburua irakurri ____.",h:"nik · NOR-NORK",hint:"Nik + objektu bat → dut.",a:["dut"],ex:"«Nik» + objektu singularra («liburua») → dut."}]},
+{id:"a1a2-k2-i2",n:2,title:"Gu gara, guk dugu",es:"En plural: «gu gara» y «guk dugu»",
+ talk:[["ane","Gu geltokira iritsi gara!","¡Hemos llegado a la estación!"],["lur","Eta guk giltza hartu dugu.","Y nosotros hemos cogido la llave."],["bira","Ikusi? Taldean ere bi eredu daude: NOR eta NOR-NORK.","¿Ves? En plural también hay dos modelos: NOR y NOR-NORK."]],
+ learn:"nornork_pl",keys:["gu · gara","guk · dugu","dira","dute"],
+ tip:"NOR: gu → gara, bi lagun → dira · NOR-NORK: guk → dugu, bi lagunek → dute.",
+ tipEs:"NOR: gu → gara, bi lagun → dira · NOR-NORK: guk → dugu, bi lagunek → dute.",
+ items:[
+ {id:"G1-2-1",src:G+"D03",t:"chips",q:"____ geltokira iritsi gara.",ch:["Gu","Guk","Zuek"],a:["Gu"],hint:"«Iritsi gara» NOR eredua da.",ex:"«Iritsi» NOR da: Gu geltokira iritsi gara."},
+ {id:"G1-2-2",src:G+"P05",t:"mc",q:"Bi lagun etorri ____.",ch:["dira","da","dute"],a:["dira"],hint:"Bi lagun (plurala) + «etorri» (NOR).",ex:"«Bi lagun» plurala da, eta «etorri» NOR → dira."},
+ {id:"G1-2-3",src:G+"P06",t:"mc",q:"Bi lagunek ogia erosi ____.",ch:["dute","du","dira"],a:["dute"],hint:"«Bi lagunek» NORK plurala da; «ogia» objektu singularra.",ex:"Subjektua plurala da («bi lagunek») eta objektua singularra («ogia») → dute."},
+ {id:"G1-2-4",src:G+"M01",t:"match",q:"Lotu subjektua eta aditz laguntzailea.",pairs:[["Gu etxera joan…","gara"],["Guk kafea hartu…","dugu"],["Bi lagun etorri…","dira"],["Bi lagunek ogia erosi…","dute"]],a:["gara · dugu · dira · dute"],ex:"NOR: gara / dira · NOR-NORK: dugu / dute."},
+ {id:"G1-2-5",src:G+"T01",t:"build",q:"Aterpetxeko oharra: gu / aterpetxera / heldu.",instr:"Ordenatu esaldia.",x:"dugu.",hint:"«Heldu» NOR da: gu → gara.",a:["Gu aterpetxera heldu gara."],ex:"«Heldu» NOR ereduan erabiltzen da: Gu aterpetxera heldu gara."},
+ {id:"G1-2-6",src:G+"T02",t:"build",q:"Aterpetxeko oharra: guk / giltza / hartu.",instr:"Ordenatu esaldia.",x:"gara.",hint:"«Guk» + «giltza» → NOR-NORK singularra.",a:["Guk giltza hartu dugu."],ex:"«Guk» NORK da eta «giltza» objektu singularra → dugu."},
+ {id:"G1-2-7",src:G+"T03",t:"gap",q:"Bi bezero merkatura iritsi ____.",h:"bi bezero · NOR",hint:"Bi pertsona (plurala) + «iritsi» (NOR).",a:["dira"],ex:"«Bi bezero» plurala da eta «iritsi» NOR → dira."}]},
+{id:"a1a2-k2-i3",n:3,title:"Bat ala bi?",es:"¿Uno o varios?: «dut / ditut»",
+ talk:[["iker","Nik liburu bat erosi dut.","Yo he comprado un libro."],["ane","Eta nik bi liburu erosi ditut!","¡Y yo he comprado dos libros!"],["bira","Begira: objektua plurala denean, laguntzailea ere aldatzen da!","Fíjate: cuando el objeto es plural, también cambia el auxiliar."]],
+ learn:"obj_num",keys:["dut / ditut","duzu / dituzu","dugu / ditugu","dute / dituzte"],
+ tip:"Objektu bat: du- (dut, duzu, dugu, dute). Bi edo gehiago: ditu- (ditut, dituzu, ditugu, dituzte).",
+ tipEs:"Un objeto: du- (dut, duzu, dugu, dute). Dos o más: ditu- (ditut, dituzu, ditugu, dituzte).",
+ items:[
+ {id:"G1-3-1",src:G+"P07",t:"chips",q:"Guk bi liburu irakurri ____.",ch:["ditugu","dugu","gara"],a:["ditugu"],hint:"Zenbat liburu? Bi liburu (plurala) → ditu-.",ex:"«Bi liburu» plurala da, beraz «dugu» beharrean «ditugu»."},
+ {id:"G1-3-2",src:G+"P09",t:"chips",q:"Nik bi gutun idatzi ____.",ch:["ditut","dut","naiz"],a:["ditut"],hint:"«Bi gutun» plurala da → nik + plurala.",ex:"Objektua plural bihurtzean («bi gutun»), «dut» → «ditut»."},
+ {id:"G1-3-3",src:G+"R02",t:"mc",q:"Zuk bi txartel aurkitu ____.",ch:["dituzu","duzu","zara"],a:["dituzu"],hint:"«Zuk» + «bi txartel» (plurala).",ex:"«Bi txartel» objektu plurala da → dituzu."},
+ {id:"G1-3-4",src:G+"M02",t:"match",q:"Lotu esaldia laguntzaile egokiarekin.",pairs:[["Nik liburu bat erosi…","dut"],["Nik bi liburu erosi…","ditut"],["Guk sagar bat jan…","dugu"],["Guk bi sagar jan…","ditugu"]],a:["dut · ditut · dugu · ditugu"],ex:"Objektu singularra: dut / dugu. Objektu plurala: ditut / ditugu."},
+ {id:"G1-3-5",src:G+"R05",t:"gap",q:"Nik bi maleta ekarri ____.",h:"nik · bi maleta",hint:"Objektua plurala da («bi maleta») → ditu-.",a:["ditut"],ex:"«Nik» + «bi maleta» (plurala) → ditut."},
+ {id:"G1-3-6",src:G+"T04",t:"gap",q:"Bi bezerok hiru tomate erosi ____.",h:"bi bezerok · hiru tomate",hint:"Subjektua plurala da eta objektua ere plurala → dituzte.",a:["dituzte"],ex:"NORK plurala («bi bezerok») + objektu plurala («hiru tomate») → dituzte."},
+ {id:"G1-3-7",src:G+"P11",t:"fix",q:"Zuk bi argazki ikusi duzu gaur.",w:"duzu",r:"dituzu",opts:["dituzu","zara","ditut"],hint:"Zenbat argazki dira? Bi (plurala).",a:["Zuk bi argazki ikusi dituzu gaur."],ex:"«Bi argazki» plurala da, eta «zuk» NORK → dituzu."}]},
+{id:"a1a2-k2-i4",n:4,title:"Gaurko bi ekintza",es:"Reto: cuenta dos acciones de hoy",challenge:true,
+ talk:[["ane","Gaur goizean parkera joan naiz, eta bi liburu irakurri ditut.","Hoy por la mañana he ido al parque y he leído dos libros."],["bira","Orain zure txanda da: bereizi NOR eta NOR-NORK, eta kontatu zure eguna!","Ahora te toca a ti: distingue NOR y NOR-NORK, ¡y cuenta tu día!"]],
+ learn:"nornork",keys:["naiz / dut","gara / dugu","ditut / ditugu"],
+ tip:"Galdetu lehenik: NOR bakarrik, ala NORK + ZER? Gero begiratu kopuruari.",
+ tipEs:"Pregunta primero: ¿solo NOR, o NORK + QUÉ? Luego fíjate en la cantidad.",
+ items:[
+ {id:"G1-4-1",src:G+"P12",t:"mc",q:"Zein esalditan ageri da NORK?",ch:["Anek poltsa hartu du.","Ane iritsi da.","Gu etxera joan gara."],a:["Anek poltsa hartu du."],hint:"Bilatu -k marka subjektuan eta «du» laguntzailea.",ex:"«Anek poltsa hartu du» esaldian «Anek» NORK da; besteetan NOR dago."},
+ {id:"G1-4-2",src:G+"P10",t:"fix",q:"Guk etxera etorri gara.",w:"Guk",r:"Gu",opts:["Gu","Guri","Ni"],hint:"«Etorri gara» NOR eredua da; ez du -k behar.",a:["Gu etxera etorri gara."],ex:"«Etorri gara» NOR da, beraz izenordaina «Gu» da."},
+ {id:"G1-4-3",src:G+"R03",t:"mc",q:"«Mikel sartu da» eta «Mikelek atea ireki du». Zeinetan da Mikel NOR?",ch:["Lehenengoan (Mikel sartu da)","Bigarrenean (Mikelek atea ireki du)","Bietan"],a:["Lehenengoan (Mikel sartu da)"],hint:"NOR kasuak ez darama -k markarik.",ex:"«Sartu da» NOR da («Mikel»); «ireki du» NOR-NORK da («Mikelek»)."},
+ {id:"G1-4-4",src:G+"P08",t:"build",q:"Ane mendira joan da. Aldatu Ane → Gu.",instr:"Eraiki esaldi berria «Gu» erabiliz.",x:"dugu.",hint:"«Joan» NOR da: gu → gara.",a:["Gu mendira joan gara."],ex:"NOR eta laguntzailea aldatu dira: Ane … da → Gu … gara."},
+ {id:"G1-4-5",src:G+"R01",t:"build",q:"Parkean: zu / paseatzera / atera.",instr:"Ordenatu esaldia.",x:"duzu.",hint:"«Atera» hemen NOR da: zu → zara.",a:["Zu paseatzera atera zara."],ex:"«Paseatzera atera» NOR egitura da → Zu paseatzera atera zara."},
+ {id:"G1-4-6",src:G+"R06",t:"fix",q:"Nik bi liburu irakurri dut gaur.",w:"dut",r:"ditut",opts:["ditut","naiz","ditugu"],hint:"«Bi liburu» plurala da.",a:["Nik bi liburu irakurri ditut gaur."],ex:"Objektu pluralarekin («bi liburu») → ditut."},
+ {id:"G1-4-7",src:G+"W01",t:"write",check:"nornork",q:"Gaur zer egin duzu? Nora joan zara?",instr:"Idatzi bi esaldi: bat NOR ereduarekin (joan, etorri, egon) eta bestea NOR-NORK ereduarekin (erosi, jan, irakurri).",model:"Gaur goizean parkera joan naiz. Gero, bi liburu irakurri ditut.",a:["(irekia)"],ex:"Konparatu zure esaldiak ereduarekin: NOR (naiz/gara) eta NOR-NORK (dut/ditut)."}]}
+];
+
 const a1Chapters=[
  {id:"a1a2-k1",title:"Basorako bidea",es:"El camino al bosque",lessons:a1Lessons},
- {id:"a1a2-k2",title:"Basajaunen abisua",es:"El aviso del Basajaun"},
+ {id:"a1a2-k2",title:"Zer egin dut gaur?",es:"NOR y NOR-NORK: contar tu día",lessons:a1K2Lessons},
  {id:"a1a2-k3",title:"Lamiaren ispilua",es:"El espejo de la lamia"},
  {id:"a1a2-k4",title:"Galtzagorrien nahaspila",es:"El lío de los galtzagorris"},
  {id:"a1a2-k5",title:"Zubiaren azpiko mezua",es:"El mensaje bajo el puente"}];
-const a1Gloss={mendia:"el monte",basoa:"el bosque",erreka:"el arroyo",bidea:"el camino",zubia:"el puente",menditik:"desde el monte",basoan:"en el bosque",errekara:"al arroyo",basotik:"por el bosque",gurutzebidetik:"desde el cruce","-n":"en (¿dónde?)","-ra":"a, hacia (¿adónde?)","-tik":"desde, por (¿de dónde?)",lehenik:"primero",gero:"luego",azkenik:"por último",eskolan:"en la escuela",parkera:"al parque",eskolatik:"desde la escuela",herrian:"en el pueblo",mendira:"al monte",plazan:"en la plaza",liburutegira:"a la biblioteca",etxera:"a casa",parkean:"en el parque"};
+const a1Gloss={mendia:"el monte",basoa:"el bosque",erreka:"el arroyo",bidea:"el camino",zubia:"el puente",menditik:"desde el monte",basoan:"en el bosque",errekara:"al arroyo",basotik:"por el bosque",gurutzebidetik:"desde el cruce","-n":"en (¿dónde?)","-ra":"a, hacia (¿adónde?)","-tik":"desde, por (¿de dónde?)",lehenik:"primero",gero:"luego",azkenik:"por último",eskolan:"en la escuela",parkera:"al parque",eskolatik:"desde la escuela",herrian:"en el pueblo",mendira:"al monte",plazan:"en la plaza",liburutegira:"a la biblioteca",etxera:"a casa",parkean:"en el parque",baina:"pero",arren:"a pesar de, aunque","nahiz eta":"aunque","ni · naiz":"yo soy / he (NOR)","nik · dut":"yo he (NOR-NORK)","zu · zara":"tú eres / has (NOR)","zuk · duzu":"tú has (NOR-NORK)","gu · gara":"nosotros (NOR)","guk · dugu":"nosotros (NOR-NORK)",dira:"son / han (NOR pl.)",dute:"han (NORK pl.)","dut / ditut":"he (1 / varios)","duzu / dituzu":"has (1 / varios)","dugu / ditugu":"hemos (1 / varios)","dute / dituzte":"han (1 / varios)"};
 Object.assign(gloss,a1Gloss);
 
 /* Maila-proba: sei galdera, errazenetik zailenera. Bi huts jarraian → proba amaitzen da. */
@@ -229,9 +339,9 @@ const placement=[
  {id:"P6",src:"MAILA#6",t:"mc",lv:3,q:"Euria egingo duela esan dute; ____, mendi-irteera atzeratu dugu.",ch:["hortaz","aitzitik","adibidez"],a:["hortaz"]}];
 
 const islands=[
- {id:"a1a2",level:"A1–A2",title:"Lehen urratsak",es:"Primeros pasos",blurb:"Ane, Iker eta Lurrekin, misterio bat basoan: non, nora eta nondik.",chapters:a1Chapters},
- {id:"b1b2",level:"B1–B2",title:"Lotura uhartea",es:"La isla de los conectores",blurb:"Egoera errealak: kontatu, azaldu eta iritzia eman, ideiak ondo lotuta.",chapters}];
+ {id:"a1a2",level:"A1–A2",title:"Lehen urratsak",es:"Primeros pasos",blurb:"Leku-kasuak (non, nora, nondik) eta eguneroko ekintzak (NOR / NOR-NORK).",chapters:a1Chapters},
+ {id:"b1b2",level:"B1–B2",title:"Lotura uhartea",es:"La isla de los conectores",blurb:"Zergatia, ondorioa eta kontrastea: ideiak ondo lotuta euskaraz.",chapters}];
 const cast={ane:{name:"Ane",c:"#f06a1d"},iker:{name:"Iker",c:"#2563eb"},lur:{name:"Lur",c:"#0f9f6e"},txinpart:{name:"Txinpart",c:"#c0262d"},bira:{name:"Bira",c:"#5b3cc4"}};
 
-window.HB_BIDEA={version:"0.2.0",islands,island:islands[1],chapters,gloss,groups,patterns,placement,cast};
+window.HB_BIDEA={version:"0.3.0",islands,island:islands[1],chapters,gloss,groups,patterns,placement,cast};
 })();

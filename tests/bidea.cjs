@@ -71,4 +71,66 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.reset();
  check('guest reset clears guest state without touching remote account',!store.has('hitzbira-bidea-v1')&&JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
 })();
+
+/* 0.3: Chapter 2 content (GOLD-A1-001 NOR/NOR-NORK + B1-B2 Contraste), hint + 2nd attempt, spaced review in Gaur */
+(()=>{
+ const a2ls=A.chapters[1].lessons,a2items=a2ls.flatMap(l=>l.items);
+ const b2ls=D.chapters[1].lessons,b2items=b2ls.flatMap(l=>l.items);
+ const allNew=[...a2items,...b2items],allItems=[...every,...allNew];
+ check('A1-A2 Chapter 2 (Zer egin dut gaur?) has 4 lessons with 7 items each',a2ls.length===4&&a2ls.every(l=>l.items.length===7));
+ check('B1-B2 Chapter 2 (Baina, hala ere, arren) has 3 lessons with 7-8 items each',b2ls.length===3&&b2ls.every(l=>l.items.length>=7&&l.items.length<=8));
+ check('unique item ids across all islands and chapters',new Set(allItems.map(i=>i.id)).size===allItems.length);
+ check('all Chapter 2 mc/chips items have exactly one accepted choice',allNew.filter(i=>i.t==='mc'||i.t==='chips').every(i=>i.ch.filter(c=>api.isAccepted(c,i.a)).length===1));
+ check('all Chapter 2 fix items rebuild accepted answer',allNew.filter(i=>i.t==='fix').every(i=>i.q.includes(i.w)&&api.fixTokens(i).includes(i.w)&&i.opts.includes(i.r)&&!i.opts.includes(i.w)&&api.isAccepted(i.q.replace(i.w,i.w.endsWith(',')?i.r+',':i.r),i.a)));
+ check('all Chapter 2 build items rebuild accepted answer and distractor fails',allNew.filter(i=>i.t==='build').every(i=>api.isAccepted(api.tilesFor(i.a[0]).join(' '),i.a)&&!api.isAccepted(api.tilesFor(i.a[0]).concat(i.x).join(' '),i.a)));
+ check('all Chapter 2 items provide explanation and progressive hint',allNew.every(i=>i.ex&&api.hintFor(i,D.groups,D.patterns).length>5));
+ check('writeCheckList supports nornork writing task',api.writeCheckList('Gaur goizean parkera joan naiz. Gero, bi liburu irakurri ditut.','nornork').every(([,ok])=>ok)&&!api.writeCheckList('Gaur goizean parkera joan naiz.','nornork').every(([,ok])=>ok));
+
+ /* Spaced review scheduler intervals */
+ const DAY=86400000,now=Date.parse('2026-11-26T12:00:00Z');
+ const stMap={'a1a2-k1-i1':{stars:1,at:now-DAY-1000},'a1a2-k1-i2':{stars:3,at:now-3*DAY},'a1a2-k1-i3':{stars:3,at:now-8*DAY},'a1a2-k1-i4':{stars:1,at:now-2*DAY,reviewAt:now-DAY,reviews:1}};
+ const due=api.dueReviews(stMap,als,now);
+ check('dueReviews schedules 1-star after 1d and 3-star after 7d, skipping reviewed lessons',due.map(d=>d.lesson.id).sort().join()==='a1a2-k1-i1,a1a2-k1-i3');
+
+ /* Interactive VM: 2nd attempt before reveal, voluntary hint, multi-chapter map, and spaced review in Gaur */
+ const store=new Map(),els=new Map();
+ function mkEl(id){const e={id,hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null};els.set(id,e);return e}
+ const ls={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
+ const w={HB_BIDEA:D,HBData:{keyFor:k=>k,isRemote:()=>false,activity(){}},draw(){}};
+ const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:()=>mkEl('bd-player'),querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
+ w.HBBidea.setLevel('a1a2',false);
+ check('Bidea screen shows both Chapter 1 and Chapter 2',w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('Zer egin dut gaur?'));
+ /* Start Chapter 2 Lesson 1 directly (index 5 = first lesson of Chapter 2) */
+ w.HBBidea.start(5);
+ check('Chapter 2 Lesson 1 unlocks directly without blocking',w.HBBidea._player()&&w.HBBidea._player().L.id==='a1a2-k2-i1');
+ w.HBBidea.begin();
+ /* 1st wrong attempt: should NOT reveal answer, should show hint and allow 2nd try */
+ w.HBBidea.sel('du');
+ w.HBBidea.check();
+ let p=w.HBBidea._player();
+ check('first wrong attempt triggers hint + second try without revealing solution',p.state.checked===false&&p.state.tries===1&&p.state.hintOn===true&&p.state.wrongSel.includes('du')&&p.state.sel===null);
+ /* 2nd attempt correct: reveals feedback, awards +7 XP, keeps first-try counter honest (0) */
+ w.HBBidea.sel('da');
+ w.HBBidea.check();
+ p=w.HBBidea._player();
+ check('second attempt success marks checked, awards 7 XP, keeps first-try honest',p.state.checked===true&&p.state.ok===true&&p.xp===7&&p.first===0);
+ /* Next item: voluntary hint works and keeps first-try honest */
+ w.HBBidea.next();
+ w.HBBidea.showHint();
+ p=w.HBBidea._player();
+ check('voluntary showHint displays hint and marks hintUsed',p.state.hintOn===true&&p.state.hintUsed===true);
+ w.HBBidea.sel('dut');
+ w.HBBidea.check();
+ p=w.HBBidea._player();
+ check('hinted correct answer awards 7 XP without inflating first-try count',p.state.checked===true&&p.state.ok===true&&p.xp===14&&p.first===0);
+ w.HBBidea.close(true);
+ /* Spaced review card surfaces in Gaur when a completed lesson is overdue */
+ const st=w.HBBidea._state();
+ st.lessons['a1a2-k1-i1']={stars:1,best:5,runs:1,at:Date.now()-2*DAY};
+ store.set('hitzbira-bidea-v1',JSON.stringify(st));
+ check('Gaur surfaces spaced review card cleanly when a lesson is due',w.HBBidea.gaur().includes('BERRIKUSTEKO UNEA')&&w.HBBidea.gaur().includes('Enborreko mezua'));
+ w.HBBidea.startReview('a1a2-k1-i1');
+ check('startReview launches 5-item quick review session directly in play phase',w.HBBidea._player().mode==='review'&&w.HBBidea._player().phase==='play'&&w.HBBidea._player().queue.length===5);
+})();
 console.log(n+' checks passed (bidea)');

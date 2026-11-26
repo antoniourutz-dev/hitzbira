@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.5.0 · Produktu garbia: 4 atal nagusi (Gaur, Bidea, Ikasi, Praktikatu), barne-erreferentziarik gabe.**
+**2.6.0 · Bidea pedagogikoa: pista progresiboa + 2. saiakera, errepaso banatua Gauren barruan eta 2. kapituluak (NOR/NOR-NORK + Kontrastea).**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
