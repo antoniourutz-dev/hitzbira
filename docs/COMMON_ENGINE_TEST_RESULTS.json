@@ -1,0 +1,95 @@
+{
+  "coreBlob": "b72caf1dc6df5b6550081eadb5abc66b311649f2",
+  "source": "LAB v0.8 archived source",
+  "testKind": "synthetic transport; actual catalog in private execution only",
+  "results": [
+    {
+      "name": "57 nodes",
+      "pass": true
+    },
+    {
+      "name": "33 items",
+      "pass": true
+    },
+    {
+      "name": "three B1 routes",
+      "pass": true
+    },
+    {
+      "name": "C1 blocked",
+      "pass": true
+    },
+    {
+      "name": "no reserved",
+      "pass": true
+    },
+    {
+      "name": "A1 practice",
+      "pass": true
+    },
+    {
+      "name": "snapshot valid",
+      "pass": true
+    },
+    {
+      "name": "no evidence",
+      "pass": true
+    },
+    {
+      "name": "initial open",
+      "pass": true
+    },
+    {
+      "name": "offline durable",
+      "pass": true
+    },
+    {
+      "name": "latest separate from frozen pending",
+      "pass": true
+    },
+    {
+      "name": "reload pending retained",
+      "pass": true
+    },
+    {
+      "name": "lost ack retained",
+      "pass": true
+    },
+    {
+      "name": "retry same id",
+      "pass": true
+    },
+    {
+      "name": "next checkpoint saved",
+      "pass": true
+    },
+    {
+      "name": "other device load",
+      "pass": true
+    },
+    {
+      "name": "other device commit",
+      "pass": true
+    },
+    {
+      "name": "stale conflict",
+      "pass": true
+    },
+    {
+      "name": "local conflicting history preserved",
+      "pass": true
+    },
+    {
+      "name": "open conflict no overwrite",
+      "pass": true
+    },
+    {
+      "name": "regression blocked",
+      "pass": true
+    },
+    {
+      "name": "guest key blocked",
+      "pass": true
+    }
+  ]
+}
