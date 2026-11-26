@@ -177,7 +177,7 @@ const a1Lessons=[
  items:[
  {id:"A1-3-1",src:A+"S03#1",t:"chips",q:"Gaur goizean Iker ____ dago.",ch:["eskolan","eskolara","eskolatik"],a:["eskolan"],ex:"Egon → NON: eskolan."},
  {id:"A1-3-2",src:A+"S03#2",t:"chips",q:"Arratsaldean Lur ____ joan da.",ch:["parkean","parkera","parketik"],a:["parkera"],ex:"Joan + helmuga → NORA: parkera."},
- {id:"A1-3-3",src:A+"S03#3",t:"chips",q:"Eskola amaitu da. Haurrak ____ ateratzen dira.",ch:["Eskolan","Eskolara","Eskolatik"],a:["Eskolatik"],ex:"Atera → NONDIK: eskolatik."},
+ {id:"A1-3-3",src:A+"S03#3",t:"chips",q:"Eskola amaitu da. Haurrak ____ ateratzen dira.",ch:["eskolan","eskolara","eskolatik"],a:["eskolatik"],ex:"Atera → NONDIK: eskolatik."},
  {id:"A1-3-4",src:A+"S03#4",t:"match",q:"Lotu galdera eta forma.",pairs:[["Non?","mendian"],["Nora?","mendira"],["Nondik?","menditik"]],a:["mendian · mendira · menditik"],ex:"Hitz bera, hiru amaiera: mendian, mendira, menditik."},
  {id:"A1-3-5",src:A+"S03#5",t:"gap",q:"Ane ____ bizi da.",h:"herri · non?",a:["herrian"],ex:"Non? → -n: herrian."},
  {id:"A1-3-6",src:A+"S03#6",t:"gap",q:"Larunbatean ____ joango gara.",h:"mendi · nora?",a:["mendira"],ex:"Nora? → -ra: mendira."},

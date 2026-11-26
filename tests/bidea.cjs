@@ -46,4 +46,27 @@ check('placement thresholds',api.placeLevel(6)==='b1b2'&&api.placeLevel(5)==='b1
 check('greeting follows the clock',api.greetingFor(9)[0]==='Egun on!'&&api.greetingFor(16)[0]==='Arratsalde on!'&&api.greetingFor(22)[0]==='Gabon!'&&api.greetingFor(3)[0]==='Gabon!');
 check('solved sentence fills the blank',api.solvedParts({t:'mc',q:'Ez gara iritsi. ____, autobusa.',a:['izan ere']}).join('')==='Ez gara iritsi. Izan ere, autobusa.');
 check('solved sentence marks the fixed word',api.solvedParts(aitems.find(i=>i.t==='fix'))[1]===aitems.find(i=>i.t==='fix').r);
+check('A1-3-3 mid-sentence choices are lowercase',aitems.find(i=>i.id==='A1-3-3').ch.every(x=>x===x.toLowerCase()));
+check('writeCheckList passes full model and non-hardcoded locatives',api.writeCheckList('Lehenik, etxetik liburutegira joan naiz. Gero, liburutegian egon naiz. Azkenik, museora joan naiz.').every(([,ok])=>ok));
+check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.fromEntries(api.writeCheckList('Gu gara eta euskara eman dugu; Bira atera da aurrera.'));return !r['Geldialdia (-n)']&&!r['Helmuga (-ra)']})());
+(()=>{
+ const store=new Map();let remote=false,uid=null;
+ const ls={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
+ const w={HB_BIDEA:D,HBData:{keyFor:k=>remote&&uid?k+'::hb::'+uid:k,isRemote:()=>remote},draw(){}};
+ const bctx={window:w,globalThis:w,localStorage:ls,document:{readyState:'complete',body:{dataset:{}},addEventListener(){},getElementById:()=>null,documentElement:{classList:{add(){},remove(){}}}},location:{search:''},URLSearchParams};
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),bctx);
+ check('initial load does not write empty guest storage',!store.has('hitzbira-bidea-v1'));
+ w.HBBidea.setLevel('a1a2',false);
+ check('guest state stored under guest key',JSON.parse(store.get('hitzbira-bidea-v1')).level==='a1a2');
+ remote=true;uid='user-1';
+ check('switching to remote account isolates level and keeps guest intact',!w.HBBidea._state().level&&JSON.parse(store.get('hitzbira-bidea-v1')).level==='a1a2');
+ w.HBBidea.setLevel('b1b2',false);
+ check('remote account state stored under account key',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
+ w.HBBidea.reset();
+ check('remote account reset is blocked',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
+ check('Ni screen uses honest LANDU DITUZU label',w.HBBidea.ni().includes('LANDU DITUZU')&&!w.HBBidea.ni().includes('MENPERATZEN DITUZU'));
+ remote=false;uid=null;
+ w.HBBidea.reset();
+ check('guest reset clears guest state without touching remote account',!store.has('hitzbira-bidea-v1')&&JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
+})();
 console.log(n+' checks passed (bidea)');

@@ -4,7 +4,7 @@ const source=fs.readFileSync(path.join(__dirname,'../supabase/functions/hitzbira
 const uid='11111111-1111-4111-8111-111111111111';
 const base={id:uid,email:'student@hitzbira.app',role:'hitzbira_isolated',email_confirmed_at:'2026-01-01T00:00:00Z',app_metadata:{hitzbira_pilot:true}};
 const record={user_id:uid,username:'student',email:base.email,enabled:true};
-async function scenario({user={},verified={},claims={},rows=[],invalid=false,raceDisabled=false,action='check'}={}){
+async function scenario({user={},verified={},claims={},rows=[],invalid=false,raceDisabled=false,action='check',origin='https://hitzbira-gramatika.vercel.app'}={}){
  let handler,inserts=0,authReads=0,learningReads=0;
  const current={...base,...user},validated={...current,...verified};
  const payload={sub:uid,role:base.role,...claims};
@@ -29,13 +29,15 @@ async function scenario({user={},verified={},claims={},rows=[],invalid=false,rac
   throw Error('Unexpected access: '+url);
  };
  vm.runInNewContext(source,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private',SUPABASE_ANON_KEY:'public'})[k]},serve:f=>{handler=f}},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
- const result=await handler(new Request('https://example.test/functions/v1/hitzbira-pilot-account',{method:'POST',headers:{Origin:'https://hitzbira-gramatika.vercel.app',Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({action})}));
+ const result=await handler(new Request('https://example.test/functions/v1/hitzbira-pilot-account',{method:'POST',headers:{Origin:origin,Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({action})}));
  return {status:result.status,body:await result.json(),inserts,authReads,learningReads};
 }
 (async()=>{
  let count=0;
  async function check(name,options,status,inserts=0){const r=await scenario(options);assert.equal(r.status,status,name);assert.equal(r.inserts,inserts,name);console.log('PASS '+name);count++;return r}
  await check('confirmed domain account enrolls on first login',{},200,1);
+ await check('hitzbira.vercel.app origin accepted',{rows:[record],origin:'https://hitzbira.vercel.app'},200);
+ await check('untrusted origin rejected',{rows:[record],origin:'https://evil.example'},403);
  await check('existing account is not recreated',{rows:[record]},200);
  await check('disabled account stays disabled',{rows:[{...record,enabled:false}]},403);
  await check('concurrent disabled account is not re-enabled',{raceDisabled:true},403,1);
