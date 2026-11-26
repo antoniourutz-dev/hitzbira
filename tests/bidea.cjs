@@ -1,4 +1,4 @@
-// Bidea 0.1: datuen osotasuna eta zuzentze-funtzioak.
+// Bidea 0.2: datuen osotasuna, maila-proba eta zuzentze-funtzioak.
 const assert=require('node:assert'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 let n=0;const check=(name,ok)=>{assert.ok(ok,name);n++};
 const api=require('../bidea/bidea.js');
@@ -6,13 +6,14 @@ const ctx={window:{}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..
 const D=ctx.window.HB_BIDEA;
 check('data loaded',D&&D.chapters.length===8);
 const ls=D.chapters[0].lessons,items=ls.flatMap(l=>l.items);
+const A=D.islands.find(i=>i.id==='a1a2'),als=A.chapters[0].lessons,aitems=als.flatMap(l=>l.items),every=[...items,...aitems];
 check('five lessons',ls.length===5);
 check('lessons have 10-12 items',ls.every(l=>l.items.length>=10&&l.items.length<=12));
-check('unique item ids',new Set(items.map(i=>i.id)).size===items.length);
+check('unique item ids across islands',new Set(every.map(i=>i.id)).size===every.length);
 check('every item traces to a Supabase draft',items.every(i=>/^DRAFT-SIN-B2-(KAUS|OND)-20261122-A0[1-5]#\d+$/.test(i.src)));
 check('every item has answers and explanation',items.every(i=>Array.isArray(i.a)&&i.a.length&&i.ex));
 check('gap prompts contain a blank',items.filter(i=>['mc','gap','chips'].includes(i.t)).every(i=>i.q.includes('____')));
-check('mc choices contain an accepted answer',items.filter(i=>i.t==='mc').every(i=>i.ch.some(c=>api.isAccepted(c,i.a))));
+check('mc choices contain exactly one accepted answer',every.filter(i=>i.t==='mc'||(i.t==='chips'&&i.ch)).every(i=>i.ch.filter(c=>api.isAccepted(c,i.a)).length===1));
 check('fix items locate the wrong connector',items.filter(i=>i.t==='fix').every(i=>i.q.includes(i.w)&&api.fixTokens(i).includes(i.w)&&api.isAccepted(i.q.replace(i.w,i.r+','),i.a)));
 check('build tiles rebuild the answer',items.filter(i=>i.t==='build').every(i=>api.isAccepted(api.tilesFor(i.a[0]).join(' '),i.a)&&!api.isAccepted(api.tilesFor(i.a[0]).concat(i.x).join(' '),i.a)));
 for(let k=0;k<25;k++){
@@ -25,4 +26,24 @@ check('stars thresholds',api.starsFor(10,10)===3&&api.starsFor(7,10)===2&&api.st
 check('compound connector stays one tile',api.tilesFor('Bilera atzeratu dugu. Izan ere, arduraduna gaixorik dago.').includes('Izan ere,'));
 const sw=fs.readFileSync(path.join(__dirname,'../sw.js'),'utf8'),html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 check('bidea files are cached offline',['/bidea/data.js','/bidea/bidea.js','/bidea/bidea.css'].every(f=>sw.includes('"'+f+'"')&&html.includes(f+'?v=')));
+
+/* 0.2: maila-uharteak, A1–A2 kapitulua eta maila-proba */
+check('two islands, no age profiles',D.islands.map(i=>i.id).join()==='a1a2,b1b2'&&!('junior' in D));
+check('A1–A2 chapter has five lessons with 7–9 items',als.length===5&&als.every(l=>l.items.length>=7&&l.items.length<=9));
+check('A1–A2 items trace to K02 sessions',aitems.every(i=>/^K02-S0[1-5]#\d+$/.test(i.src)));
+check('every A1–A2 item explains itself',aitems.every(i=>i.ex&&i.a.length));
+check('A1–A2 dialogues have Spanish help for every line',als.every(l=>l.talk.every(t=>t.length===3&&t[1]&&t[2])));
+check('speakers exist in the cast',als.every(l=>l.talk.every(t=>D.cast[t[0]])));
+check('canonical K02 message kept verbatim',JSON.stringify(als[0]).includes('Menditik nator, basoan bizi naiz eta errekara noa.'));
+check('A1–A2 gap items give a hint',aitems.filter(i=>i.t==='gap').every(i=>i.h));
+check('A1–A2 fix items rebuild the answer',aitems.filter(i=>i.t==='fix').every(i=>i.opts.includes(i.r)&&!i.opts.includes(i.w)&&api.isAccepted(i.q.replace(i.w,i.r),i.a)));
+check('A1–A2 build tiles rebuild the answer',aitems.filter(i=>i.t==='build').every(i=>api.isAccepted(api.tilesFor(i.a[0]).join(' '),i.a)));
+check('match items have 3–5 distinct pairs',aitems.filter(i=>i.t==='match').every(i=>i.pairs.length>=3&&i.pairs.length<=5&&new Set(i.pairs.map(p=>p[1])).size===i.pairs.length));
+check('write item has a model answer',aitems.filter(i=>i.t==='write').every(i=>i.model&&i.instr));
+check('B1–B2 lesson keys map to a direction pattern',ls.every(l=>l.keys.every(k=>k==='-lako'||D.patterns[api.groupOf(k,D.groups)])));
+check('placement has six graded questions',D.placement.length===6&&D.placement.every(i=>i.ch.filter(c=>api.isAccepted(c,i.a)).length===1));
+check('placement thresholds',api.placeLevel(6)==='b1b2'&&api.placeLevel(5)==='b1b2'&&api.placeLevel(4)==='a1a2'&&api.placeLevel(0)==='a1a2');
+check('greeting follows the clock',api.greetingFor(9)[0]==='Egun on!'&&api.greetingFor(16)[0]==='Arratsalde on!'&&api.greetingFor(22)[0]==='Gabon!'&&api.greetingFor(3)[0]==='Gabon!');
+check('solved sentence fills the blank',api.solvedParts({t:'mc',q:'Ez gara iritsi. ____, autobusa.',a:['izan ere']}).join('')==='Ez gara iritsi. Izan ere, autobusa.');
+check('solved sentence marks the fixed word',api.solvedParts(aitems.find(i=>i.t==='fix'))[1]===aitems.find(i=>i.t==='fix').r);
 console.log(n+' checks passed (bidea)');

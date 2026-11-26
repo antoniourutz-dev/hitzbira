@@ -129,9 +129,109 @@ const chapters=[
  {id:"b1b2-k8",title:"Eta baldin bada…?",es:"Hipótesis"}
 ];
 
-/* SUSTRAI JUNIOR · Kondairen zaindariak · K02 (Drive, berrikuspenean). Ariketak oraindik ez daude kargatuta. */
-const junior={story:"Kondairen zaindariak",chapter:"K02",title:"Basorako bidea",es:"El camino al bosque",
- stops:["Basoaren atea","Zuhaitz zaharra","Iturria","Mairuen harriak","Lainoaren zubia"]};
+/* Konektoreen norabidea: ikasgaien sarreran eta feedbackean erakusten den eskema. */
+const patterns={
+ cause:{tag:"ZERGATIA",dir:"back",a:"Berandu iritsi naiz.",k:"Izan ere,",b:"autobusa matxuratu da.",why:"Bigarren esaldiak zergatia ematen du.",es:"La segunda frase da el motivo."},
+ result:{tag:"ONDORIOA",dir:"fwd",a:"Autobusa matxuratu da.",k:"Beraz,",b:"berandu iritsi naiz.",why:"Bigarren esaldia lehenengoaren ondorioa da.",es:"La segunda frase es la consecuencia de la primera."},
+ contrast:{tag:"USTEKABEA",dir:"cross",a:"Euria ari zuen.",k:"Hala ere,",b:"kalera atera ginen.",why:"Bigarren esaldian espero ez zena gertatzen da.",es:"En la segunda frase pasa lo que no se esperaba."},
+ add:{tag:"GEHIAGO",dir:"fwd",a:"Herria polita da.",k:"Gainera,",b:"jende jatorra dago.",why:"Bigarren esaldiak informazio gehiago ematen du.",es:"La segunda frase añade información."},
+ example:{tag:"ADIBIDEA",dir:"fwd",a:"Kirol asko egiten ditut.",k:"Adibidez,",b:"igeri egiten dut.",why:"Bigarren esaldiak adibide bat ematen du.",es:"La segunda frase da un ejemplo."},
+ lako:{tag:"ZERGATIA",dir:"back",a:"Berandu iritsi naiz,",k:"",b:"autobusa matxuratu delako.",why:"«-lako» aditzari lotzen zaio eta zergatia ematen du.",es:"«-lako» se une al verbo y da el motivo."}};
 
-window.HB_BIDEA={version:"0.1.0",island:{id:"b1b2",title:"Lotura uhartea",level:"B1–B2"},chapters,junior,gloss,groups};
+/* ---------- A1–A2 · Lehen urratsak · 1. kapitulua: Basorako bidea ----------
+   SUSTRAI JUNIOR K02 «Basorako bidea»n oinarritua (Drive: JUNIOR_03B §7, WP01 K02, K02_LAB leku-funtzioak).
+   Kanona: Anek enbor batean aurkitutako mezua, «Menditik nator, basoan bizi naiz eta errekara noa»; egilea ezezaguna.
+   Ariketak eta testu guztiak zirriborro berriak dira: ikuskatzaileak berrikusi behar ditu. */
+const A="K02-";
+const a1Lessons=[
+{id:"a1a2-k1-i1",n:1,title:"Enborreko mezua",es:"El mensaje del tronco",
+ talk:[["ane","Begiratu! Enbor zahar honetan mezu bat dago.","¡Mirad! En este tronco viejo hay un mensaje."],["iker","Zer dio?","¿Qué dice?"],["ane","«Menditik nator, basoan bizi naiz eta errekara noa.»","«Vengo del monte, vivo en el bosque y voy al arroyo.»"],["lur","Nork idatzi du? Eta nora doa?","¿Quién lo ha escrito? ¿Y adónde va?"]],
+ learn:"cases",keys:["menditik","basoan","errekara"],
+ tip:"Amaierari begiratu: -tik (nondik?), -n (non?), -ra (nora?).",tipEs:"Fíjate en el final: -tik (¿de dónde?), -n (¿dónde?), -ra (¿adónde?).",
+ items:[
+ {id:"A1-1-1",src:A+"S01#1",t:"mc",q:"Nora doa mezuaren egilea?",ch:["Errekara","Mendira","Basora"],a:["Errekara"],ex:"«Errekara noa», dio mezuak. -ra amaierak NORA adierazten du: helmuga."},
+ {id:"A1-1-2",src:A+"S01#2",t:"mc",q:"Eta nondik dator?",ch:["Menditik","Basotik","Errekatik"],a:["Menditik"],ex:"«Menditik nator»: -tik amaierak NONDIK adierazten du: abiapuntua."},
+ {id:"A1-1-3",src:A+"S01#3",t:"mc",q:"Non bizi da?",ch:["Basoan","Errekan","Mendian"],a:["Basoan"],ex:"«Basoan bizi naiz»: -n amaierak NON adierazten du: lekua."},
+ {id:"A1-1-4",src:A+"S01#4",t:"match",q:"Lotu galdera bakoitza mezuko hitzarekin.",pairs:[["Non?","basoan"],["Nora?","errekara"],["Nondik?","menditik"]],a:["basoan · errekara · menditik"],ex:"Non? → -n · Nora? → -ra · Nondik? → -tik."},
+ {id:"A1-1-5",src:A+"S01#5",t:"mc",q:"Badakigu nork idatzi duen mezua?",ch:["Ez, ez dakigu.","Bai, Anek idatzi du.","Bai, Ikerrek idatzi du."],a:["Ez, ez dakigu."],ex:"Anek aurkitu du mezua, baina ez du idatzi. Mezuak ez du izenik: oraingoz misterioa da."},
+ {id:"A1-1-6",src:A+"S01#6",t:"gap",q:"Mezuaren egilea ____ doa.",h:"erreka · nora?",a:["errekara"],ex:"Nora? → -ra: errekara."},
+ {id:"A1-1-7",src:A+"S01#7",t:"build",q:"Haizeak mezuaren hitzak nahastu ditu!",instr:"Ordenatu mezua.",x:"basora",a:["Menditik nator, basoan bizi naiz eta errekara noa."],ex:"Mezu osoa: nondik dator, non bizi da eta nora doa."},
+ {id:"A1-1-8",src:A+"S01#8",t:"chips",q:"Iker: «Mezuaren egilea aurkitu nahi dut. Goazen ____!»",ch:["errekara","errekan","errekatik"],a:["errekara"],ex:"Erreka da helmuga → NORA: errekara."}]},
+{id:"a1a2-k1-i2",n:2,title:"Basoko hitzak",es:"Las palabras del bosque",
+ talk:[["txinpart","Kaixo! Txinpart naiz, basoko galtzagorria.","¡Hola! Soy Txinpart, el galtzagorri del bosque."],["txinpart","Bidea aurkitu nahi duzue? Lehenik, ikasi basoko hitzak!","¿Queréis encontrar el camino? ¡Primero aprended las palabras del bosque!"],["lur","Ados! Prest gaude.","¡De acuerdo! Estamos listos."]],
+ learn:"words",keys:["mendia","basoa","erreka","bidea","zubia"],
+ tip:"Hitz bakoitza irudi batekin lotu, errazago gogoratzeko.",tipEs:"Asocia cada palabra a una imagen para recordarla mejor.",
+ items:[
+ {id:"A1-2-1",src:A+"S02#1",t:"match",q:"Lotu hitza eta azalpena.",pairs:[["mendia","Lur garaia; gora igo behar da."],["basoa","Zuhaitz asko dauden lekua."],["erreka","Ur-korronte txikia."],["zubia","Uraren gainetik pasatzeko."],["bidea","Leku batetik bestera joateko."]],a:["5 lotura"],ex:"Mendia, basoa, erreka, zubia eta bidea: Basorako bideko bost hitzak."},
+ {id:"A1-2-2",src:A+"S02#2",t:"mc",q:"Zuhaitz asko daude hemen. Hau ____ da.",ch:["basoa","erreka","zubia"],a:["basoa"],ex:"Zuhaitz asko dauden lekua basoa da."},
+ {id:"A1-2-3",src:A+"S02#3",t:"chips",q:"Ura entzuten dut: gertu ____ bat dago!",ch:["erreka","mendi","bide"],a:["erreka"],ex:"Ura entzuten bada, erreka bat dago gertu."},
+ {id:"A1-2-4",src:A+"S02#4",t:"mc",q:"Errekaren beste aldera pasatzeko, ____ gurutzatu dugu.",ch:["zubia","basoa","mendia"],a:["zubia"],ex:"Zubiak uraren gainetik pasatzeko balio du."},
+ {id:"A1-2-5",src:A+"S02#5",t:"mc",q:"Iker: «Hemen bi ____ daude: bata ezkerrera doa, eta bestea eskuinera.»",ch:["bide","zubi","erreka"],a:["bide"],ex:"Bideak leku batetik bestera eramaten gaitu."},
+ {id:"A1-2-6",src:A+"S02#6",t:"gap",q:"Txinpart ____ bizi da, zuhaitzen artean.",h:"baso · non?",a:["basoan"],ex:"Non? → -n: basoan."},
+ {id:"A1-2-7",src:A+"S02#7",t:"fix",q:"Errekaren gainean dagoen basoa gurutzatu dugu.",w:"basoa",r:"zubia",opts:["zubia","mendia","bidea"],a:["Errekaren gainean dagoen zubia gurutzatu dugu."],ex:"Errekaren gainean zubia dago, ez basoa."},
+ {id:"A1-2-8",src:A+"S02#8",t:"mc",q:"Lur: «Begira! ____ gainean elurra dago.»",ch:["Mendiaren","Errekaren","Zubiaren"],a:["Mendiaren"],ex:"Elurra mendiaren gainean (gailurrean) egoten da."}]},
+{id:"a1a2-k1-i3",n:3,title:"Non, nora, nondik?",es:"¿Dónde, adónde, de dónde?",
+ talk:[["iker","Mezuan hiru amaiera daude: -n, -ra eta -tik.","En el mensaje hay tres terminaciones: -n, -ra y -tik."],["lur","Eta amaiera bakoitzak gauza bat esaten du.","Y cada terminación dice una cosa."],["bira","Proba ditzagun beste hitz batzuekin!","¡Probémoslas con otras palabras!"]],
+ learn:"table",keys:["-n","-ra","-tik"],
+ tip:"Aditzak laguntzen du: egon, bizi → non? · joan → nora? · atera → nondik?",tipEs:"El verbo ayuda: estar, vivir → ¿dónde? · ir → ¿adónde? · salir → ¿de dónde?",
+ items:[
+ {id:"A1-3-1",src:A+"S03#1",t:"chips",q:"Gaur goizean Iker ____ dago.",ch:["eskolan","eskolara","eskolatik"],a:["eskolan"],ex:"Egon → NON: eskolan."},
+ {id:"A1-3-2",src:A+"S03#2",t:"chips",q:"Arratsaldean Lur ____ joan da.",ch:["parkean","parkera","parketik"],a:["parkera"],ex:"Joan + helmuga → NORA: parkera."},
+ {id:"A1-3-3",src:A+"S03#3",t:"chips",q:"Eskola amaitu da. Haurrak ____ ateratzen dira.",ch:["Eskolan","Eskolara","Eskolatik"],a:["Eskolatik"],ex:"Atera → NONDIK: eskolatik."},
+ {id:"A1-3-4",src:A+"S03#4",t:"match",q:"Lotu galdera eta forma.",pairs:[["Non?","mendian"],["Nora?","mendira"],["Nondik?","menditik"]],a:["mendian · mendira · menditik"],ex:"Hitz bera, hiru amaiera: mendian, mendira, menditik."},
+ {id:"A1-3-5",src:A+"S03#5",t:"gap",q:"Ane ____ bizi da.",h:"herri · non?",a:["herrian"],ex:"Non? → -n: herrian."},
+ {id:"A1-3-6",src:A+"S03#6",t:"gap",q:"Larunbatean ____ joango gara.",h:"mendi · nora?",a:["mendira"],ex:"Nora? → -ra: mendira."},
+ {id:"A1-3-7",src:A+"S03#7",t:"gap",q:"Ur hau ____ dator.",h:"mendi · nondik?",a:["menditik"],ex:"Nondik? → -tik: menditik."},
+ {id:"A1-3-8",src:A+"S03#8",t:"mc",q:"«Basoan ibili gara.» Zer adierazten du «basoan» hitzak?",ch:["Non ibili garen","Nora joan garen","Nondik etorri garen"],a:["Non ibili garen"],ex:"Mugitu gara, baina basoaren barruan: NON. Mugitzeak ez du beti NORA eskatzen."},
+ {id:"A1-3-9",src:A+"S03#9",t:"fix",q:"Gaur goizean parkera jolastu gara.",w:"parkera",r:"parkean",opts:["parkean","parketik","plazara"],a:["Gaur goizean parkean jolastu gara."],ex:"Leku batean jolasten gara: NON → parkean."}]},
+{id:"a1a2-k1-i4",n:4,title:"Hiru bideak",es:"Los tres caminos",map:"bideak",
+ talk:[["iker","Mapa bat aurkitu dut! Gurutzebide honetatik hiru bide ateratzen dira.","¡He encontrado un mapa! De este cruce salen tres caminos."],["lur","Baina zein bide doa errekara?","¿Pero qué camino va al arroyo?"],["txinpart","Begiratu ondo seinaleei… hi, hi!","Mirad bien las señales… ¡ji, ji!"]],
+ learn:"cases",keys:["gurutzebidetik","basotik","errekara"],
+ tip:"Mapa irakurri: nondik abiatzen zara, nondik pasatzen zara eta nora iristen zara?",tipEs:"Lee el mapa: ¿de dónde sales, por dónde pasas y adónde llegas?",
+ items:[
+ {id:"A1-4-1",src:A+"S04#1",t:"mc",map:"bideak",q:"Zein bidek eramaten zaitu mendira?",ch:["Ezkerreko bideak","Erdiko bideak","Eskuineko bideak"],a:["Ezkerreko bideak"],ex:"Mapan, ezkerreko bidea mendira doa."},
+ {id:"A1-4-2",src:A+"S04#2",t:"mc",map:"bideak",q:"Eskuineko bidea errekara doa. Zer arazo du?",ch:["Itxita dago.","Mendira doa.","Oso laburra da."],a:["Itxita dago."],ex:"Seinaleak dio: «Itxita». Ezin da bide horretatik pasatu."},
+ {id:"A1-4-3",src:A+"S04#3",t:"mc",map:"bideak",q:"Mezuak «errekara noa» dio. Zein bide hartu behar du taldeak?",ch:["Erdiko bidea","Ezkerreko bidea","Eskuineko bidea"],a:["Erdiko bidea"],ex:"Eskuinekoa itxita dago. Erdikoa basotik pasatzen da, eta zubitik errekara iristen da."},
+ {id:"A1-4-4",src:A+"S04#4",t:"match",map:"bideak",q:"Lotu ibilbidearen hiru zatiak.",pairs:[["Nondik abiatu dira?","gurutzebidetik"],["Nondik pasatu dira?","basotik"],["Nora iritsi dira?","errekara"]],a:["gurutzebidetik · basotik · errekara"],ex:"-tik amaierak abiapuntua edo pasatzeko lekua adieraz dezake; -ra, helmuga."},
+ {id:"A1-4-5",src:A+"S04#5",t:"build",map:"bideak",q:"Nola iritsiko gara errekara?",instr:"Ordenatu esaldia.",x:"errekan",a:["Zubitik errekara iritsiko gara."],ex:"Zubitik (pasatzeko lekua) errekara (helmuga)."},
+ {id:"A1-4-6",src:A+"S04#6",t:"gap",q:"Taldea gurutzebidetik abiatu da eta ____ iritsi da.",h:"erreka · nora?",a:["errekara"],ex:"Nora iritsi da? → errekara."},
+ {id:"A1-4-7",src:A+"S04#7",t:"mc",map:"bideak",q:"Zubiaren azpian, zer dago?",ch:["Erreka","Mendia","Basoa"],a:["Erreka"],ex:"Zubia errekaren gainean dago; erreka, zubiaren azpian."},
+ {id:"A1-4-8",src:A+"S04#8",t:"mc",q:"Mapak esaten digu nork idatzi zuen mezua?",ch:["Ez: mapak bideak erakusten ditu, ez egilea.","Bai: Txinpartek idatzi zuen.","Bai: Ikerrek idatzi zuen."],a:["Ez: mapak bideak erakusten ditu, ez egilea."],ex:"Mapak bideak erakusten ditu. Egilea nor den ez dakigu oraindik: ez asmatu frogarik gabe!"}]},
+{id:"a1a2-k1-i5",n:5,title:"Zure mapa",es:"Tu mapa",challenge:true,map:"herria",
+ talk:[["ane","Errekara iritsi gara! Eta orain, zure txanda.","¡Hemos llegado al arroyo! Y ahora, te toca a ti."],["lur","Mapa berri bat marraztu dugu: eskola, plaza eta liburutegia.","Hemos dibujado un mapa nuevo: la escuela, la plaza y la biblioteca."],["iker","Azaldu ibilbidea, guk jarraitu ahal izateko.","Explica el recorrido para que podamos seguirlo."]],
+ learn:"order",keys:["lehenik","gero","azkenik"],
+ tip:"Ibilbide on batek hiru gauza ditu: abiapuntua (-tik), geldialdia (-n) eta helmuga (-ra).",tipEs:"Un buen recorrido tiene tres cosas: punto de partida (-tik), parada (-n) y destino (-ra).",
+ items:[
+ {id:"A1-5-1",src:A+"S05#1",t:"mc",map:"herria",q:"Ane eskolatik plazara joan da. Nondik abiatu da?",ch:["Eskolatik","Plazatik","Liburutegitik"],a:["Eskolatik"],ex:"Eskolatik → abiapuntua."},
+ {id:"A1-5-2",src:A+"S05#2",t:"gap",map:"herria",q:"Gero, Ane ____ gelditu da, lagunekin.",h:"plaza · non?",a:["plazan"],ex:"Non gelditu da? → plazan."},
+ {id:"A1-5-3",src:A+"S05#3",t:"gap",map:"herria",q:"Azkenik, ____ joan da, liburu bat hartzera.",h:"liburutegi · nora?",a:["liburutegira"],ex:"Nora joan da? → liburutegira."},
+ {id:"A1-5-4",src:A+"S05#4",t:"build",q:"Zure lehen esaldia:",instr:"Ordenatu esaldia.",x:"plazan",a:["Eskolatik plazara joan naiz."],ex:"Eskolatik (abiapuntua) plazara (helmuga)."},
+ {id:"A1-5-5",src:A+"S05#5",t:"fix",q:"Liburu bat hartu dut eta etxean joan naiz.",w:"etxean",r:"etxera",opts:["etxera","etxetik","mendian"],a:["Liburu bat hartu dut eta etxera joan naiz."],ex:"Joan + helmuga → NORA: etxera."},
+ {id:"A1-5-6",src:A+"S05#6",t:"mc",map:"herria",q:"Mapan: eskola → plaza → liburutegia. Zein esaldik azaltzen du ibilbidea?",ch:["Eskolatik plazara joan naiz, eta gero liburutegira.","Eskolan plazara joan naiz, eta gero liburutegian.","Liburutegitik plazara joan naiz, eta gero eskolara."],a:["Eskolatik plazara joan naiz, eta gero liburutegira."],ex:"Abiapuntua eskola da (-tik), gero plaza eta azkenik liburutegia (-ra)."},
+ {id:"A1-5-7",src:A+"S05#7",t:"write",map:"zurea",q:"Orain zu! Idatzi ibilbide hau: etxea → parkea → museoa.",instr:"Idatzi bi edo hiru esaldi. Erabili lehenik, gero eta azkenik.",model:"Lehenik, etxetik parkera joan naiz. Gero, parkean jolastu naiz. Azkenik, museora joan naiz.",a:["(irekia)"],ex:"Zure testua ez da automatikoki zuzentzen. Konparatu ereduarekin eta begiratu hiru zatiak dituen."}]}
+];
+const a1Chapters=[
+ {id:"a1a2-k1",title:"Basorako bidea",es:"El camino al bosque",lessons:a1Lessons},
+ {id:"a1a2-k2",title:"Basajaunen abisua",es:"El aviso del Basajaun"},
+ {id:"a1a2-k3",title:"Lamiaren ispilua",es:"El espejo de la lamia"},
+ {id:"a1a2-k4",title:"Galtzagorrien nahaspila",es:"El lío de los galtzagorris"},
+ {id:"a1a2-k5",title:"Zubiaren azpiko mezua",es:"El mensaje bajo el puente"}];
+const a1Gloss={mendia:"el monte",basoa:"el bosque",erreka:"el arroyo",bidea:"el camino",zubia:"el puente",menditik:"desde el monte",basoan:"en el bosque",errekara:"al arroyo",basotik:"por el bosque",gurutzebidetik:"desde el cruce","-n":"en (¿dónde?)","-ra":"a, hacia (¿adónde?)","-tik":"desde, por (¿de dónde?)",lehenik:"primero",gero:"luego",azkenik:"por último",eskolan:"en la escuela",parkera:"al parque",eskolatik:"desde la escuela",herrian:"en el pueblo",mendira:"al monte",plazan:"en la plaza",liburutegira:"a la biblioteca",etxera:"a casa",parkean:"en el parque"};
+Object.assign(gloss,a1Gloss);
+
+/* Maila-proba: sei galdera, errazenetik zailenera. Bi huts jarraian → proba amaitzen da. */
+const placement=[
+ {id:"P1",src:"MAILA#1",t:"mc",lv:1,q:"Kaixo! Ni Bira ____.",ch:["naiz","da","zara"],a:["naiz"]},
+ {id:"P2",src:"MAILA#2",t:"mc",lv:1,q:"Gaur goizean ____ joan naiz.",ch:["eskolara","eskolan","eskolatik"],a:["eskolara"]},
+ {id:"P3",src:"MAILA#3",t:"mc",lv:2,q:"Atzo zinemara ____.",ch:["joan nintzen","joango naiz","joaten naiz"],a:["joan nintzen"]},
+ {id:"P4",src:"MAILA#4",t:"mc",lv:2,q:"Zuk niri liburu bat eman ____.",ch:["didazu","dizut","diozu"],a:["didazu"]},
+ {id:"P5",src:"MAILA#5",t:"mc",lv:3,q:"Berandu iritsi naiz. ____, autobusa matxuratu da.",ch:["Izan ere","Beraz","Adibidez"],a:["Izan ere"]},
+ {id:"P6",src:"MAILA#6",t:"mc",lv:3,q:"Euria egingo duela esan dute; ____, mendi-irteera atzeratu dugu.",ch:["hortaz","aitzitik","adibidez"],a:["hortaz"]}];
+
+const islands=[
+ {id:"a1a2",level:"A1–A2",title:"Lehen urratsak",es:"Primeros pasos",blurb:"Ane, Iker eta Lurrekin, misterio bat basoan: non, nora eta nondik.",chapters:a1Chapters},
+ {id:"b1b2",level:"B1–B2",title:"Lotura uhartea",es:"La isla de los conectores",blurb:"Egoera errealak: kontatu, azaldu eta iritzia eman, ideiak ondo lotuta.",chapters}];
+const cast={ane:{name:"Ane",c:"#f06a1d"},iker:{name:"Iker",c:"#2563eb"},lur:{name:"Lur",c:"#0f9f6e"},txinpart:{name:"Txinpart",c:"#c0262d"},bira:{name:"Bira",c:"#5b3cc4"}};
+
+window.HB_BIDEA={version:"0.2.0",islands,island:islands[1],chapters,gloss,groups,patterns,placement,cast};
 })();
