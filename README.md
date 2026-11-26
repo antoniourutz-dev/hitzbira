@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.2.0 · Gramatika, aditzak eta ikasketa-ibilbide bateratua.**
+**2.3.0 · Bidea: Gaur, Mapa, adin-profilak eta B1–B2ko lehen kapitulua.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
@@ -12,7 +12,7 @@ Zerbitzatu gordailuaren erroa HTTP bidez, adibidez `python -m http.server 8000`,
 
 ## Egiaztapenak
 
-Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 194 egiaztapen, zazpi bateriatan. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
+Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. GitHub Actions-ek multzo bera exekutatzen du push eta pull request bakoitzean.
 
 ## Antolaketa
 
@@ -21,6 +21,7 @@ Node.js 22 edo berriagoa: `node tests/run.cjs` edo `npm test`. 194 egiaztapen, z
 | `index.html`, `app.js`, `style.css`, `platform.css` | Interfazea eta gramatika-praktika |
 | `data.js` | Bankuen karga, kontuak eta sinkronizazioa |
 | `core.js` | Curriculum pilotua, hautaketa moldakorra eta tokiko errepaso-egutegia |
+| `bidea/` | Gaur pantaila, Mapa, adin-profilak (Haurra, Gaztea, Heldua), ikasgai-erreproduzitzailea eta ikuskatzaile modua (`?ikuskatu=1`). B1–B2 uhartearen 1. kapitulua: 5 ikasgai, Supabaseko SMX zirriborroetako 52 ariketa |
 | `world.js`, `world-design.js`, `story.js` | Mundu narratiboa eta Bira |
 | `aditzak/` | Aditz-motorra, laborategia eta banku estatikoak |
 | `legacy/` | Gramatika-bankuen jatorrizko snapshot-ak |
