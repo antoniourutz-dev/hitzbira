@@ -41,7 +41,7 @@ function localStreak(){
  return {current,best,total:list.length,days:list,today,local:true};
 }
 function touchLocalDay(details){
- if(authorized||!details||!["answer","verb_answer","assessment_answer","lab_answer"].includes(details.kind))return;
+ if(authorized||!details||!["answer","verb_answer","assessment_answer","lab_answer","bidea_lesson"].includes(details.kind))return;
  const today=localToday(),raw=readLocal(LOCAL_STREAK_KEY),list=Array.isArray(raw)?raw.filter(x=>typeof x==="string"):[];
  if(!list.includes(today)){list.push(today);try{localStorage.setItem(LOCAL_STREAK_KEY,JSON.stringify(list.slice(-120)))}catch{}}
 }
