@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.6.0 · Bidea pedagogikoa: pista progresiboa + 2. saiakera, errepaso banatua Gauren barruan eta 2. kapituluak (NOR/NOR-NORK + Kontrastea).**
+**2.7.0 · Multi-plataforma: mugikorra, tableta eta ordenagailua (lan-mahaia, 2 zutabeko Bidea eta laguntza-panela).**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 

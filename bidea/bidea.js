@@ -178,13 +178,14 @@ function auditPanel(){if(!S.auditor)return "";const v=Object.values(AUD),ok=v.fi
  return `<section class="bd-card bd-audit-sum"><span class="bd-kicker">IKUSKATZAILE MODUA</span><p><b>${ok}</b> ontzat · <b>${fx}</b> zuzentzeko · ${allLessons().reduce((n,l)=>n+l.items.length,0)} ariketa guztira</p>
  <div class="bd-row"><button class="bd-btn bd-btn-small" onclick="HBBidea.copyAudit(this)">Kopiatu oharrak</button><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.auditor(false)">Desaktibatu</button></div></section>`}
 function tools(){return `<div class="bd-tools"><button class="bd-chip-btn${help()?" is-on":""}" aria-pressed="${help()}" onclick="HBBidea.toggleHelp()" title="Laguntza gaztelaniaz">${svg("globe")} ES</button><button class="bd-chip-btn${S.sound?" is-on":""}" aria-pressed="${!!S.sound}" onclick="HBBidea.toggleSound()" aria-label="Soinua">${svg(S.sound?"sound":"mute")}</button></div>`}
+function desktopDock(){return `<section class="bd-card bd-desk-only bd-desk-dock" aria-label="Tresna azkarrak"><div class="bd-desk-head"><span class="bd-kicker">LAN-MAHAIA · ESKURA</span><small>Sarbide azkarrak</small></div><div class="bd-desk-grid"><button class="bd-desk-btn" onclick="openVerb('study','lab')"><strong>Aditz-laborategia</strong><small>NOR, NORI, NORK</small></button><button class="bd-desk-btn" onclick="catalogFamily('decl')"><strong>Deklinabidea</strong><small>Kasuak eta mugaketa</small></button><button class="bd-desk-btn" onclick="openVerb('study','tables')"><strong>Aditz-taulak</strong><small>Kontsulta azkarra</small></button><button class="bd-desk-btn" onclick="go(2)"><strong>Praktika librea</strong><small>Saio azkarra eta gaiak</small></button></div></section>`}
 function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-first">${onboarding()}</div>`;
  const x=xpToday(),[g,gEs]=greetingFor(new Date().getHours()),ni=nextLesson(),sk=streak();
  const line=ni<0?"Ikasgai guztiak eginda. Errepaso bat?":ni===0&&!S.lessons[lessons()[0].id]?"Zure lehen ikasgaia prest dago.":x>=GOAL?"Gaurko helburua lortu duzu. Zoragarri!":"Jarraitu dezagun?";
  const lineEs=ni<0?"Todas las lecciones hechas. ¿Un repaso?":ni===0&&!S.lessons[lessons()[0].id]?"Tu primera lección está lista.":x>=GOAL?"Has cumplido el objetivo de hoy. ¡Genial!":"¿Seguimos?";
  return `<div class="bd-gaur"><div class="bd-col">
  <section class="bd-hello"><div class="bd-hello-bira">${bira(x>=GOAL?"celebrate":"hello","bd-bira-md")}</div><div class="bd-bubble"><strong>${esc(g)} ${esc(line)}</strong>${help()?`<small>${esc(gEs)} ${esc(lineEs)}</small>`:""}</div></section>
- ${todayCard()}${tools()}</div><div class="bd-col bd-side">
+ ${todayCard()}${tools()}${desktopDock()}</div><div class="bd-col bd-side">
  <section class="bd-stats" aria-label="Zure aurrerapena"><div class="bd-goal">${ring(x,GOAL)}<span>${x>=GOAL?svg("check","bd-goal-ok"):`<b>${x}</b>/${GOAL}`}</span></div><div><strong>Eguneko helburua</strong><small>${x>=GOAL?"Lortuta! Ederki.":`${GOAL-x} XP falta dira`}</small></div><div class="bd-stat bd-stat-fire">${svg("fire")}<b>${sk}</b><small>egun</small></div><div class="bd-stat">${svg("star")}<b>${totalStars()}</b><small>izar</small></div></section>
  ${reviewCard()}
  <button class="bd-maplink" onclick="go(3)">${svg("map")}<span><strong>${esc(island().title)} · ${esc(island().level)}</strong><small>Ikusi nire bidea</small></span>${svg("arrow")}</button>
@@ -202,16 +203,16 @@ function islandPath(I){const cur=I.id===S.level,ni=cur?nextLesson():-1;let offse
   return `<div class="bd-chapter is-open"><div class="bd-ch-head"><span class="bd-ch-n">${ci+1}</span><div><strong>${esc(c.title)}</strong>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${ls.filter(l=>done(l.id)).length}/${ls.length}</span></div>
    <ol class="bd-path">${ls.map((l,k)=>{const idx=startIdx+k,st=S.lessons[l.id],open=cur&&unlocked(idx),now=idx===ni;return `<li class="bd-node${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}${l.challenge?" is-boss":""}" style="--i:${k}"><button class="bd-dot" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"} aria-label="${esc(l.title)}${open?"":" (blokeatuta)"}">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</button><span class="bd-label">${esc(l.title)}${help()?`<small>${esc(l.es)}</small>`:""}${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:""}</span></li>`}).join("")}</ol></div>`;
  }).join("")}
-function bidea(){applyLevel();if(!S.level)return `<div class="bd-mapa">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson(),keys=[...new Set(d.flatMap(l=>l.keys))];
+function bidea(){applyLevel();if(!S.level)return `<div class="bd-mapa bd-mapa-first">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson(),keys=[...new Set(d.flatMap(l=>l.keys))];
  return `<div class="bd-mapa">
  <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${playableChapters(I).length} kapitulu irekita · ${d.length}/${ls.length} ikasgai</p>
   <div class="bd-ni-bar"><span style="width:${Math.round(d.length/Math.max(1,ls.length)*100)}%"></span></div></div></section>
  <section class="bd-ni-stats">${[[svg("bolt"),S.xp,"XP guztira"],[svg("star"),totalStars(),"izar"],[svg("fire"),sk,"egun jarraian"],[svg("check"),Object.keys(S.days).filter(k=>S.days[k]>0).length,"egun ikasten"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
  <section class="bd-card bd-island bd-island-${I.id}">${islandPath(I)}</section>
- <section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
+ <div class="bd-mapa-meta"><section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
   ${ni>=0?`<button class="bd-btn bd-btn-main bd-ni-go" onclick="HBBidea.start(${ni})">${svg("play")} Hurrengoa: ${esc(ls[ni].title)}</button>`:""}</section>
  ${other.map(o=>`<section class="bd-card bd-switch"><div><span class="bd-kicker">${esc(o.level)}</span><strong>${esc(o.title)}</strong><small>${esc(o.blurb)}</small></div><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}')">Aldatu maila</button></section>`).join("")}
- <div class="bd-bidea-foot"><button class="bd-linkbtn" onclick="HBBidea.startTest()">Egin berriro maila-proba</button>${root.HBData?.isRemote?.()?"":`<button class="bd-linkbtn bd-linkbtn-muted" onclick="reset()">Tokiko datuak ezabatu</button>`}</div></div>`}
+ <div class="bd-bidea-foot"><button class="bd-linkbtn" onclick="HBBidea.startTest()">Egin berriro maila-proba</button>${root.HBData?.isRemote?.()?"":`<button class="bd-linkbtn bd-linkbtn-muted" onclick="reset()">Tokiko datuak ezabatu</button>`}</div></div></div>`}
 function mapa(){return bidea()}
 function ni(){return bidea()}
 
@@ -245,13 +246,13 @@ function learnHtml(L){
  if(L.learn==="cases")return `<div class="bd-cases">${L.keys.map(k=>{const c=caseInfo(k);return `<div class="bd-case ${c.cls}">${svg(c.ico)}<span class="bd-case-tag">${c.tag}</span><b>${caseWord(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</div>`}).join("")}</div>`;
  if(L.learn==="words"){const ic={mendia:"mountain",basoa:"trees",erreka:"river",bidea:"path",zubia:"bridge"};return `<div class="bd-words">${L.keys.map(k=>`<div class="bd-word-card">${svg(ic[k]||"star")}<b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</div>`).join("")}</div>`}
  if(L.learn==="table"){const rows=[["baso","basoan","basora","basotik"],["eskola","eskolan","eskolara","eskolatik"],["parke","parkean","parkera","parketik"]];
-  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">${svg("pin")}NON?</th><th class="c-to">${svg("into")}NORA?</th><th class="c-from">${svg("outof")}NONDIK?</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th>${r.slice(1).map(w=>`<td>${caseWord(w)}</td>`).join("")}</tr>`).join("")}</tbody></table>`}
+  return `<div class="bd-table-wrap"><table class="bd-table"><thead><tr><th></th><th class="c-in">${svg("pin")}NON?</th><th class="c-to">${svg("into")}NORA?</th><th class="c-from">${svg("outof")}NONDIK?</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th>${r.slice(1).map(w=>`<td>${caseWord(w)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`}
  if(L.learn==="nornork"){const rows=[["Ni / Nik","joan naiz","liburua irakurri dut"],["Zu / Zuk","itzuli zara","kafea prestatu duzu"],["Ane / Anek","etorri da","ogia erosi du"]];
-  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
+  return `<div class="bd-table-wrap"><table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>`}
  if(L.learn==="nornork_pl"){const rows=[["Gu / Guk","iritsi gara","giltza hartu dugu"],["Bi lagun / Bi lagunek","etorri dira","ogia erosi dute"]];
-  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
+  return `<div class="bd-table-wrap"><table class="bd-table"><thead><tr><th></th><th class="c-in">NOR</th><th class="c-to">NOR-NORK</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>`}
  if(L.learn==="obj_num"){const rows=[["Nik","liburu bat → dut","bi liburu → ditut"],["Zuk","txartel bat → duzu","bi txartel → dituzu"],["Guk","liburu bat → dugu","bi liburu → ditugu"],["Bi lagunek","tomate bat → dute","hiru tomate → dituzte"]];
-  return `<table class="bd-table"><thead><tr><th></th><th class="c-in">1 objektu</th><th class="c-to">2+ objektu</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table>`}
+  return `<div class="bd-table-wrap"><table class="bd-table"><thead><tr><th></th><th class="c-in">1 objektu</th><th class="c-to">2+ objektu</th></tr></thead><tbody>${rows.map(r=>`<tr><th>${esc(r[0])}</th><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join("")}</tbody></table></div>`}
  if(L.learn==="order")return `<div class="bd-order">${L.keys.map((k,i)=>`<span><i>${i+1}</i><b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</span>`).join(svg("arrow"))}</div>`;
  /* B1–B2: lokailuen norabidea */
  const special={"-lako":"lako",baina:"baina",arren:"arren","nahiz eta":"nahiz"};
@@ -288,6 +289,11 @@ function auditBox(){if(!S.auditor)return "";const it=cur().item,a=AUD[it.id]||{}
 function nudgeHtml(){const it=cur().item,st=player.state;if(st.checked||!st.hintOn||player.mode==="test")return "";
  const retryTry=st.tries>0;
  return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
+function deskSide(){if(!player||player.mode==="test"||!player.L)return "";const L=player.L;
+ return `<aside class="bd-desk-side" aria-label="Ikasteko laguntza">
+  <details class="bd-card bd-desk-cheat"><summary>Laguntza-txartela</summary><div class="bd-desk-cheat-body">${learnHtml(L)}<p class="bd-tip">${svg("bolt")}<span>${esc(L.tip)}${help()?`<small>${esc(L.tipEs)}</small>`:""}</span></p></div></details>
+  <section class="bd-card bd-desk-keys"><span class="bd-kicker">TEKLATUA</span><ul><li><kbd>1–4</kbd><span>Aukeratu</span></li><li><kbd>H</kbd><span>Pista</span></li><li><kbd>Enter</kbd><span>Egiaztatu / Jarraitu</span></li><li><kbd>Esc</kbd><span>Itxi</span></li></ul></section>
+ </aside>`}
 /* Feedbacka: esaldi zuzena osorik + zergatia, laburra eta bisuala. Azalpen teknikoa nahi duenarentzat. */
 function feedback(){const it=cur().item,st=player.state;if(!st.checked)return "";
  const parts=solvedParts(it),key=it.t==="fix"?it.r:it.t==="build"?it.k:it.a[0],g=S.level==="b1b2"&&key?groupOf(key,DATA.groups):null,p=g&&DATA.patterns[g],gl=key&&DATA.gloss[norm(key)];
@@ -299,9 +305,10 @@ function feedback(){const it=cur().item,st=player.state;if(!st.checked)return ""
  ${p&&it.ex?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
 function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"MAILA-PROBA":(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
  const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
- return `<div class="bd-pwrap">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
- <main class="bd-item bd-t-${it.t}${st.checked?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${body()}</main>
- ${test?"":nudgeHtml()+feedback()+auditBox()}
+ const side=deskSide();
+ return `<div class="bd-pwrap${side?" has-desk-side":""}">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
+ <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${body()}</main>
+ ${test?"":nudgeHtml()+feedback()+auditBox()}</div>${side}</div>
  ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button></div>`}</footer>`}</div>`}
 function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
 function sel(o){const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}render()}
@@ -357,8 +364,11 @@ function auditText(){syncState();const all=allLessons().flatMap(l=>l.items);retu
 async function copyAudit(btn){const t=auditText();try{await navigator.clipboard.writeText(t);if(btn)btn.textContent="Kopiatuta ✓"}catch{const w=document.createElement("textarea");w.value=t;document.body.appendChild(w);w.select();try{document.execCommand("copy");if(btn)btn.textContent="Kopiatuta ✓"}catch{}w.remove()}}
 function auditor(on){syncState();S.auditor=!!on;save();refresh()}
 
-document.addEventListener("keydown",e=>{if(!player)return;const tag=e.target&&e.target.tagName;if(e.key==="Escape"){askQuit();return}
- if(/^[1-4]$/.test(e.key)&&tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){const b=document.querySelectorAll("#bd-player .bd-opt")[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}return}
+document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target&&e.target.tagName;if(e.key==="Escape"){askQuit();return}
+ if(tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){
+  if(/^[1-4]$/.test(e.key)){const b=document.querySelectorAll("#bd-player .bd-opt")[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}return}
+  if(e.key.toLowerCase()==="h"&&player.mode!=="test"){e.preventDefault();showHint();return}
+ }
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
 root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};

@@ -311,4 +311,9 @@ html[data-theme="dark"] .hb-day-cell.today small{color:#c5b6ff}
 html[data-theme="dark"] .hb-day-cell.today .hb-day-dot{outline-color:#9b87ff}
 @media(prefers-reduced-motion:reduce){.hb-slot.filled,.lesson-panel,.hb-streak-pop{animation:none!important}}
 
+/* 2.7.0 · Responsive Mobile / Tablet / Desktop shell polish */
+@media(max-width:859px){main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}.hb-site-footer{padding-bottom:calc(104px + env(safe-area-inset-bottom))}}
+@media(min-width:600px) and (max-width:1023px){.practice-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-family-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-lesson-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.hb-kit main:has(>.home-screen){max-width:1180px}.hb-kit .session-screen{max-width:880px}}
+
 

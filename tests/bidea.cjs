@@ -132,5 +132,13 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('Gaur surfaces spaced review card cleanly when a lesson is due',w.HBBidea.gaur().includes('BERRIKUSTEKO UNEA')&&w.HBBidea.gaur().includes('Enborreko mezua'));
  w.HBBidea.startReview('a1a2-k1-i1');
  check('startReview launches 5-item quick review session directly in play phase',w.HBBidea._player().mode==='review'&&w.HBBidea._player().phase==='play'&&w.HBBidea._player().queue.length===5);
+ check('player renders desktop study sidebar with collapsible cheat-sheet and keyboard guide',els.get('bd-player').innerHTML.includes('bd-desk-side')&&els.get('bd-player').innerHTML.includes('Laguntza-txartela')&&els.get('bd-player').innerHTML.includes('<kbd>H</kbd>'));
+ w.HBBidea.close(true);
+ w.HBBidea.startTest();
+ check('placement test omits desktop cheat-sheet sidebar',!els.get('bd-player').innerHTML.includes('bd-desk-side'));
+ w.HBBidea.close(true);
+ check('Gaur includes desktop workbench dock and Bidea uses responsive grid wrapper',w.HBBidea.gaur().includes('bd-desk-dock')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
+ const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
+ check('responsive CSS covers mobile tables, tablet (720px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:720px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();
 console.log(n+' checks passed (bidea)');

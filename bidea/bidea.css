@@ -402,3 +402,76 @@ html[data-theme=dark] .bd-nudge strong{color:#fcd34d}
 .bd-pfoot-row .bd-btn-main{flex:1}
 .bd-btn-hint{flex:none;padding:12px 16px;font-size:.92rem}
 .bd-btn-hint .bd-ico{width:16px;height:16px;color:#f59e0b}
+
+/* 0.4 · Multi-plataforma: mugikorra (<640px), tableta (640–1023px) eta ordenagailua (>=1024px) */
+nav{padding-bottom:env(safe-area-inset-bottom)}
+.bd-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;margin:8px 0 12px}
+.bd-table-wrap .bd-table{min-width:0;margin:0}
+.bd-table{min-width:0}
+.bd-desk-only,.bd-desk-side{display:none}
+.bd-pgrid{display:grid;gap:16px;flex:1;align-content:start}
+.bd-pmain{min-width:0}
+
+/* Bidea: ordena naturala mugikorrean eta tabletan, 2 zutabe ordenagailuan */
+.bd-mapa{max-width:780px;grid-template-areas:"head" "stats" "path" "meta"}
+.bd-mapa.bd-mapa-first{grid-template-areas:none;max-width:860px}
+.bd-mapa>.bd-ni-head{grid-area:head}
+.bd-mapa>.bd-ni-stats{grid-area:stats}
+.bd-mapa>.bd-island{grid-area:path}
+.bd-mapa>.bd-mapa-meta{grid-area:meta;display:grid;gap:14px;align-content:start}
+
+@media (max-width:540px){
+ .bd-cases{gap:6px}
+ .bd-case{padding:10px 4px}
+ .bd-case b{font-size:.98rem}
+ .bd-pfoot-row{gap:8px}
+ .bd-btn-hint{padding:12px 13px}
+ .bd-table th,.bd-table td{padding:7px 5px;font-size:.9rem}
+}
+
+/* Tableta (>=720px): Gaur 2 zutabetan eta ongietorria zabalago */
+@media (min-width:720px){
+ .bd-gaur{grid-template-columns:minmax(0,1.42fr) minmax(0,1fr);column-gap:16px;align-items:start}
+ .bd-gaur-first{grid-template-columns:1fr}
+ .bd-welcome{grid-template-columns:minmax(160px,.75fr) minmax(0,1.35fr);text-align:left;align-items:center;column-gap:26px;padding:30px 28px 24px}
+ .bd-welcome-cta{margin:16px 0 4px;max-width:none;grid-template-columns:auto 1fr;align-items:center}
+ .bd-welcome-path{grid-column:1/-1;justify-content:flex-start}
+}
+
+/* Tableta horizontala / ordenagailua (>=960px): Bidea 2 zutabetan */
+@media (min-width:960px){
+ .bd-mapa:not(.bd-mapa-first){max-width:1140px;grid-template-columns:minmax(0,1.35fr) minmax(310px,.92fr);grid-template-rows:auto auto 1fr;grid-template-areas:"path head" "path stats" "path meta";column-gap:20px;align-items:start}
+ .bd-mapa:not(.bd-mapa-first)>.bd-ni-stats{grid-template-columns:repeat(2,1fr)}
+}
+
+/* Ordenagailua (>=1024px): lan-mahaia Gauren barruan + laguntza-panela erreproduzitzailean */
+@media (min-width:1024px){
+ .bd-gaur{grid-template-columns:minmax(0,1.55fr) minmax(300px,1fr);column-gap:22px}
+ .bd-desk-only{display:grid;gap:12px}
+ .bd-desk-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+ .bd-desk-head small{color:var(--bd-muted);font-size:.82rem}
+ .bd-desk-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .bd-desk-btn{display:grid;gap:2px;text-align:left;padding:12px 14px;border-radius:14px;border:1.5px solid var(--bd-line);background:var(--bd-canvas);color:var(--bd-ink);font:inherit;cursor:pointer;transition:border-color 140ms var(--bd-ease),transform 120ms var(--bd-ease),background-color 140ms var(--bd-ease)}
+ .bd-desk-btn:hover{border-color:var(--bd-acc);background:var(--bd-lav);transform:translateY(-1px)}
+ .bd-desk-btn strong{font-size:.95rem;color:var(--bd-ink)}
+ .bd-desk-btn small{font-size:.8rem;color:var(--bd-muted)}
+ .bd-pwrap.has-desk-side{max-width:1040px;padding:0 24px}
+ .bd-pwrap.has-desk-side .bd-pgrid{grid-template-columns:minmax(0,1.45fr) minmax(260px,.82fr);gap:24px;align-items:start}
+ .bd-desk-side{display:grid;gap:14px;position:sticky;top:76px;align-content:start}
+ .bd-desk-cheat{padding:14px 16px}
+ .bd-desk-cheat summary{cursor:pointer;font-weight:800;font-size:.92rem;color:var(--bd-acc);list-style:none;display:flex;align-items:center;justify-content:space-between}
+ .bd-desk-cheat summary::-webkit-details-marker{display:none}
+ .bd-desk-cheat summary::after{content:"▾";font-size:.85rem;color:var(--bd-muted)}
+ .bd-desk-cheat[open] summary::after{content:"▴"}
+ .bd-desk-cheat-body{margin-top:12px;display:grid;gap:10px}
+ .bd-desk-cheat .bd-table{font-size:.86rem}
+ .bd-desk-cheat .bd-cases{grid-template-columns:1fr}
+ .bd-desk-cheat .bd-flow-row{font-size:.88rem}
+ .bd-desk-keys{padding:14px 16px}
+ .bd-desk-keys ul{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:7px}
+ .bd-desk-keys li{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--bd-muted)}
+ .bd-desk-keys kbd{display:inline-grid;place-items:center;min-width:44px;padding:3px 7px;border-radius:7px;border:1.5px solid var(--bd-line);background:var(--bd-canvas);color:var(--bd-ink);font:700 .76rem/1.1 inherit}
+}
+html[data-theme=dark] .bd-desk-btn{background:#18142b;border-color:#352e54}
+html[data-theme=dark] .bd-desk-btn:hover{background:#282147;border-color:var(--bd-acc)}
+html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
