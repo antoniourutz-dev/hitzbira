@@ -59,6 +59,8 @@ async function main(){
  const grant=releaseContext.release.rows[0],grantedGroup={...group,id:grant.groupId,current_content_hash:grant.groupFingerprint,last_reviewed_hash:grant.groupFingerprint},grantedEntry={...entry,id:grant.id,group_id:grant.groupId,version:grant.version,current_content_hash:grant.fingerprint,last_reviewed_hash:grant.fingerprint,knowledge_metadata:{}};
  const releaseOptions={preview:true,groups:[grantedGroup],entries:[grantedEntry]};
  r=await request(undefined,releaseOptions);check('owner-confirmed preview release reads exact approved version',r.status===200&&r.body.rows.length===1);
+ r=await request(undefined,{...releaseOptions,origin:'https://hitzbira-git-feature-guest-ac-cbff4f-antoniourutz-devs-projects.vercel.app'});check('stable guest development origin uses authenticated preview gateway',r.status===200&&r.body.rows.length===1);
+ r=await request(undefined,{...releaseOptions,origin:'https://hitzbira-git-feature-guest-ac-cbff4f-antoniourutz-devs-projects.vercel.app.example.test'});check('lookalike preview origin rejected',r.status===403&&r.calls.length===0);
  r=await request(undefined,{...releaseOptions,origin:'https://hitzbira.vercel.app'});check('isolated preview gateway rejects production origin',r.status===403&&r.calls.length===0);
  r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,version:grant.version+1}]});check('new entry version requires new release approval',r.body.rows.length===0);
  r=await request(undefined,{...releaseOptions,groups:[{...grantedGroup,current_content_hash:'changed',last_reviewed_hash:'changed'}]});check('changed group wording requires new release approval',r.body.rows.length===0);
