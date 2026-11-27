@@ -140,8 +140,8 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('placement test omits desktop cheat-sheet sidebar',!els.get('bd-player').innerHTML.includes('bd-desk-side'));
  w.HBBidea.close(true);
  const gaurHtml=w.HBBidea.gaur();
- check('Gaur renders redesigned Eguneko helburua with single-line ring counter and progress track',gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-goal-track')&&gaurHtml.includes('bd-stat-pills'));
- check('Gaur includes full desktop course syllabus and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
+ check('Gaur renders editorial greeting bar, redesigned Eguneko helburua with single-line ring and tinted stat icons',gaurHtml.includes('bd-desk-greet')&&gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-stat-ico is-fire')&&gaurHtml.includes('bd-review-banner'));
+ check('Gaur includes full desktop course syllabus with chapter progress bars and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&gaurHtml.includes('bd-ch-prog')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();

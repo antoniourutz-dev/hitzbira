@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.8.0 · Ordenagailuko ikasketa-plataforma (alboko barra iraunkorra + ikastaro osoa), HitzBira marka garbia, Eguneko helburua berritua eta energia-barra dinamikoa.**
+**2.9.0 · Diseinu-finkatzea: mahaigaineko geometria orekatua, paleta harmonikoa, ikono berriak eta trantsizio leunak.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 

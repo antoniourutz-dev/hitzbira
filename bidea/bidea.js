@@ -158,70 +158,75 @@ function onboarding(){const [g,gEs]=greetingFor(new Date().getHours());return `<
  <button class="bd-btn bd-btn-ghost" onclick="HBBidea.setLevel('a1a2',true)">Euskara gutxi dakit: hasi hasieratik</button></div></div>
  <div class="bd-welcome-path" aria-hidden="true">${DATA.islands.map(x=>`<span><b>${esc(x.level)}</b>${esc(x.title)}</span>`).join(`<i></i>`)}</div>
 </section>`}
-function ring(v,max){const r=26,c=2*Math.PI*r,p=Math.min(1,v/max);return `<svg class="bd-ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="${r}" class="bd-ring-bg"/><circle cx="32" cy="32" r="${r}" class="bd-ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}"/></svg>`}
-function todayCard(greet,greetEs){const I=island(),ls=lessons(),ni=nextLesson(),all=ni<0,i=all?ls.length-1:ni,L=ls[i],st=S.lessons[L.id],ch=chapterOf(L.id,I),chLs=ch.lessons||[L],posInCh=Math.max(0,chLs.findIndex(x=>x.id===L.id));
+function ring(v,max){const r=28,c=2*Math.PI*r,p=Math.min(1,v/max);return `<svg class="bd-ring" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="34" r="${r}" class="bd-ring-bg"/><circle cx="34" cy="34" r="${r}" class="bd-ring-fg" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-p)}"/></svg>`}
+function todayCard(){const I=island(),ls=lessons(),ni=nextLesson(),all=ni<0,i=all?ls.length-1:ni,L=ls[i],st=S.lessons[L.id],ch=chapterOf(L.id,I),chLs=ch.lessons||[L],posInCh=Math.max(0,chLs.findIndex(x=>x.id===L.id));
  return `<article class="bd-card bd-today">
   <div class="bd-today-body">
    <div class="bd-today-top"><span class="bd-kicker">GAURKO IKASGAIA · ${esc(I.level)}</span><span class="bd-chip">${posInCh+1}/${chLs.length}</span></div>
    <h2>${esc(L.title)}</h2>${help()?`<p class="bd-es">${esc(L.es)}</p>`:""}
    <p class="bd-meta">${esc(ch.title)} · ${L.items.length} ariketa · ~${Math.max(3,Math.round(L.items.length/2))} min${L.challenge?" · Erronka":""}</p>
    <div class="bd-pips" aria-label="Kapituluko aurrerapena">${chLs.map((x,k)=>`<span class="bd-pip${done(x.id)?" is-done":""}${k===posInCh&&!all?" is-now":""}"></span>`).join("")}</div>
-   <div class="bd-today-foot"><button class="bd-btn bd-btn-main" onclick="HBBidea.start(${i})">${svg("play")} ${all?"Errepasatu":st?"Berriro egin":posInCh===0&&i===0?"Hasi ikasgaia":"Jarraitu"}</button>${greet?`<span class="bd-today-greet">${esc(greet)}${help()&&greetEs?` <small>${esc(greetEs)}</small>`:""}</span>`:""}</div>
+   <div class="bd-today-foot"><button class="bd-btn bd-btn-main" onclick="HBBidea.start(${i})">${svg("play")} ${all?"Errepasatu":st?"Berriro egin":posInCh===0&&i===0?"Hasi ikasgaia":"Jarraitu"}</button></div>
    ${all?`<p class="bd-note">Maila honetako ikasgai guztiak osatu dituzu! Errepasatu edo probatu beste maila.</p>`:""}
   </div>
-  <div class="bd-today-art" aria-hidden="true">${bira(xpToday()>=GOAL?"celebrate":"hello","bd-bira-hero")}</div>
+  <div class="bd-today-art" aria-hidden="true"><span class="bd-hero-halo"></span>${bira(xpToday()>=GOAL?"celebrate":"hello","bd-bira-hero")}</div>
  </article>`}
-function statsCard(x,sk){const pct=Math.min(100,Math.round(x/GOAL*100));
+function statsCard(x,sk){const rem=Math.max(0,GOAL-x);
  return `<section class="bd-card bd-stats-card" aria-label="Zure aurrerapena">
   <div class="bd-goal-row">
    <div class="bd-goal">${ring(x,GOAL)}<span class="bd-goal-val">${x>=GOAL?svg("check","bd-goal-ok"):`<b>${x}</b><small>/${GOAL}</small>`}</span></div>
-   <div class="bd-goal-copy"><span class="bd-kicker">EGUNEKO HELBURUA</span><strong>${x>=GOAL?"Helburua lortuta!":`${GOAL-x} XP falta dira`}</strong><div class="bd-goal-track"><span style="width:${pct}%"></span></div></div>
+   <div class="bd-goal-copy"><span class="bd-kicker">EGUNEKO HELBURUA</span><strong>${x>=GOAL?"Helburua lortuta!":`${rem} XP falta dira`}</strong><p class="bd-goal-sub">${x>=GOAL?"Gaurko lana ederki eginda. Jarraitu nahi baduzu!":"Ikasgai 1 osatzea nahikoa da gaurko helburua betetzeko."}</p></div>
   </div>
   <div class="bd-stat-pills">
-   <div class="bd-stat-pill bd-stat-fire">${svg("fire")}<div><b>${sk}</b><small>egun jarraian</small></div></div>
-   <div class="bd-stat-pill">${svg("star")}<div><b>${totalStars()}</b><small>izar guztira</small></div></div>
+   <div class="bd-stat-pill"><span class="bd-stat-ico is-fire">${svg("fire")}</span><div><b>${sk}</b><small>egun jarraian</small></div></div>
+   <div class="bd-stat-pill"><span class="bd-stat-ico is-star">${svg("star")}</span><div><b>${totalStars()}</b><small>izar guztira</small></div></div>
   </div>
  </section>`}
 function courseGrid(){const I=island(),chs=playableChapters(I),ni=nextLesson();let offset=0;
  return `<section class="bd-course-section" aria-label="Zure ikastaroa">
   <div class="bd-course-head">
    <div><span class="bd-kicker">ZURE IKASTAROA · ${esc(I.level)}</span><h2>${esc(I.title)}</h2></div>
-   <div class="bd-level-switch" role="group" aria-label="Maila aukeratu">${DATA.islands.map(o=>`<button type="button" class="bd-lvl-pill${o.id===I.id?" is-on":""}" aria-pressed="${o.id===I.id}" onclick="HBBidea.setLevel('${o.id}')">${esc(o.level)}</button>`).join("")}</div>
+   <span class="bd-course-summary">${lessons().filter(l=>done(l.id)).length}/${lessons().length} ikasgai osatuta</span>
   </div>
-  <div class="bd-course-grid">${chs.map((c,ci)=>{const startIdx=offset;offset+=c.lessons.length;const dCount=c.lessons.filter(l=>done(l.id)).length;
+  <div class="bd-course-grid">${chs.map((c,ci)=>{const startIdx=offset;offset+=c.lessons.length;const dCount=c.lessons.filter(l=>done(l.id)).length,chPct=Math.round(dCount/Math.max(1,c.lessons.length)*100);
    return `<article class="bd-card bd-course-ch"><div class="bd-course-ch-head"><span class="bd-ch-n">${ci+1}</span><div><h3>${esc(c.title)}</h3>${help()?`<small>${esc(c.es)}</small>`:""}</div><span class="bd-chip">${dCount}/${c.lessons.length}</span></div>
+    <div class="bd-ch-prog" aria-hidden="true"><span style="width:${chPct}%"></span></div>
     <ul class="bd-course-list">${c.lessons.map((l,k)=>{const idx=startIdx+k,st=S.lessons[l.id],open=unlocked(idx),now=idx===ni;
-     return `<li><button class="bd-course-item${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"}><span class="bd-ci-ico">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</span><span class="bd-ci-copy"><strong>${esc(l.title)}</strong>${help()?`<small>${esc(l.es)}</small>`:""}</span>${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:`<span class="bd-ci-meta">${l.items.length} ariketa</span>`}</button></li>`}).join("")}</ul></article>`}).join("")}</div>
+     return `<li><button class="bd-course-item${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"}><span class="bd-ci-ico">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</span><span class="bd-ci-copy"><strong>${esc(l.title)}</strong>${help()?`<small>${esc(l.es)}</small>`:""}</span>${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:now?`<span class="bd-ci-cta">${idx===0?"Hasi":"Jarraitu"} ${svg("arrow")}</span>`:`<span class="bd-ci-meta">${l.items.length} ariketa</span>`}</button></li>`}).join("")}</ul></article>`}).join("")}</div>
  </section>`}
 function reviewCard(){
  const due=dueReviews(S.lessons,lessons());
  if(due.length){const L=due[0].lesson;
-  return `<section class="bd-card bd-review-card"><div class="bd-review-head"><span class="bd-kicker">BERRIKUSTEKO UNEA</span><span class="bd-chip">${due.length}</span></div><h3>${esc(L.title)}</h3><p>5 ariketa azkar, ikasitakoa gogoratzeko.</p><button class="bd-btn bd-btn-small" onclick="HBBidea.startReview(${jq(L.id)})">${svg("refresh")} Berrikusi</button></section>`}
+  return `<section class="bd-card bd-review-card bd-review-banner"><span class="bd-rev-ico" aria-hidden="true">${svg("refresh")}</span><div class="bd-rev-copy"><div class="bd-review-head"><span class="bd-kicker">BERRIKUSTEKO UNEA</span><span class="bd-chip">${due.length}</span></div><h3>${esc(L.title)}</h3><p>5 ariketa azkar, ikasitakoa gogoratzeko.</p></div><button class="bd-btn bd-btn-small" onclick="HBBidea.startReview(${jq(L.id)})">Berrikusi ${svg("arrow")}</button></section>`}
  const ag=root.HitzBiraAgenda?.agenda?.()||[],dueAg=ag.filter(r=>r.status==="due");
  if(dueAg.length&&typeof root.startCurriculum==="function"){
-  return `<section class="bd-card bd-review-card"><div class="bd-review-head"><span class="bd-kicker">GOGORATZEKO UNEA</span><span class="bd-chip">${dueAg.length}</span></div><h3>Aurretik landutako praktika</h3><p>Saio labur bat, ikasitako egiturak finkatzeko.</p><button class="bd-btn bd-btn-small" onclick="HBBidea.startAgendaReview()">${svg("refresh")} Berrikusi</button></section>`}
+  return `<section class="bd-card bd-review-card bd-review-banner"><span class="bd-rev-ico" aria-hidden="true">${svg("refresh")}</span><div class="bd-rev-copy"><div class="bd-review-head"><span class="bd-kicker">GOGORATZEKO UNEA</span><span class="bd-chip">${dueAg.length}</span></div><h3>Aurretik landutako praktika</h3><p>Saio labur bat, ikasitako egiturak finkatzeko.</p></div><button class="bd-btn bd-btn-small" onclick="HBBidea.startAgendaReview()">Berrikusi ${svg("arrow")}</button></section>`}
  return ""}
 function auditPanel(){if(!S.auditor)return "";const v=Object.values(AUD),ok=v.filter(x=>x.v==="ok").length,fx=v.filter(x=>x.v==="fix").length;
  return `<section class="bd-card bd-audit-sum"><span class="bd-kicker">IKUSKATZAILE MODUA</span><p><b>${ok}</b> ontzat · <b>${fx}</b> zuzentzeko · ${allLessons().reduce((n,l)=>n+l.items.length,0)} ariketa guztira</p>
  <div class="bd-row"><button class="bd-btn bd-btn-small" onclick="HBBidea.copyAudit(this)">Kopiatu oharrak</button><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.auditor(false)">Desaktibatu</button></div></section>`}
 function tools(){return `<div class="bd-tools"><button class="bd-chip-btn${help()?" is-on":""}" aria-pressed="${help()}" onclick="HBBidea.toggleHelp()" title="Laguntza gaztelaniaz">${svg("globe")} ES</button><button class="bd-chip-btn${S.sound?" is-on":""}" aria-pressed="${!!S.sound}" onclick="HBBidea.toggleSound()" aria-label="Soinua">${svg(S.sound?"sound":"mute")}</button></div>`}
 function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-first">${onboarding()}</div>`;
- const x=xpToday(),[g,gEs]=greetingFor(new Date().getHours()),ni=nextLesson(),sk=streak();
+ const I=island(),x=xpToday(),[g,gEs]=greetingFor(new Date().getHours()),ni=nextLesson(),sk=streak();
  const line=ni<0?"Ikasgai guztiak eginda. Errepaso bat?":ni===0&&!S.lessons[lessons()[0].id]?"Zure lehen ikasgaia prest dago.":x>=GOAL?"Gaurko helburua lortu duzu. Zoragarri!":"Jarraitu dezagun?";
  const lineEs=ni<0?"Todas las lecciones hechas. ¿Un repaso?":ni===0&&!S.lessons[lessons()[0].id]?"Tu primera lección está lista.":x>=GOAL?"Has cumplido el objetivo de hoy. ¡Genial!":"¿Seguimos?";
  return `<div class="bd-gaur">
+ <div class="bd-desk-greet">
+  <div><h1>${esc(g)}</h1><p>${esc(line)}${help()?` <span>${esc(gEs)} ${esc(lineEs)}</span>`:""}</p></div>
+  <div class="bd-level-switch" role="group" aria-label="Maila aukeratu">${DATA.islands.map(o=>`<button type="button" class="bd-lvl-pill${o.id===I.id?" is-on":""}" aria-pressed="${o.id===I.id}" onclick="HBBidea.setLevel('${o.id}')">${esc(o.level)}</button>`).join("")}</div>
+ </div>
  <div class="bd-gaur-top">
   <div class="bd-col">
    <section class="bd-hello"><div class="bd-hello-bira">${bira(x>=GOAL?"celebrate":"hello","bd-bira-md")}</div><div class="bd-bubble"><strong>${esc(g)} ${esc(line)}</strong>${help()?`<small>${esc(gEs)} ${esc(lineEs)}</small>`:""}</div></section>
-   ${todayCard(g+" "+line,gEs+" "+lineEs)}${tools()}
+   ${todayCard()}${tools()}
   </div>
   <div class="bd-col bd-side">
    ${statsCard(x,sk)}
-   ${reviewCard()}
-   <button class="bd-maplink" onclick="go(3)">${svg("map")}<span><strong>${esc(island().title)} · ${esc(island().level)}</strong><small>Ikusi bide osoa</small></span>${svg("arrow")}</button>
+   <button class="bd-maplink" onclick="go(3)">${svg("map")}<span><strong>${esc(I.title)} · ${esc(I.level)}</strong><small>Ikusi bide osoa</small></span>${svg("arrow")}</button>
    ${auditPanel()}
   </div>
  </div>
+ ${reviewCard()}
  ${courseGrid()}
  </div>`}
 /* Bidea dagoenean, hasierako pantaila garbia da: gomendioa bakarrik. */
