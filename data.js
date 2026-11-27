@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 const BASE="https://awdajwrzxceqazmaorxc.supabase.co",KEY="sb_publishable_USopGmel8SEMUckG1DoXTA_2-O0fQQk",RELEASE="hb-1.2-e461f43",STORE="hb-pilot-session-v1",META={"total":1867,"source":1867,"image":115,"synthetic":144,"counts":{"0-0":7,"0-1":7,"0-2":7,"0-3":7,"0-4":7,"0-5":7,"0-6":7,"0-7":7,"0-8":7,"0-9":7,"0-10":5,"1-0":40,"1-1":40,"1-2":40,"1-3":40,"1-4":40,"1-5":40,"1-6":40,"1-7":40,"1-8":40,"1-9":40,"1-10":28,"2-0":40,"2-1":40,"2-2":40,"2-3":40,"2-4":40,"2-5":40,"2-6":40,"2-7":40,"2-8":40,"2-9":40,"2-10":20,"3-0":88,"3-1":88,"3-2":88,"3-3":88,"3-4":88,"3-5":88,"3-6":88,"3-7":88,"3-8":88,"3-9":88,"3-10":64},"systems":[{"total":75,"zuka":64},{"total":428,"zuka":300},{"total":420,"zuka":292},{"total":944,"zuka":600}]},memo=new Map();
-const SUFFIX="@hitzbira.app",ROLE="hitzbira_isolated",ENDPOINT=BASE+"/functions/v1/"+(location.hostname==="hitzbira-git-feature-hitzbira-171a80-antoniourutz-devs-projects.vercel.app"?"hitzbira-learning-preview":"hitzbira-pilot-account");
+const SUFFIX="@hitzbira.app",ROLE="hitzbira_isolated",ENDPOINT=BASE+"/functions/v1/"+(["hitzbira-git-feature-hitzbira-171a80-antoniourutz-devs-projects.vercel.app","hitzbira-git-feature-guest-ac-cbff4f-antoniourutz-devs-projects.vercel.app"].includes(location.hostname)?"hitzbira-learning-preview":"hitzbira-pilot-account");
 let session=null,authorized=false,refreshing=null,starting=false;
 function claims(token){try{const x=token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");return JSON.parse(atob(x.padEnd(Math.ceil(x.length/4)*4,"=")))}catch{return {}}}
 function emailFor(value){const name=String(value||"").trim().toLowerCase();if(!/^[a-z0-9][a-z0-9._-]{2,23}$/.test(name))throw Error("Egiaztatu erabiltzaile-izena.");return name+SUFFIX}
