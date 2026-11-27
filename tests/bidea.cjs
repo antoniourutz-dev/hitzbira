@@ -103,7 +103,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:()=>mkEl('bd-player'),querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
  w.HBBidea.setLevel('a1a2',false);
- check('Bidea screen shows both Chapter 1 and Chapter 2',w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('Zer egin dut gaur?'));
+ check('Bidea retains the narrative while supplemental verb lessons remain accessible in practice',w.HBBidea.bidea().includes('Basorako bidea')&&!w.HBBidea.bidea().includes('Zer egin dut gaur?')&&w.HBBidea.supplementaryPracticeHtml().includes('Ni naiz, nik dut'));
  /* Start Chapter 2 Lesson 1 directly (index 5 = first lesson of Chapter 2) */
  w.HBBidea.start(5);
  check('Chapter 2 Lesson 1 unlocks directly without blocking',w.HBBidea._player()&&w.HBBidea._player().L.id==='a1a2-k2-i1');
@@ -144,7 +144,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.close(true);
  const gaurHtml=w.HBBidea.gaur();
  check('Gaur renders editorial greeting bar, redesigned Eguneko helburua with single-line ring and tinted stat icons',gaurHtml.includes('bd-desk-greet')&&gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-stat-ico is-fire')&&gaurHtml.includes('bd-review-banner'));
- check('Gaur includes full desktop course syllabus with chapter progress bars and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&gaurHtml.includes('bd-ch-prog')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
+ check('Gaur has adventure navigation rather than a parallel syllabus and Bidea uses responsive grid wrapper',!gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&gaurHtml.includes('bd-mission-meter')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
  w.HBBidea.setLevel('b1b2',false);
  check('first World episode is discoverable from Gaur',w.HBBidea.gaur().includes('Non dago ura?')&&w.HBBidea.gaur().includes('HBBidea.startEpisode()'));
  check('treasure collection starts undiscovered and does not reveal locked cards',w.HBBidea.gaur().includes('Nire altxorrak')&&w.HBBidea.gaur().includes('0/5 aurkituta')&&!w.HBBidea.gaur().includes('Auzolana'));
