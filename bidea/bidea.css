@@ -604,3 +604,33 @@ html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
  #bd-player .bd-stage-name{display:none}
  #bd-player .bd-pfoot{padding-top:6px;padding-bottom:calc(6px + env(safe-area-inset-bottom,0px))}
 }
+
+
+/* World episode illustrations and treasure collection. */
+.bd-episode-landscape{position:relative;isolation:isolate;overflow:hidden;margin:12px 0 8px;border:1px solid var(--bd-line);border-radius:18px;min-height:100px;aspect-ratio:3.2;background:#dce9dc}
+.bd-episode-landscape>svg{width:100%;height:100%;display:block;position:absolute;inset:0}
+.bd-location{position:absolute;bottom:10px;left:12px;max-width:70%;padding:5px 10px;border-radius:9px;background:#233c36eb;color:white;font-size:.76rem;font-weight:800;letter-spacing:.025em}
+.bd-landscape-bira{position:absolute;right:8%;bottom:2%;width:clamp(66px,19%,118px);height:auto;filter:drop-shadow(0 5px 5px #20352c55)}
+.bd-collection{padding:16px}
+.bd-collection details>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer;list-style:none}
+.bd-collection details>summary::-webkit-details-marker{display:none}
+.bd-collection-head{display:flex;gap:12px;align-items:center}
+.bd-collection-head>.bd-ico{width:28px;height:28px;color:#b88232}
+.bd-collection-head strong,.bd-collection-head small{display:block}
+.bd-collection-head small{color:var(--bd-muted);font-size:.78rem;margin-top:3px}
+.bd-collection details[open]>summary{margin-bottom:14px}
+.bd-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:10px}
+.bd-treasure-card{border:1px solid var(--bd-line);border-radius:16px;padding:14px;background:var(--bd-paper);overflow-wrap:anywhere;display:flex;flex-direction:column;gap:5px}
+.bd-treasure-card.is-discovered{border-color:#b88d4c80;background:linear-gradient(150deg,#f2d8a72b,transparent 70%),var(--bd-paper)}
+.bd-treasure-card.is-unknown{background:var(--bd-canvas)}
+.bd-treasure-card>.bd-ico{width:42px;height:42px;margin:12px auto;color:var(--bd-muted)}
+.bd-treasure-art{display:block;width:72px;height:72px;max-width:100%;margin:0 auto 4px}
+.bd-treasure-card h3{margin:0;font-size:1.05rem;color:var(--bd-ink)}
+.bd-treasure-card p{margin:3px 0;font-size:.86rem;line-height:1.5;color:var(--bd-ink)}
+.bd-treasure-card .bd-treasure-example{padding-top:6px;border-top:1px solid var(--bd-line);font-style:italic;color:var(--bd-muted)}
+.bd-treasure-card .bd-kicker{font-size:.62rem}
+.bd-treasure-screen .bd-treasure-card{max-width:380px;margin:16px auto;padding:20px;text-align:center}
+.bd-treasure-screen .bd-treasure-art{width:104px;height:104px}
+.bd-treasure-screen .bd-treasure-card h3{font-size:1.65rem}
+.bd-treasure-screen .bd-treasure-card p{font-size:1rem}
+@media(max-width:540px){.bd-episode-landscape{aspect-ratio:3.5}.bd-landscape-bira{right:4%}.bd-collection-grid{grid-template-columns:1fr}.bd-treasure-card .bd-treasure-art{width:60px;height:60px}.bd-treasure-screen .bd-treasure-art{width:88px;height:88px}}
