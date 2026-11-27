@@ -266,7 +266,8 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  const firstCause=w.HBBidea._state().episodeErrorMemory?.cause;
  check('known cause-result error is remembered once and does not certify mastery',firstCause?.errors===1&&firstCause.confused==='result'&&firstCause.recoveries===0);
  for(let n=2;n<=5;n++){
-  w.HBBidea.startEpisode();w.HBBidea.begin();
+  w.HBBidea.startEpisode(n);w.HBBidea.begin();
+  let recallGuard=0;while(w.HBBidea._player().phase==='play'&&w.HBBidea._player().segment==='recall'){if(++recallGuard>10)throw Error('stalled recall');const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}
   check('forest continuation uses seven activities per episode',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===7);
   w.HBBidea.begin();
   let loops=0;
