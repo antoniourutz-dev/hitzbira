@@ -65,6 +65,9 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.reset();
  check('remote account reset is blocked',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
  check('Bidea screen combines map and honest LANDU DITUZU progress and hides guest reset for remote accounts',(()=>{const b=w.HBBidea.bidea();return b.includes('bd-map')&&b.includes('LANDU DITUZU')&&!b.includes('MENPERATZEN DITUZU')&&!b.includes('Tokiko datuak ezabatu')})());
+ w.storyJournal=()=>'<section id="world-test-journal">World journal</section>';
+ check('existing World journal is reachable through a collapsed Bidea section, not Gaur',()=>{const b=w.HBBidea.bidea();return b.includes('<details class="bd-explore">')&&b.includes('Abentura gehiago')&&b.includes('world-test-journal')&&!w.HBBidea.gaur().includes('world-test-journal')});
+ delete w.storyJournal;
  check('isAuditor defaults to false and toggles cleanly',(()=>{const def=w.HBBidea.isAuditor();w.HBBidea.auditor(true);const on=w.HBBidea.isAuditor();w.HBBidea.auditor(false);const off=w.HBBidea.isAuditor();return def===false&&on===true&&off===false})());
  remote=false;uid=null;
  check('guest Bidea screen exposes local reset action',w.HBBidea.bidea().includes('Tokiko datuak ezabatu'));
