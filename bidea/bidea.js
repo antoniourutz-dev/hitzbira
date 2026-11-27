@@ -265,6 +265,7 @@ let player=null;
 function episodeLesson(n=1){
  if(n===2)return secondEpisode();
  if(n===3)return thirdEpisode();
+ if(n!==1)return null;
  const base=allLessons().find(l=>l.id==="b1b2-k1-i1");if(!base)return null;
  const rows=[
  ["KAUS-A02-1","Argik ezin izan du urik hartu. ____, erreka ia lehor dago.",["Izan ere","Beraz","Hala ere"],["Izan ere"],"Erreka lehor egoteak azaltzen du Argik urik hartu ezin izana."],
@@ -302,18 +303,17 @@ function thirdEpisode(){
  ["Errotako gurpila ez dabil, urik ez ____.",["dago","dagoelako","dagoela"],["dagoelako"],"«Dagoelako» adizkiak gurpila ez ibiltzearen arrazoia ematen du."],
  ["Lurrek leihoa ireki du. ____, argia behar dute barruan.",["Beraz","Izan ere","Hala ere"],["Izan ere"],"Argiaren beharrak azaltzen du leihoa irekitzea."],
  ["Hodia buxatuta dago. ____, ura ezin da errotara iritsi.",["Izan ere","Beraz","Adibidez"],["Beraz"],"Ura ezin iristea hodiaren egoeraren ondorioa da."],
- ["Argik hodia garbitu nahi du, ura berriro igaro dadin. Zergatik eskatu du laguntza? Ezin du hodia bakarrik mugitu ____.",null,[""],""],
+ ["Ez gara bakarrik sartu, barruan zarata entzun ____.",null,["dugulako"],"Zarata entzutea da bakarrik ez sartzeko arrazoia."],
  ["Errotako atea ireki dugu, giltza egokia ____.",null,["dugulako"],"Giltza egokia izatea da atea ireki ahal izateko arrazoia."]
  ];
  // New original fictional tasks: no imported private material.
- rows[4]=["Ez gara bakarrik sartu, barruan zarata entzun ____.",null,["dugulako"],"Zarata entzutea da bakarrik ez sartzeko arrazoia."];
  const items=rows.map(([q,ch,ans,ex],i)=>({id:"HB-EP-CAUSE-03-"+(i+1),src:"Jatorrizko fikziozko jarduera / EP-CAUSE-03",t:ch?"mc":"gap",q,a:ans,ex,...(ch?{ch}:{hint:"Zergatia adierazten duen adizkia osatu."})}));
  items.push({id:"HB-EP-CAUSE-03-OPEN",src:"Jatorrizko fikziozko jarduera / EP-CAUSE-03",t:"write",q:"Herritarrei aurkikuntzaren berri eman.",instr:"Idatzi bi edo hiru esaldi. Azaldu zergatik ez dabilen errota eta proposatu irtenbide bat.",a:["(irekia)"],model:"Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.",ex:"Arrazoia eta proposamena argi bereizi dituzu? Alderatu ereduarekin. Beste formulazio batzuk ere egokiak izan daitezke."});
  return {...base,id:"HB-EP-CAUSE-03",n:3,title:"Errotaren sekretua",es:"El secreto del molino",scene:"Kaik atearen atzean zarata entzun du. Giltzarekin atea ireki dute. Barruan, gurpila geldirik dago eta hodia buxatuta. Lurrek argia sartu du leihotik. Argik herritarrei arazoa eta irtenbidea azaldu nahi dizkie.",sceneEs:"Kai oye un ruido tras la puerta. Abren con la llave. Dentro, la rueda está parada y la tubería obstruida. Lur deja entrar luz por la ventana. Argi quiere explicar el problema y la solución al pueblo.",keys:["-lako","Beraz"],tip:"Lehenik, azaldu arazoaren zergatia; gero, proposatu ondorio logiko bat.",tipEs:"Primero explica el motivo del problema; después plantea una consecuencia lógica.",patterns:{lako:{tag:"ZERGATIA",dir:"back",a:"Errota ez dabil,",k:"",b:"urik ez dagoelako.",why:"Uraren faltak errota ez ibiltzea azaltzen du.",es:"La falta de agua explica que el molino no funcione."},result:{tag:"ONDORIOA",dir:"fwd",a:"Hodia buxatuta dago.",k:"Beraz,",b:"hodia garbitu behar dugu.",why:"Arazoa kontuan hartuta, irtenbidea proposatu dugu.",es:"Proponemos una solución a partir del problema."}},items};
 }
 const EP_TREASURES=[
  {id:"auzolana",title:"Auzolana",kind:"ELKARLANA",desc:"Herritarrek elkarrekin egiten duten lana, komunitatearen mesedetan.",example:"Herriko iturria konpontzeko, auzolanean aritu dira.",es:"Trabajo comunitario en beneficio de la comunidad."},
- {id:"giltza",title:"Giltza",kind:"HITZEN ALTXORRA",desc:"Giltzak ate bat ireki dezake; hitzak arazo baten konponbidea ere adieraz dezake.",example:"Elkarlana da arazoa konpontzeko giltza.",es:"Llave; también clave para resolver un problema."},
+ {id:"giltza",title:"Giltza",kind:"HITZEN ALTXORRA",desc:"Giltza batekin atea ireki dezakegu. Hitz hori irudiz ere erabiltzen dugu, arazo bat konpontzeko funtsezko zerbait adierazteko.",example:"Elkarlana da arazoa konpontzeko giltza.",es:"Llave; también clave para resolver un problema."},
  {id:"errota",title:"Errota",kind:"HITZEN ALTXORRA",desc:"Errota batean alea ehotzen da, adibidez irina egiteko. Uraren indarraz dabilena ur-errota da.",example:"Ur-errotako gurpilak biraka egin du.",es:"Molino. Un molino hidráulico aprovecha la fuerza del agua."}
 ];
 function treasureArt(id){const a=id==="auzolana"?'<path d="M18 44 34 28 50 44 66 28 82 44 50 75Z" fill="#e6b67a" stroke="#754e35" stroke-width="3"/><path d="M18 44 8 32 23 18 34 28M82 44 92 32 77 18 66 28" fill="#5e8b81" stroke="#365c54" stroke-width="3"/><path d="m38 55 12 9 12-9" fill="none" stroke="#754e35" stroke-width="3"/>':id==="giltza"?'<circle cx="32" cy="31" r="17" fill="none" stroke="#b88232" stroke-width="9"/><path d="m44 43 34 34 8-8-8-8 7-7" fill="none" stroke="#b88232" stroke-width="9" stroke-linejoin="round"/>':'<path d="M14 75V35l36-24 36 24v40Z" fill="#d8bc8d" stroke="#6b6251" stroke-width="3"/><path d="M9 38 50 8l41 30" fill="none" stroke="#a75d4d" stroke-width="7"/><circle cx="68" cy="62" r="23" fill="#9ac5c7" stroke="#557d83" stroke-width="4"/><path d="M68 39v46M45 62h46M52 46l32 32M84 46 52 78" stroke="#557d83" stroke-width="3"/>';
