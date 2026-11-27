@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.9.0 · Diseinu-finkatzea: mahaigaineko geometria orekatua, paleta harmonikoa, ikono berriak eta trantsizio leunak.**
+**2.10.0 · HitzBira ikono ilustratu propioak (Bira estiloan): nabigazio nagusia eta tresnak kolorez, sakoneraz eta mikro-animazioekin.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
