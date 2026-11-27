@@ -68,14 +68,14 @@ const keyFor=k=>root.HBData?.keyFor?root.HBData.keyFor(k):k;
 function load(k,d){try{const v=JSON.parse(localStorage.getItem(keyFor(k))||"null");return v&&typeof v==="object"?v:d}catch{return d}}
 function store(k,v){try{localStorage.setItem(keyFor(k),JSON.stringify(v))}catch{}}
 let S={},AUD={},loadedKey=null;
-function syncState(){const k=keyFor(KEY);if(loadedKey===k)return;loadedKey=k;let dirty=false;S=load(KEY,{});S.lessons=S.lessons||{};S.days=S.days||{};S.xp=S.xp||0;
+function syncState(){const k=keyFor(KEY);if(loadedKey===k)return;loadedKey=k;let dirty=false;const remote=root.HBData?.isRemote?.()?root.HBData?.loadBidea?.():null;S=remote||load(KEY,{});S.lessons=S.lessons||{};S.days=S.days||{};S.xp=S.xp||0;
  /* 0.1 bertsioko adin-profila mailara pasatu */
  if(!S.level&&S.profile){S.level=S.profile==="haurra"?"a1a2":"b1b2";dirty=true}if("profile" in S||"picking" in S){delete S.profile;delete S.picking;dirty=true}
  if(S.sound===undefined)S.sound=true;
  AUD=load(AKEY,{});
  try{const p=new URLSearchParams(location.search);if(p.has("ikuskatu")||p.has("auditor")){const next=(p.get("ikuskatu")||p.get("auditor"))!=="0";if(S.auditor!==next){S.auditor=next;dirty=true}}}catch{}
  if(dirty)store(KEY,S)}
-const save=()=>{syncState();store(KEY,S)};
+const save=()=>{syncState();store(KEY,S);if(root.HBData?.isRemote?.()&&root.HBData?.saveBidea){try{root.HBData.saveBidea(S)}catch(e){console.warn("Bidea: sinkronizazioaren zain",e.message)}}};
 function reset(){if(root.HBData?.isRemote?.())return;try{localStorage.removeItem(keyFor(KEY));localStorage.removeItem(keyFor(AKEY))}catch{}loadedKey=null;player=null;syncState();applyLevel()}
 syncState();
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -399,7 +399,7 @@ function wordGameGroups(){
  [["Gurpila","Ardatz baten inguruan biratzen den pieza biribila."],["Harria","Material mineral gogorreko zatia."],["Arrastoa","Zerbaiten berri ematen duen aztarna."]],
  [["Herritarra","Herri bateko biztanlea."],["Batzarra","Gai bat aztertzeko pertsonen bilera."],["Konponbidea","Arazoa konpontzeko modua."]]
  ];
- const primary=discovered.length>=3?discovered:starter;
+ const primary=[...discovered,...starter.filter(p=>!discovered.some(d=>d[0]===p[0]))].slice(0,Math.max(3,discovered.length));
  return [primary,...extra].map((pairs,i)=>({id:(forest?"HB-FOREST":"HB-WORLD")+"-GAME-WORDS-"+(i+1),t:"match",q:"Lotu hitzak eta esanahiak · "+(i+1)+"/4",pairs:shuffle(pairs),a:["loturak"],ex:"Hitzak eta esanahiak lotu dituzu."}));
 }
 const VERB_TASKS=[
@@ -658,7 +658,7 @@ function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==n
 function mL(k){const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
 function mR(k){const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
 function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
- const diagnosis=player.mode==="episode"||player.mode==="worldgame"&&it.why?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
+ const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&it.why)?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);
  if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis))){st.checked=true;st.neutral=true;st.ok=false;render();return}
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=player.mode==="worldgame"||!e.miss;else ok=isAccepted(st.sel,it.a);
