@@ -302,6 +302,16 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.begin();w.HBBidea.sel('liburutegian');w.HBBidea.check();
  check('autonomous delayed recall schedules next interval without mastery claim',memory.non.recoveries===1&&memory.non.step===1&&memory.non.dueAt>Date.now()+2*86400000);
  w.HBBidea.askQuit();
+ // A second due encounter must use a different stimulus and can be completed outside the story.
+ memory.non.dueAt=Date.now()-1;for(const [code,m] of Object.entries(memory))if(code!=='non')m.dueAt=Date.now()+86400000*2;
+ const savedDraft=JSON.stringify(w.HBBidea._state().forestDraft);
+ check('due recovery available on Gaur without opening another episode',w.HBBidea.gaur().includes('HBBidea.startDueRecall()'));
+ w.HBBidea.startDueRecall();check('standalone recovery shares the same memory and changes stimulus',w.HBBidea._player().kind==='recall'&&w.HBBidea._player().queue[0].item.id==='HB-RECALL-NON-2');
+ w.HBBidea.showHint();w.HBBidea.sel('parkean');w.HBBidea.check();
+ check('assisted recall schedules next-day repair, never an additional recovery',memory.non.recoveries===1&&memory.non.lastProbeResult==='supported'&&memory.non.step===0&&memory.non.dueAt>Date.now());
+ w.HBBidea.next();w.HBBidea.close(true);
+ check('standalone recovery preserves the paused narrative draft',JSON.stringify(w.HBBidea._state().forestDraft)===savedDraft);
+ memory.non.dueAt=Date.now()+86400000*2;
  w.HBData.guestLimited=()=>true;
  check('guest sees only A1-A2 story and local progress, not account-only navigation',w.HBBidea.gaur().includes('Gonbidatua')&&!w.HBBidea.gaur().includes('HITZBIRA WORLD')&&!w.HBBidea.gaur().includes('ZURE LORPENAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&!w.HBBidea.bidea().includes('Ikasgai gehiago'));
  w.HBBidea.setLevel('b1b2',false);check('guest cannot switch to higher level',w.HBBidea._state().level==='a1a2');

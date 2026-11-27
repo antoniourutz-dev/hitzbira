@@ -199,6 +199,8 @@ function courseGrid(){const I=island(),chs=playableChapters(I),ni=nextLesson();l
     <ul class="bd-course-list">${c.lessons.map((l,k)=>{const idx=startIdx+k,st=S.lessons[l.id],open=unlocked(idx),now=idx===ni;
      return `<li><button class="bd-course-item${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"}><span class="bd-ci-ico">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</span><span class="bd-ci-copy"><strong>${esc(l.title)}</strong>${help()?`<small>${esc(l.es)}</small>`:""}</span>${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:now?`<span class="bd-ci-cta">${idx===0?"Hasi":"Jarraitu"} ${svg("arrow")}</span>`:`<span class="bd-ci-meta">${l.items.length} ariketa</span>`}</button></li>`}).join("")}</ul></article>`}).join("")}</div>
  </section>`}
+function dueRecallHtml(){syncState();if(!S.level)return "";const items=dueEpisodeItems();if(!items.length)return "";return `<section class="bd-card bd-review-card bd-review-banner"><span class="bd-rev-ico" aria-hidden="true">${svg("refresh")}</span><div class="bd-rev-copy"><div class="bd-review-head"><span class="bd-kicker">GOGORATU</span><span class="bd-chip">${items.length}</span></div><h3>Ikasitakoa gogoratzeko unea</h3><p>Erronka laburrak, aurreko zailtasunei lotuta.</p></div><button class="bd-btn bd-btn-small" onclick="HBBidea.startDueRecall()">Hasi ${svg("arrow")}</button></section>`}
+function startDueRecall(){applyLevel();if(!S.level)return;const items=dueEpisodeItems();if(!items.length)return;close(true);openWorldGame("recall",items)}
 function reviewCard(){
  const due=dueReviews(S.lessons,lessons());
  if(due.length){const L=due[0].lesson;
@@ -211,7 +213,7 @@ function auditPanel(){if(!S.auditor)return "";const v=Object.values(AUD),ok=v.fi
  return `<section class="bd-card bd-audit-sum"><span class="bd-kicker">IKUSKATZAILE MODUA</span><p><b>${ok}</b> ontzat · <b>${fx}</b> zuzentzeko · ${allLessons().reduce((n,l)=>n+l.items.length,0)} ariketa guztira</p>
  <div class="bd-row"><button class="bd-btn bd-btn-small" onclick="HBBidea.copyAudit(this)">Kopiatu oharrak</button><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.auditor(false)">Desaktibatu</button></div></section>`}
 function tools(){return `<div class="bd-tools"><button class="bd-chip-btn${help()?" is-on":""}" aria-pressed="${help()}" onclick="HBBidea.toggleHelp()" title="Laguntza gaztelaniaz">${svg("globe")} ES</button><button class="bd-chip-btn${S.sound?" is-on":""}" aria-pressed="${!!S.sound}" onclick="HBBidea.toggleSound()" aria-label="Soinua">${svg(S.sound?"sound":"mute")}</button></div>`}
-function gaur(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-gaur bd-gaur-polished"><div class="bd-desk-greet"><div><h1>Ongi etorri!</h1><p>${esc(forestTitle())} · Gonbidatua</p></div></div><div class="bd-gaur-top"><div class="bd-col">${episodeCard()}${worldGamesHtml()}</div><div class="bd-col bd-side">${adventureOverview()}${collectionHtml()}${guestAccessCard()}</div></div>${forestMissionsHtml()}</div>`;if(!S.level)return `<div class="bd-gaur bd-gaur-first">${onboarding()}</div>`;
+function gaur(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-gaur bd-gaur-polished"><div class="bd-desk-greet"><div><h1>Ongi etorri!</h1><p>${esc(forestTitle())} · Gonbidatua</p></div></div><div class="bd-gaur-top"><div class="bd-col">${episodeCard()}${dueRecallHtml()}${worldGamesHtml()}</div><div class="bd-col bd-side">${adventureOverview()}${collectionHtml()}${guestAccessCard()}</div></div>${forestMissionsHtml()}</div>`;if(!S.level)return `<div class="bd-gaur bd-gaur-first">${onboarding()}</div>`;
  const I=island(),x=xpToday(),[g,gEs]=greetingFor(new Date().getHours()),ni=nextLesson(),sk=streak();
  const line=ni<0?"Ikasgai guztiak eginda. Errepaso bat?":ni===0&&!S.lessons[lessons()[0].id]?"Zure lehen ikasgaia prest dago.":x>=GOAL?"Gaurko helburua lortu duzu. Zoragarri!":"Jarraitu dezagun?";
  const lineEs=ni<0?"Todas las lecciones hechas. ¿Un repaso?":ni===0&&!S.lessons[lessons()[0].id]?"Tu primera lección está lista.":x>=GOAL?"Has cumplido el objetivo de hoy. ¡Genial!":"¿Seguimos?";
@@ -222,7 +224,7 @@ function gaur(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-g
  </div>
  <div class="bd-gaur-top">
   <div class="bd-col">
-   ${episodeCard()||todayCard()}${typeof root.routeSupportHtml==="function"?root.routeSupportHtml():""}${reviewCard()}${worldGamesHtml()}${tools()}
+   ${episodeCard()||todayCard()}${dueRecallHtml()}${typeof root.routeSupportHtml==="function"?root.routeSupportHtml():""}${reviewCard()}${worldGamesHtml()}${tools()}
   </div>
   <div class="bd-col bd-side">
    ${root.HBData?.isRemote?.()&&root.HBData?.streakSummary?achievementCard():statsCard(x,sk)}
@@ -573,11 +575,11 @@ function startWorldGame(kind){
 }
 function openWorldGame(kind,items,vocabulary={}){
  if(!items.length)return;
- const L={id:"HB-WORLD-GAME-"+kind,title:kind==="verbs"?"Aditzen erronka":kind==="words"?"Hitzak lotu":S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka",keys:[],items};
+ const L={id:"HB-WORLD-GAME-"+kind,title:kind==="recall"?"Gogoratu":kind==="verbs"?"Aditzen erronka":kind==="words"?"Hitzak lotu":S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka",keys:[],items};
  player={mode:"worldgame",owner:keyFor(KEY),L,kind,vocabularyMode:vocabulary.mode,vocabularyReason:vocabulary.reason,vocabularyLevel:vocabulary.level,phase:"play",queue:items.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()
 }
-function worldGameEnd(){return '<div class="bd-pwrap bd-endwrap">'+top()+'<main class="bd-end">'+bira("calm","bd-bira-lg")+'<span class="bd-kicker">JOLASTOKIA</span><h1>Jolasa amaituta!</h1><p>Abenturako hizkuntza berriz landu duzu.</p><p class="bd-note">Nahi duzunean itzul zaitezke.</p></main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.startWorldGame(\''+player.kind+'\')">Berriro jolastu</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button></footer></div>'}
+function worldGameEnd(){if(player.kind==="recall")return '<div class="bd-pwrap bd-endwrap">'+top()+'<main class="bd-end">'+bira("calm","bd-bira-lg")+'<span class="bd-kicker">GOGORATU</span><h1>Errepasoa eginda!</h1><p>Ikasitakoa berriro landu duzu. Beste egun batean itzuliko gara egitura hauetara.</p></main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button></footer></div>';return '<div class="bd-pwrap bd-endwrap">'+top()+'<main class="bd-end">'+bira("calm","bd-bira-lg")+'<span class="bd-kicker">JOLASTOKIA</span><h1>Jolasa amaituta!</h1><p>Abenturako hizkuntza berriz landu duzu.</p><p class="bd-note">Nahi duzunean itzul zaitezke.</p></main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.startWorldGame(\''+player.kind+'\')">Berriro jolastu</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button></footer></div>'}
 
 /* First contextual error-memory extension, integrated with Gogoratu.
    Only known, closed contrasts; no inference about unrestricted writing. */
@@ -597,6 +599,14 @@ const ERROR_RECALL=[
  {id:"HB-RECALL-NORINORK",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Aneri giltza eman ____. (Ane da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Nik eman diot Aneri giltza.",why:{dut:"Ane da hartzailea: harekiko komunztadura ere behar dugu.",dizut:"Hartzailea Ane da, ez zu."}}
 ,{id:"HB-RECALL-NOR-VERB-2",code:"nor",level:"a1a2",t:"mc",q:"Miren geltokira iritsi ____.",ch:["da","du","dio"],a:["da"],ex:"Miren da iritsi dena.",why:{du:"Ez da objekturik aipatzen.",dio:"Ez da hartzailerik aipatzen."}},
  {id:"HB-RECALL-NORNORK-2",code:"nornork",level:"a1a2",t:"mc",q:"Jonek poltsa hartu ____.",ch:["da","du","dio"],a:["du"],ex:"Jonek hartu du poltsa.",why:{da:"Jon da egilea; poltsa da objektua.",dio:"Ez da hartzailerik aipatzen."}}
+,{id:"HB-RECALL-NON-2",code:"non",level:"a1a2",t:"mc",q:"Haurrak jolasean ari dira. ____ daude, zuhaitzen artean.",ch:["parketik","parkean","parkera"],a:["parkean"],ex:"Non daude? Parkean. Lekua adierazten du."},
+ {id:"HB-RECALL-NORA-2",code:"nora",level:"a1a2",t:"mc",q:"June etxean dago. Lagunekin elkartzeko, ____ joango da.",ch:["plazatik","plazan","plazara"],a:["plazara"],ex:"Nora joango da? Plazara. Helmuga adierazten du."},
+ {id:"HB-RECALL-NONDIK-2",code:"nondik",level:"a1a2",t:"mc",q:"Eskola amaitu da. Haurrak ____ atera dira.",ch:["eskolara","eskolatik","eskolan"],a:["eskolatik"],ex:"Nondik atera dira? Eskolatik. Abiapuntua adierazten du."},
+ {id:"HB-RECALL-CAUSE-2",code:"cause",level:"b1b2",t:"mc",q:"Ez gara mendira joango. ____, eguraldi txarra iragarri dute.",ch:["Beraz","Izan ere"],a:["Izan ere"],ex:"Eguraldiaren iragarpenak azaltzen du zergatik ez garen mendira joango."},
+ {id:"HB-RECALL-RESULT-2",code:"result",level:"b1b2",t:"mc",q:"Denda itxita dago. ____, bihar itzuliko gara.",ch:["Izan ere","Beraz"],a:["Beraz"],ex:"Bihar itzultzea dendaren itxieraren ondorioa da."},
+ {id:"HB-RECALL-NORINORK-2",code:"nornorinork",level:"b1b2",t:"mc",q:"Maialenek irakasleari koadernoa eman ____.",ch:["du","dio","diot"],a:["dio"],ex:"Maialen da egilea, koadernoa objektua eta irakaslea hartzailea.",why:{du:"Irakaslearekiko komunztadura ere behar dugu.",diot:"Egilea Maialen da, ez ni."}},
+ {id:"HB-RECALL-NOR-VERB-3",code:"nor",level:"a1a2",t:"mc",q:"Lagunak geltokira iritsi ____.",ch:["dute","dira","da"],a:["dira"],ex:"Lagunak dira iritsi direnak.",why:{dute:"Ez da objekturik aipatzen.",da:"Lagunak plurala da."}},
+ {id:"HB-RECALL-NORNORK-3",code:"nornork",level:"a1a2",t:"mc",q:"Anek bi sagar erosi ____.",ch:["du","ditu","da"],a:["ditu"],ex:"Anek erosi ditu bi sagarrak: objektua plurala da.",why:{du:"Bi sagar aipatzen dira; objektua plurala da.",da:"Egilea eta objektua ditugu."}}
 ].map(i=>({...i,src:"Jatorrizko berreskurapen ariketa / HB-ERROR-v1"}));
 function classifyEpisodeError(it,response){
  const expected=norm(it.a?.[0]),actual=norm(response);
@@ -624,13 +634,18 @@ function rememberEpisodeError(st,diagnosis){
 }
 function dueEpisodeItems(){
  const now=Date.now(),memory=S.episodeErrorMemory||{};
- const eligible=ERROR_RECALL.filter(i=>(S.level==="b1b2"||i.level==="a1a2"||i.code==="nornork")&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now);const groups=new Map();for(const i of eligible){if(!groups.has(i.code))groups.set(i.code,[]);groups.get(i.code).push(i)}return [...groups.values()].map(items=>items[(memory[items[0].code].step||0)%items.length]).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
+ const eligible=ERROR_RECALL.filter(i=>(S.level==="b1b2"||i.level==="a1a2"||i.code==="nornork")&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now);const groups=new Map();for(const i of eligible){if(!groups.has(i.code))groups.set(i.code,[]);groups.get(i.code).push(i)}return [...groups.values()].map(items=>items[((memory[items[0].code].probeCursor??memory[items[0].code].step??0)%items.length+items.length)%items.length]).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
 }
 function recordEpisodeRecovery(it,st,e,ok){
- if(player.owner!==keyFor(KEY)||player.mode!=="episode"||player.segment!=="recall"||!it.code||!ERROR_RECALL.some(i=>i.id===it.id)||!ok||st.tries||st.hintUsed||st.errorRecorded||e.retry)return;
- const m=S.episodeErrorMemory?.[it.code],now=Date.now();if(!m||m.dueAt>now)return;
- const step=Math.min((m.step||0)+1,EP_REVIEW_INTERVALS.length-1);
- m.step=step;m.recoveries=(m.recoveries||0)+1;m.lastRecoveryAt=now;m.dueAt=now+EP_REVIEW_INTERVALS[step]*EP_REVIEW_DAY;save()
+ const recall=player.mode==="episode"&&player.segment==="recall"||player.mode==="worldgame"&&player.kind==="recall";
+ if(!recall||player.owner!==keyFor(KEY)||!it.code||!ERROR_RECALL.some(i=>i.id===it.id)||e.retry||st.recallRecorded)return;
+ const m=S.episodeErrorMemory?.[it.code],now=Date.now();if(!m||(m.dueAt>now&&!st.errorRecorded))return;
+ st.recallRecorded=true;
+ const assisted=!!(st.tries||st.hintUsed||st.errorRecorded);
+ m.probeCursor=(m.probeCursor??m.step??0)+1;m.lastProbeId=it.id;m.lastProbeAt=now;m.lastProbeResult=ok?(assisted?"supported":"recognition"):"mismatch";
+ if(ok&&!assisted){const step=Math.min((m.step||0)+1,EP_REVIEW_INTERVALS.length-1);m.step=step;m.recoveries=(m.recoveries||0)+1;m.lastRecoveryAt=now;m.dueAt=now+EP_REVIEW_INTERVALS[step]*EP_REVIEW_DAY}
+ else{m.step=0;m.dueAt=now+EP_REVIEW_DAY}
+ save()
 }
 function episodeNumber(){const ids=episodeIds(),draft=activeDraft();if(draft?.v===1&&ids.includes(draft.id))return ids.indexOf(draft.id)+1;const next=ids.findIndex(id=>!S.episodes?.[id]);return next<0?ids.length:next+1}
 function saveEpisodeDraft(localOnly=false){
@@ -784,7 +799,7 @@ function feedback(){const it=cur().item,st=player.state;if(!st.checked)return ""
  ${(player.mode==="worldgame"||player.mode==="episode"&&(player.segment==="story"||it.code))?`<p class="bd-why">${esc(it.ex)}</p>`:p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
  ${help()&&gl?`<small class="bd-es">ES · ${esc(key)} = ${esc(gl)}</small>`:""}
  ${p&&it.ex&&player.mode!=="worldgame"&&!(player.mode==="episode"&&player.segment==="story")?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
-function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"ZURE ABIAPUNTUA":player.mode==="worldgame"?"JOLASTOKIA · "+TYPE[it.t]:player.mode==="episode"?(player.segment==="recall"?"1 · GOGORATU":"3 · ERRONKA")+" · "+TYPE[it.t]:(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
+function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"ZURE ABIAPUNTUA":player.mode==="worldgame"?(player.kind==="recall"?"GOGORATU":"JOLASTOKIA")+" · "+TYPE[it.t]:player.mode==="episode"?(player.segment==="recall"?"1 · GOGORATU":"3 · ERRONKA")+" · "+TYPE[it.t]:(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
  const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
  const side=deskSide();
  return `<div class="bd-pwrap${side?" has-desk-side":""}">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
@@ -799,9 +814,9 @@ function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picke
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
 function mL(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
 function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;const attempt=st.vocabularyAttempts[st.left]=(st.vocabularyAttempts[st.left]||0)+1;root.HBData?.activity?.({kind:"vocabulary_match",telemetryVersion:2,attempt,resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:attempt>1,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
-function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
+function check(){if(!player||player.phase!=="play")return;if(player.owner&&player.owner!==keyFor(KEY)){close();return}const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  if((player.mode==="episode"||player.mode==="worldgame")&&!st.studyRecorded&&!e.retry){st.studyRecorded=true;S.episodeStudyDays=S.episodeStudyDays||{};S.episodeStudyDays[today()]=true;save();if(root.HBData?.isRemote?.())root.HBData.activity?.({kind:"answer",item:it.id})}
- const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&it.why)?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
+ const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&(it.why||player.kind==="recall"))?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);
  if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis))){st.checked=true;st.neutral=true;st.ok=false;render();return}
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=player.mode==="worldgame"||!e.miss;else ok=isAccepted(st.sel,it.a);
@@ -868,6 +883,6 @@ function learningContext(){
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
   focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors};
 }
-root.HBBidea={...api,learningContext,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);
