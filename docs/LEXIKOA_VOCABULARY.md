@@ -4,7 +4,7 @@ Base: `feature/hitzbira-2.10-learning`, `3cf79911404cfd8f30b56328e4673cb9cc63021
 Method consulted: [HitzBira method v1.1](https://docs.google.com/document/d/1g42sF5p3QWGcYf177giFVxRuY12qsp8RtY9Ji14E7vA/edit).
 Original protocols 00/01/04/08 were unavailable; the owner confirmed there are no originals available in this session. This increment does not claim their full review or academic acceptance.
 
-## Observed quality, 2026-11-27
+## Initial inspection, before owner confirmation, 2026-11-27
 
 Only bounded SELECTs against Lexikoa content and metadata; no learner records queried, no database mutations, DDL, grants, policy or deployment changes.
 
@@ -17,7 +17,15 @@ Only bounded SELECTs against Lexikoa content and metadata; no learner records qu
 | `sd_dictionary_entries` / senses | 14 entries pending/draft, 17 senses draft; rights review required | Excluded |
 | `sd_dictionary_provenance` | 17 legacy references, rights not assessed | Excluded |
 
-No inspected resource has verified rights AND current suitability approval for this matching flow. **There are zero live-eligible rows today.** Published status and existing linguistic approval do not establish those rights. This is a scoped inspection, not a census or audit of the entire Lexikoa database.
+At that initial inspection there were zero rows with the new application-specific approval metadata. Published status and existing linguistic approval do not by themselves establish rights. This is a scoped inspection, not a census or audit of the entire Lexikoa database. The subsequent owner-confirmed release below supersedes that activation limit for its exact listed versions.
+
+## Owner-confirmed preview release
+
+The owner subsequently confirmed: “Todo está revisado y preparado para el juego; implementemos todo”. Release `HB-VOCAB-C1-20261127-01` records that confirmation as owner authorization to use the current wording in Jolastokia. It is not presented as an independent rights or academic audit.
+
+32 C1 entries across nine themes satisfy BOTH entry and group review/hash gates. The initial 36 approved entries include four whose group gate is not current; these four remain excluded. The release stores only IDs, versions and entry/group fingerprints, not terms or definitions. All displayed wording is fetched from Lexikoa on each preparation request. No editorial records, hashes, statuses or permissions are updated. Changes to either approved entry or group require a new release; explicit metadata revocation blocks release approval too.
+
+`hitzbira-learning-preview` uses the shared account gateway implementation and accepts only `https://hitzbira-git-feature-hitzbira-171a80-antoniourutz-devs-projects.vercel.app`. The client selects it only at that exact hostname. Production and other origins continue to use the existing account endpoint; the deployed production function is not replaced. Authentication, registered-account checks and the existing learning journal are retained. JWT platform verification follows the existing gateway configuration (`false`); every data action validates the bearer token with Supabase Auth and performs current server-managed account authorization inside the handler.
 
 ## Implemented contract
 
@@ -37,7 +45,7 @@ The fixed source is the existing editorial lexical repository. Both group and en
 
 These fields are a new application gate, not a claim that the database already contains them. No metadata was created, approved or changed. An authorized editorial process must first establish rights and suitability for the exact current wording. `matching_review` means the nuance can serve as a distinct definition in this activity; a generic lexical usage note is insufficient. Do not mechanically set flags on existing content. Public-safe source references only; no private document URLs, names or editorial notes.
 
-The server returns only ID, term, meaning, level, theme, version, reviewed content hash, approved source reference and rights basis. Raw metadata, reviewers, internal notes and credentials are omitted. The CORS allowlist is unchanged. The gateway change is committed as source only; **the shared Supabase function is not deployed**.
+The server returns only ID, term, meaning, level, theme, version, reviewed content hash, approved source reference and rights basis. Raw metadata, reviewers, internal notes and credentials are omitted. The production origin allowlist remains unchanged. The preview entrypoint has its own exact origin and bounded release approval.
 
 ## Player and shared motor
 
@@ -51,4 +59,4 @@ Each dynamic pair attempt uses the existing activity journal with resource ID/ve
 
 `node tests/run.cjs` is the same command as CI. The new vocabulary suite covers selection, duplicates, insufficient content, account isolation, cancellation, network fallback, fixed projections, stale approval hashes, rights/matching gates, authentication, query injection, unchanged origin restrictions, actual player integration and trace events. Fixtures are synthetic; tests do not prove real content approval or live connectivity.
 
-Preview can verify the UI and explicit fallback. Actual dynamic content requires approved suitable rows AND the gateway action in an authorized backend deployment AND an explicitly approved preview origin/session. No wildcard CORS, privilege changes, shared backend deployment, credential retrieval or production publication is part of this increment. Do not label this integration live until authenticated end-to-end reads and trace persistence are observed.
+Actual dynamic verification requires a signed-in pilot account at the exact branch preview origin. No wildcard CORS, privilege changes, production gateway replacement, credential retrieval or production publication is part of this increment. Do not label this integration live until authenticated end-to-end reads and trace persistence are observed. Other difficulty levels retain an explicit fallback until their own reviewed content is available; C1 approval never changes an A1/B1 learner's difficulty implicitly.

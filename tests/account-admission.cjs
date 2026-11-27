@@ -1,6 +1,6 @@
 'use strict';
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const source=fs.readFileSync(path.join(__dirname,'../supabase/functions/hitzbira-pilot-account/index.ts'),'utf8');
+const source=require('./helpers/gateway.cjs')();
 const uid='11111111-1111-4111-8111-111111111111';
 const base={id:uid,email:'student@hitzbira.app',role:'hitzbira_isolated',email_confirmed_at:'2026-01-01T00:00:00Z',app_metadata:{hitzbira_pilot:true}};
 const record={user_id:uid,username:'student',email:base.email,enabled:true};

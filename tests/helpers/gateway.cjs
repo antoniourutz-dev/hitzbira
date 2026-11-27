@@ -1,0 +1,2 @@
+const fs=require('node:fs'),path=require('node:path');
+module.exports=function(preview=false){const base=path.join(__dirname,'../../supabase/functions/');return fs.readFileSync(base+'_shared/account-gateway.ts','utf8').replace('export function','function')+'\n'+(preview?fs.readFileSync(base+'_shared/vocabulary-release.ts','utf8').replace('export const','const')+'\n':'')+fs.readFileSync(base+(preview?'hitzbira-learning-preview':'hitzbira-pilot-account')+'/index.ts','utf8').replace(/^import .*;\r?\n/gm,'')};

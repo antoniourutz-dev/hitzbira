@@ -24,7 +24,7 @@ async function main(){
  pending=repo.prepare({level:'C1'});repo.cancel();resolve({contract:'hb-vocabulary-v1',rows});check('closed game discards response',(await pending).mode==='cancelled');
  data.vocabulary=async()=>{throw Error('network')};check('network error explicit fallback',(await repo.prepare({level:'C1'})).reason==='connection');
 
- const gateway=fs.readFileSync(path.join(__dirname,'../supabase/functions/hitzbira-pilot-account/index.ts'),'utf8');
+ const gateway=require('./helpers/gateway.cjs')();
  const uid='11111111-1111-4111-8111-111111111111',group={id:uid,slug:'lexiko_a',current_content_hash:'g',last_reviewed_hash:'g'};
  const entry={id:'entry-1',group_id:uid,term_eu:'Synthetic',nuance_eu:'Synthetic definition',level:'C1',version:1,current_content_hash:'h',last_reviewed_hash:'h',knowledge_metadata:{hitzbira_vocab:{rights_status:'approved',matching_review:'approved',reviewed_fingerprint:'h',rights_basis:'Synthetic fixture only',source_ref:'TEST-ONLY'}}};
  async function request(body={action:'vocabulary',level:'C1',theme:'all'},opts={}){
@@ -38,12 +38,12 @@ async function main(){
    assert.equal(u.searchParams.get('status'),'eq.published');assert.equal(u.searchParams.get('review_status'),'eq.approved');assert.equal(u.searchParams.get('needs_review'),'eq.false');assert.equal(u.searchParams.get('level'),'eq.C1');
    assert.ok(!u.searchParams.get('select').includes('*'));
    if(u.pathname==='/rest/v1/editorial_lexical_groups'){assert.equal(u.searchParams.get('limit'),'100');return res(opts.groups||[group])}
-   if(u.pathname==='/rest/v1/editorial_lexical_entries'){assert.equal(u.searchParams.get('limit'),'200');assert.equal(u.searchParams.get('knowledge_metadata->hitzbira_vocab->>rights_status'),'eq.approved');return res(opts.entries||[entry])}
+   if(u.pathname==='/rest/v1/editorial_lexical_entries'){assert.equal(u.searchParams.get('limit'),'200');if(!opts.preview)assert.equal(u.searchParams.get('knowledge_metadata->hitzbira_vocab->>rights_status'),'eq.approved');return res(opts.entries||[entry])}
    throw Error('Unexpected read');
   };
-  vm.runInNewContext(gateway,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private-test',SUPABASE_ANON_KEY:'public-test'})[k]},serve:f=>handler=f},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
+  vm.runInNewContext(opts.preview?require('./helpers/gateway.cjs')(true):gateway,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private-test',SUPABASE_ANON_KEY:'public-test'})[k]},serve:f=>handler=f},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
   const token='header.'+Buffer.from(JSON.stringify({sub:uid,role:user.role})).toString('base64url')+'.signature';
-  const r=await handler(new Request('https://example.test',{method:'POST',headers:{Origin:opts.origin||'https://hitzbira.vercel.app',Authorization:'Bearer '+token},body:JSON.stringify(body)}));
+  const r=await handler(new Request('https://example.test',{method:'POST',headers:{Origin:opts.origin||(opts.preview?'https://hitzbira-git-feature-hitzbira-171a80-antoniourutz-devs-projects.vercel.app':'https://hitzbira.vercel.app'),Authorization:'Bearer '+token},body:JSON.stringify(body)}));
   return {status:r.status,body:await r.json(),calls};
  }
  let r=await request();check('gateway returns only public projection',r.status===200&&r.body.rows.length===1&&!JSON.stringify(r.body).includes('knowledge_metadata')&&!JSON.stringify(r.body).includes('private-test'));
@@ -54,6 +54,18 @@ async function main(){
  r=await request(undefined,{invalid:true});check('invalid authentication prevents vocabulary reads',r.status===403&&!r.calls.some(u=>u.pathname.includes('editorial_')));
  r=await request({action:'vocabulary',level:'C1',theme:'all&select=*'});check('query injection rejected',r.status===400&&!r.calls.some(u=>u.pathname.includes('editorial_')));
  r=await request(undefined,{origin:'https://hitzbira-preview-unapproved.vercel.app'});check('preview origin remains closed without specific authorization',r.status===403&&r.calls.length===0);
+
+ const releaseContext={};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../supabase/functions/_shared/vocabulary-release.ts'),'utf8').replace('export const vocabularyRelease','this.release'),releaseContext);
+ const grant=releaseContext.release.rows[0],grantedGroup={...group,id:grant.groupId,current_content_hash:grant.groupFingerprint,last_reviewed_hash:grant.groupFingerprint},grantedEntry={...entry,id:grant.id,group_id:grant.groupId,version:grant.version,current_content_hash:grant.fingerprint,last_reviewed_hash:grant.fingerprint,knowledge_metadata:{}};
+ const releaseOptions={preview:true,groups:[grantedGroup],entries:[grantedEntry]};
+ r=await request(undefined,releaseOptions);check('owner-confirmed preview release reads exact approved version',r.status===200&&r.body.rows.length===1);
+ r=await request(undefined,{...releaseOptions,origin:'https://hitzbira.vercel.app'});check('isolated preview gateway rejects production origin',r.status===403&&r.calls.length===0);
+ r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,version:grant.version+1}]});check('new entry version requires new release approval',r.body.rows.length===0);
+ r=await request(undefined,{...releaseOptions,groups:[{...grantedGroup,current_content_hash:'changed',last_reviewed_hash:'changed'}]});check('changed group wording requires new release approval',r.body.rows.length===0);
+ r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,knowledge_metadata:{hitzbira_vocab:{rights_status:'revoked'}}}]});check('explicit revocation overrides owner release',r.body.rows.length===0);
+ r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,id:'unapproved-id'}]});check('unlisted resource cannot use release approval',r.body.rows.length===0);
+ r=await request(undefined,{...releaseOptions,invalid:true});check('release never bypasses account authentication',r.status===403);
+ const releaseRows=Array.from(releaseContext.release.rows);check('release contains references only and no definitions',releaseRows.length===32&&releaseRows.every(r=>!r.term&&!r.meaning&&r.fingerprint.length===64));
 
  const store=new Map(),els=new Map(),events=[],w={HBVocabulary:api,draw(){}};
  const el=()=>({hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null});
