@@ -29,3 +29,9 @@ Producción inspeccionada en Vercel: READY, main f69f1b2178f6d951657cbaee4ce139c
 Fuentes consultadas: arquitectura y documentación técnica del repositorio; Plan Director, Hoja de Ruta, inventario técnico y prompts operativos en Drive; «HitzBira: el método de estudio», versión 1.1 del 27/11/2026, documento 1g42sF5p3QWGcYf177giFVxRuY12qsp8RtY9Ji14E7vA. Se buscaron los originales 00_PROTOKOLO_KOMUNA, 01_MATERIAL_SORTZAILEA, 04_HIZKUNTZA_LABORATEGIA, 05_EZARPENA_ETA_KALITATE_PROBAK, 08_EZAGUTZA_BANKUAREN_KUDEAKETA y 09_AUDITORIA_2_1 en las fuentes disponibles: no localizados como originales; los documentos de dirección no los sustituyen. No se declara auditoría académica independiente ni conformidad WCAG completa.
 
 Reversión de preview: revertir el commit de esta versión en la misma rama y dejar que la integración Git reconstruya. Los datos y claves de almacenamiento se conservan.
+
+## Evidencia posterior al despliegue
+
+Commit funcional e16b9981db6334839791df4e8c770ccca943c97c. Vercel READY dpl_EvCtetDrDGH2rpJjbrR4fVewSyYF, alias estable confirmado. CI de ese commit: https://github.com/antoniourutz-dev/hitzbira/actions/runs/46068220047, success. En la URL estable, el diagnóstico de navegador devolvió «Konexioa prest dago» sin credenciales y sin errores de consola observados. Meta de versión 2.11.0; navegación Gaur → Bidea con borrador invitado conservado y sin desbordamiento horizontal (639/639 px). Falta sesión real de cuenta: no se declara reparada ni probada.
+
+La revisión final separó visualmente el resultado positivo del diagnóstico (verde) de los errores de acceso. Esta corrección y el registro de evidencia se versionan en un commit posterior de la misma rama.
