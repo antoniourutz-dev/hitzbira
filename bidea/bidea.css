@@ -634,3 +634,17 @@ html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
 .bd-treasure-screen .bd-treasure-card h3{font-size:1.65rem}
 .bd-treasure-screen .bd-treasure-card p{font-size:1rem}
 @media(max-width:540px){.bd-episode-landscape{aspect-ratio:3.5}.bd-landscape-bira{right:4%}.bd-collection-grid{grid-template-columns:1fr}.bd-treasure-card .bd-treasure-art{width:60px;height:60px}.bd-treasure-screen .bd-treasure-art{width:88px;height:88px}}
+
+/* Jolastokia: same visual language as Bidea, without competitive scoring. */
+.bd-world-games h2{margin:6px 0 3px;font-size:1.25rem;color:var(--bd-ink)}
+.bd-world-games p{color:var(--bd-muted);margin:0 0 12px;font-size:.9rem}
+.bd-world-game-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:10px}
+.bd-game-tile{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;border:1px solid var(--bd-line);border-radius:14px;background:var(--bd-paper);color:var(--bd-ink);font:inherit;cursor:pointer;min-height:68px}
+.bd-game-tile>span{flex:1;min-width:0}
+.bd-game-tile strong,.bd-game-tile small{display:block}
+.bd-game-tile small{font-size:.78rem;color:var(--bd-muted);margin-top:3px}
+.bd-game-tile>.bd-ico:first-child{width:30px;height:30px;color:var(--bd-acc);background:var(--bd-lav);border-radius:9px;padding:5px;box-sizing:content-box}
+.bd-game-tile>.bd-ico:last-child{width:18px;color:var(--bd-acc)}
+.bd-game-tile:hover,.bd-game-tile:focus-visible{border-color:var(--bd-acc);background:var(--bd-lav)}
+#bd-player[data-mode=worldgame] .bd-pgrid{grid-template-columns:minmax(0,1fr)}
+#bd-player[data-mode=worldgame] .bd-match button{overflow-wrap:anywhere;white-space:normal}
