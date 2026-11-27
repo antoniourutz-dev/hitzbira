@@ -305,6 +305,8 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBData.guestLimited=()=>true;
  check('guest sees only A1-A2 story and local progress, not account-only navigation',w.HBBidea.gaur().includes('Gonbidatua')&&!w.HBBidea.gaur().includes('HITZBIRA WORLD')&&!w.HBBidea.gaur().includes('ZURE LORPENAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&!w.HBBidea.bidea().includes('Ikasgai gehiago'));
  w.HBBidea.setLevel('b1b2',false);check('guest cannot switch to higher level',w.HBBidea._state().level==='a1a2');
+ w.HBBidea.chooseAdventure('uraren-misterioa',true);check('Work adventure entry preserves guest restriction',w.HBBidea._state().level==='a1a2'&&w.HBBidea._player()===null);
+ check('guest home preserves Work adventure labels without official levels',!/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(w.HBBidea.gaur().replace(/<[^>]*>/g,' ')));
  w.HBBidea.startTest();check('guest placement test is not required or accessible',w.HBBidea._player()===null);
  w.HBBidea.startReview('b1b2-k1-i1');check('guest cannot enter registered review route directly',w.HBBidea._player()===null);
  w.HBBidea.auditor(true);check('guest cannot enter audit mode',!w.HBBidea.isAuditor());
@@ -312,7 +314,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBData.guestLimited=()=>false;
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
- check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Maila-proba egin (aukerakoa)'));
+ check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));
  check('direct route does not imply placement evidence',w.HBBidea._state().placed===false);
  check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));

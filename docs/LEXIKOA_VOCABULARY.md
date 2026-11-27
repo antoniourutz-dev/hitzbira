@@ -4,6 +4,14 @@ Base: `feature/hitzbira-2.10-learning`, `3cf79911404cfd8f30b56328e4673cb9cc63021
 Method consulted: [HitzBira method v1.1](https://docs.google.com/document/d/1g42sF5p3QWGcYf177giFVxRuY12qsp8RtY9Ji14E7vA/edit).
 Original protocols 00/01/04/08 were unavailable; the owner confirmed there are no originals available in this session. This increment does not claim their full review or academic acceptance.
 
+## Student journey policy, 2.10.5
+
+Official CEFR labels are internal metadata. The learner chooses adventures, never a vocabulary level. This policy supersedes the exploratory difficulty picker used in the earlier smoke tests below. Welcome, home, map, adventure switching, starting-point results and vocabulary play no longer display A1–C2 labels. The optional starting-point activity recommends a route; it does not certify proficiency.
+
+Each current mission declares its own internal vocabulary stage in `bidea/data.js`: `basorako-bidea` requests A1, and `uraren-misterioa` requests B1. These are the initial stages of the existing broader route groupings; they do not relabel all material or claim a full assessment of the learner. The shared selector receives the mission's assigned difficulty automatically. Switching adventure clears the previous mission's topic choices and cancels pending preparation while preserving separate progress and drafts.
+
+The approved C1 release remains on the backend but is not offered through a learner-controlled selector or silently assigned to a beginner/intermediate mission. Until suitable bank entries are available for a mission's assigned stage, its explicitly labelled local adventure vocabulary is used. New adventures require their own pedagogical difficulty assignment. Evidence-based progression and a general adaptive proficiency model remain future work, not behavior claimed by this mapping.
+
 ## Initial inspection, before owner confirmation, 2026-11-27
 
 Only bounded SELECTs against Lexikoa content and metadata; no learner records queried, no database mutations, DDL, grants, policy or deployment changes.
@@ -55,8 +63,18 @@ The player shows loading/cancel, the active source, and an explicit local-advent
 
 Each dynamic pair attempt uses the existing activity journal with resource ID/version/hash, level/theme, selected ID, result and assistance. Recognition stays `academicState: not_observed`: no mastery, grammatical diagnosis, XP, episode completion or spaced-retrieval credit. Initial wrong attempts remain separate from subsequent assisted recognition. Telemetry is client-reported practice, not authoritative assessment. This increment does not implement corpus-wide learner adaptation or universal error understanding.
 
+Telemetry v2 (2.10.3) numbers attempts separately per word within each round. A previous mismatch on one word does not mark another word's first recognition as assisted. Existing v1 observations remain unchanged and conservative; they never counted toward mastery. Rounds that mix topics show `Gaiak nahastuta` instead of naming only the first word's topic.
+
 ## Verification and activation limits
 
 `node tests/run.cjs` is the same command as CI. The new vocabulary suite covers selection, duplicates, insufficient content, account isolation, cancellation, network fallback, fixed projections, stale approval hashes, rights/matching gates, authentication, query injection, unchanged origin restrictions, actual player integration and trace events. Fixtures are synthetic; tests do not prove real content approval or live connectivity.
 
 Actual dynamic verification requires a signed-in pilot account at the exact branch preview origin. No wildcard CORS, privilege changes, production gateway replacement, credential retrieval or production publication is part of this increment. Do not label this integration live until authenticated end-to-end reads and trace persistence are observed. Other difficulty levels retain an explicit fallback until their own reviewed content is available; C1 approval never changes an A1/B1 learner's difficulty implicitly.
+
+## Authenticated smoke evidence, 2026-11-27
+
+After the owner manually signed in at the authorized preview origin, C1 preparation displayed real terms from Lexikoa, including `ikuspegia`, `erronka` and `hobekuntzak bideratu`. The source panel showed their canonical IDs and version 1. A deliberate mismatch followed by correction and two other matches completed a round; a second round and a new game displayed different terms. The nine real topic options appeared after the first preparation.
+
+The UI reported `Supabasen gordeta`. A bounded SELECT against only the signed-in test account's recent vocabulary events independently confirmed the mismatch and three matches, with source IDs and `academicState: not_observed`. No credentials, account identifier or private learner content are recorded here. These checks demonstrate live reads and trace persistence for this preview C1 scope; they do not establish other levels, simultaneous-device behavior, adaptive recommendations or language mastery.
+
+The corrected 2.10.3 client was reloaded without another sign-in and tested live. Mixed rounds showed the correct mixed-topic label. A theme-specific game loaded only the selected topic and completed through the final screen. A second bounded read verified six v2 observations: four first-attempt matches without assistance, one assisted second-attempt match and its preceding first-attempt mismatch; all remain `not_observed` academically. Version 2.10.4 also preserves the available-topic menu after a filtered game, with a regression test. No production deployment or database permission/schema changes were made.

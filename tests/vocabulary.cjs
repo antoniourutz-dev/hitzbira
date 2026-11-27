@@ -6,6 +6,8 @@ const rows=Array.from({length:24},(_,i)=>({id:'entry-'+i,version:1,fingerprint:'
 async function main(){
  const items=api.select(rows,{level:'C1',rng:()=>.25});
  check('bounded rounds with unique pairs',items.length===4&&new Set(items.flatMap(i=>i.vocabulary.map(r=>r.id))).size===12);
+ check('mixed themes have an honest label',api.themeLabel([rows[0],rows[12]])==='Gaiak nahastuta');
+ check('single theme is named precisely',api.themeLabel([rows[0],rows[1]])==='a');
  const next=api.select(rows,{level:'C1',previous:items.flatMap(i=>i.vocabulary.map(r=>r.id)),rng:()=>.25});
  check('next game uses unseen vocabulary when enough exists',next.flatMap(i=>i.vocabulary).every(r=>!items.flatMap(i=>i.vocabulary).some(p=>p.id===r.id)));
  check('level cannot be silently widened',api.select(rows,{level:'B1'}).length===0);
@@ -69,19 +71,26 @@ async function main(){
  r=await request(undefined,{...releaseOptions,invalid:true});check('release never bypasses account authentication',r.status===403);
  const releaseRows=Array.from(releaseContext.release.rows);check('release contains references only and no definitions',releaseRows.length===32&&releaseRows.every(r=>!r.term&&!r.meaning&&r.fingerprint.length===64));
 
- const store=new Map(),els=new Map(),events=[],w={HBVocabulary:api,draw(){}};
+ const store=new Map(),els=new Map(),events=[],requests=[],w={HBVocabulary:api,draw(){}};
  const el=()=>({hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null});
  const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
  let isRemote=false;
- w.HBData={keyFor:k=>k,isRemote:()=>isRemote,activity:e=>events.push(e),vocabulary:async()=>({contract:'hb-vocabulary-v1',rows})};
+ w.HBData={keyFor:k=>k,isRemote:()=>isRemote,activity:e=>events.push(e),vocabulary:async({level,theme})=>{requests.push({level,theme});return {contract:'hb-vocabulary-v1',rows:(theme==='all'?rows:rows.filter(r=>r.theme===theme)).map(r=>({...r,level:'B1'}))}}};
  const context={window:w,globalThis:w,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},document:doc,location:{search:''},URLSearchParams};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/data.js'),'utf8'),context);
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),context);
+ check('welcome presents adventures without official levels',!/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(w.HBBidea.gaur().replace(/<[^>]*>/g,' ')));
  w.HBBidea.setLevel('b1b2',false);await w.HBBidea.startWorldGame('words');check('guest player labels local fallback',els.get('bd-player').innerHTML.includes('Abenturako tokiko hitzak'));
- w.HBBidea.close(true);isRemote=true;w.HBBidea.setVocabularyLevel('C1');await w.HBBidea.startWorldGame('words');
+ w.HBBidea.close(true);isRemote=true;await w.HBBidea.startWorldGame('words');
+ check('world adventure assigns its vocabulary difficulty internally',requests.at(-1).level==='B1');
+ check('student cannot choose an official vocabulary level',typeof w.HBBidea.setVocabularyLevel==='undefined'&&!w.HBBidea.gaur().includes('Hiztegiaren zailtasuna'));
+ check('official levels are absent from home and map text',![w.HBBidea.gaur(),w.HBBidea.bidea()].some(html=>/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(html.replace(/<[^>]*>/g,' '))));
  check('dynamic game uses existing player and source panel',w.HBBidea._player().queue.length===4&&els.get('bd-player').innerHTML.includes('Hitzen jatorria'));
  w.HBBidea.mL(0);w.HBBidea.mR(1);w.HBBidea.mL(0);w.HBBidea.mR(0);
  check('first wrong recognition and assisted recovery both retained without mastery',events.length===2&&events[0].result==='mismatch'&&events[1].assisted&&events.every(e=>e.mode==='recognition'&&e.academicState==='not_observed'&&e.resource.version===1));
+ w.HBBidea.mL(1);w.HBBidea.mR(1);check('a different word retains its first-attempt status after a peer error',events[2].attempt===1&&events[2].assisted===false&&events[1].attempt===2&&events[2].telemetryVersion===2);
+ w.HBBidea.close(true);w.HBBidea.setVocabularyTheme('lexiko_a');await w.HBBidea.startWorldGame('words');w.HBBidea.close(true);check('playing one topic preserves the other available topic in the menu',w.HBBidea.gaur().includes('value="lexiko_b"'));
+ w.HBBidea.chooseAdventure('basorako-bidea');await w.HBBidea.startWorldGame('words');check('switching adventure changes the internal request to its assigned difficulty',requests.at(-1).level==='A1');check('out-of-adventure bank rows fall back instead of changing difficulty',w.HBBidea._player().vocabularyMode==='fallback');check('adventure choice is not proficiency certification',w.HBBidea._state().placed===false);w.HBBidea.chooseAdventure('uraren-misterioa');
  w.HBBidea.close(true);w.HBData.vocabulary=()=>new Promise(r=>resolve=r);pending=w.HBBidea.startWorldGame('words');check('loading can be closed',els.get('bd-player').innerHTML.includes('Hitzak prestatzen'));w.HBBidea.close(true);resolve({contract:'hb-vocabulary-v1',rows});await pending;check('late response never reopens player',w.HBBidea._player()===null);
  console.log(checks+' checks passed (dynamic vocabulary; synthetic fixtures, no live claim)');
 }

@@ -16,6 +16,7 @@ function select(rows,{level,theme="all",previous=[],rng=Math.random}={}){
  for(let i=0;i+3<=selected.length;i+=3){const batch=selected.slice(i,i+3);out.push({id:"HB-LEX-"+batch.map(r=>r.id+"@"+r.version).join("_"),t:"match",q:"Lotu hitzak eta esanahiak.",pairs:batch.map(r=>[r.term,r.meaning]),a:["loturak"],ex:"Esanahi hauek testuinguru honi dagozkio.",vocabulary:batch.map(r=>({id:r.id,version:r.version,fingerprint:r.fingerprint,source:r.source,rights:r.rights,level:r.level,theme:r.theme})),src:"Lexikoa"})}
  return out;
 }
+function themeLabel(rows){const themes=[...new Set(rows.map(r=>r.theme).filter(t=>typeof t==="string"&&t))];return themes.length>1?"Gaiak nahastuta":themes.length===1?themes[0].replace(/^lexiko_/,"").replace(/_/g," "):"Hiztegia"}
 function createRepository(data){
  let generation=0;const previous=new Map();
  return {cancel(){generation++},async prepare({level,theme="all"}={}){
@@ -33,6 +34,6 @@ function createRepository(data){
   }catch{return ticket!==generation||owner!==data.keyFor("vocabulary")?{mode:"cancelled",items:[]}:{mode:"fallback",reason:"connection",items:[],themes:[]}}
  }};
 }
-const api={LEVELS,select,createRepository};
+const api={LEVELS,select,themeLabel,createRepository};
 if(typeof module!=="undefined"&&module.exports)module.exports=api;else root.HBVocabulary=api;
 })(typeof window!=="undefined"?window:globalThis);
