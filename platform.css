@@ -388,3 +388,6 @@ html[data-theme="dark"] .hb-side-prefs .bd-chip-btn.is-on{background:#312859;bor
 html[data-theme="dark"] .hb-topbar-title{color:#c9c1e0}
 @media(prefers-reduced-motion:reduce){#app>*{animation:none!important}.hb-illu-ico,.hb-side-nav button,.hb-side-tool-btn,.hb-tool-ico,.hb-tool-arr{transition:none!important;transform:none!important}}
 
+
+/* Guest access: only the introductory adventure navigation is available. */
+body[data-hb-access="guest"] .hb-side-tools,body[data-hb-access="guest"] .hb-streak-wrap{display:none!important}
