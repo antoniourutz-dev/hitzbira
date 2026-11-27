@@ -73,7 +73,7 @@ async function main(){
  const el=()=>({hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null});
  const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
  let isRemote=false;
- w.HBData={keyFor:k=>k,isRemote:()=>isRemote,activity:e=>events.push(e),vocabulary:async()=>({contract:'hb-vocabulary-v1',rows})};
+ w.HBData={keyFor:k=>k,isRemote:()=>isRemote,activity:e=>events.push(e),vocabulary:async({theme})=>({contract:'hb-vocabulary-v1',rows:theme==='all'?rows:rows.filter(r=>r.theme===theme)})};
  const context={window:w,globalThis:w,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},document:doc,location:{search:''},URLSearchParams};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/data.js'),'utf8'),context);
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),context);
@@ -83,6 +83,7 @@ async function main(){
  w.HBBidea.mL(0);w.HBBidea.mR(1);w.HBBidea.mL(0);w.HBBidea.mR(0);
  check('first wrong recognition and assisted recovery both retained without mastery',events.length===2&&events[0].result==='mismatch'&&events[1].assisted&&events.every(e=>e.mode==='recognition'&&e.academicState==='not_observed'&&e.resource.version===1));
  w.HBBidea.mL(1);w.HBBidea.mR(1);check('a different word retains its first-attempt status after a peer error',events[2].attempt===1&&events[2].assisted===false&&events[1].attempt===2&&events[2].telemetryVersion===2);
+ w.HBBidea.close(true);w.HBBidea.setVocabularyTheme('lexiko_a');await w.HBBidea.startWorldGame('words');w.HBBidea.close(true);check('playing one topic preserves the other available topic in the menu',w.HBBidea.gaur().includes('value="lexiko_b"'));
  w.HBBidea.close(true);w.HBData.vocabulary=()=>new Promise(r=>resolve=r);pending=w.HBBidea.startWorldGame('words');check('loading can be closed',els.get('bd-player').innerHTML.includes('Hitzak prestatzen'));w.HBBidea.close(true);resolve({contract:'hb-vocabulary-v1',rows});await pending;check('late response never reopens player',w.HBBidea._player()===null);
  console.log(checks+' checks passed (dynamic vocabulary; synthetic fixtures, no live claim)');
 }

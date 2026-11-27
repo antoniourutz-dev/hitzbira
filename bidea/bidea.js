@@ -453,7 +453,7 @@ async function prepareVocabulary(){
  const loading={mode:"worldgame",kind:"words",phase:"loading",owner};player=loading;const el=ensureEl();render();el.focus?.();
  const result=await vocabularyRepo.prepare(filters);
  if(player!==loading||owner!==keyFor(KEY)||result.mode==="cancelled")return;
- vocabularyThemes=result.themes||[];
+ vocabularyThemes=[...new Set([...vocabularyThemes,...(result.themes||[])])];
  openWorldGame("words",result.mode==="live"?result.items:wordGameGroups(),{...result,level:filters.level});
 }
 function worldGamesHtml(){
