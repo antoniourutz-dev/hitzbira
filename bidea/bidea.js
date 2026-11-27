@@ -271,10 +271,10 @@ function episodeLesson(){
  ["KAUS-A01-1","Argik ez du arrastoa aurkitu. ____, laino handia zegoen.",null,["Izan ere"],"Lainoak azaltzen du zergatik ez duen arrastoa aurkitu."],
  ["KAUS-A01-2","Bira aterpera itzuli da. ____, euria egiten hasi da.",null,["Izan ere"],"Euria aterpera itzultzearen arrazoia da."]
  ];
- const items=rows.map(([id,q,ch,ans,ex],i)=>{const src=base.items.find(it=>it.id===id);return src?{...src,id:"HB-EP-CAUSE-01-"+(i+1),src:src.src+" / testuinguru berria",q,a:ans,ex,...(ch?{ch}:{h:"izan ere",hint:"Zergatia ematen duen lotura erabili."})}:null});
+ const items=rows.map(([id,q,ch,ans,ex],i)=>{const src=base.items.find(it=>it.id===id);return src?{...src,id:"HB-EP-CAUSE-01-"+(i+1),src:src.src+" / testuinguru berria",q,a:ans,ex,...(ch?{ch}:{hint:"Bigarren esaldiak lehenengoaren zergatia azaltzen du. Zein lotura erabil dezakezu?"})}:null});
  if(items.some(x=>!x))return null;
  items.push({id:"HB-EP-CAUSE-01-OPEN",src:"Jatorrizko fikziozko jarduera / EP-CAUSE-01",t:"write",q:"Argik zure laguntza behar du.",instr:"Idatzi bi esaldi herrikoei uraren arazoa azaltzeko. Bigarrenean, erabili «izan ere».",a:["(irekia)"],model:"Herrira ez da urik iristen. Izan ere, iturburuko hodia hautsi da.",ex:"Bigarren esaldiak lehenengoaren zergatia azaltzen al du? Beste erantzun batzuk ere egokiak izan daitezke."});
- return {...base,id:"HB-EP-CAUSE-01",title:"Non dago ura?",es:"¿Dónde está el agua?",scene:"Argi herriko iturrira iritsi da, baina ez da urik ateratzen. Lurrek iturburua ikusi du: hodia hautsi da. Herritarrek zer gertatu den jakin nahi dute. Lagundu Argiri zergatia azaltzen.",sceneEs:"Argi llega a la fuente del pueblo, pero no sale agua. Lur ha visto el manantial: la tubería está rota. Ayuda a Argi a explicar el motivo.",items};
+ return {...base,id:"HB-EP-CAUSE-01",title:"Non dago ura?",es:"¿Dónde está el agua?",scene:"Argi herriko iturrira iritsi da, baina ez da urik ateratzen. Lurrek iturburua ikusi du: hodia hautsi da. Herritarrek zer gertatu den jakin nahi dute. Lagundu Argiri zergatia azaltzen.",sceneEs:"Argi llega a la fuente del pueblo, pero no sale agua. Lur ha visto el manantial: la tubería está rota. Ayuda a Argi a explicar el motivo.",keys:["Izan ere","Beraz"],tip:"Argik arazoa azaldu nahi du: lehenik, zer gertatu den; gero, zergatia. Ondorioa azaltzeko, alderantzizko bidea egin.",tipEs:"Argi quiere explicar el problema: primero qué ha ocurrido y luego el motivo. Para explicar la consecuencia, sigue el orden inverso.",patterns:{cause:{tag:"ZERGATIA",dir:"back",a:"Herrira ez da urik iristen.",k:"Izan ere,",b:"iturburuko hodia hautsi da.",why:"Hodiaren hausturak uraren falta azaltzen du.",es:"La rotura de la tubería explica la falta de agua."},result:{tag:"ONDORIOA",dir:"fwd",a:"Iturburuko hodia hautsi da.",k:"Beraz,",b:"herrira ez da urik iristen.",why:"Uraren falta hodiaren hausturaren ondorioa da.",es:"La falta de agua es consecuencia de la rotura."}},items};
 }
 function episodeCard(){const L=episodeLesson();if(!L)return "";return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">HITZBIRA WORLD · 1. ATALA</span><h2>'+esc(L.title)+'</h2><p>Argirekin ikertu herriko uraren misterioa.</p><p class="bd-meta">7 erronka · 8–12 min inguru</p><button class="bd-btn bd-btn-main" onclick="HBBidea.startEpisode()">'+svg("play")+' Abentura hasi</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>'}
 function startEpisode(){
@@ -308,14 +308,26 @@ function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:
  if(it.t==="match"){st.right=shuffle(it.pairs.map((p,k)=>k));st.left=null;st.matched=[];st.flash=null}
  return st}
 function progressPct(){const total=Math.max(1,player.queue.length),done=player.phase==="intro"?0:(player.phase==="end"||player.phase==="placed"||player.phase==="altxorra")?total:player.pos+((player.state&&player.state.checked)||player.busy?1:0);return {done,total,pct:Math.round(done/total*100)}}
-function render(){const el=document.getElementById("bd-player");if(!el||!player)return;const at=player.mode+player.phase+":"+player.pos;if(el.dataset.at!==at){el.dataset.at=at;el.scrollTop=0}el.dataset.level=S.level||"a1a2";
+function render(){const el=document.getElementById("bd-player");if(!el||!player)return;const at=player.mode+player.phase+":"+player.pos,changed=el.dataset.at!==at,oldScroll=el.querySelector(".bd-pgrid,.bd-intro,.bd-end")?.scrollTop||0;if(changed){el.dataset.at=at;el.scrollTop=0}el.dataset.level=S.level||"a1a2";el.dataset.mode=player.mode;
  const prevPct=player.lastPct||0,prog=progressPct();
  el.innerHTML=player.phase==="gogoratu"?episodeGogoratu():player.phase==="altxorra"?episodeTreasure():player.phase==="intro"?intro():player.phase==="end"?(player.mode==="episode"?episodeEnd():end()):player.phase==="placed"?placed():play();
  const bar=el.querySelector(".bd-bar-fill");
- if(bar&&prevPct!==prog.pct&&typeof root.requestAnimationFrame==="function"){bar.style.width=prevPct+"%";root.requestAnimationFrame(()=>{bar.style.width=prog.pct+"%"})}
+ if(player.mode!=="episode"&&bar&&prevPct!==prog.pct&&typeof root.requestAnimationFrame==="function"){bar.style.width=prevPct+"%";root.requestAnimationFrame(()=>{bar.style.width=prog.pct+"%"})}
  player.lastPct=prog.pct;player.lastXp=player.xp;
+ const content=el.querySelector(".bd-pgrid,.bd-intro,.bd-end");if(content)content.scrollTop=changed?0:oldScroll;
  const f=el.querySelector("[data-focus]");if(f)f.focus({preventScroll:true})}
-function top(){const {done,total,pct}=progressPct(),xpBump=player.xp>(player.lastXp||0);
+function episodeProgress(){
+ const p=player,stage=p.phase==="gogoratu"||(p.phase==="play"&&p.segment==="recall")?0:p.phase==="intro"?1:p.phase==="play"?2:p.phase==="altxorra"?3:4;
+ const items=p.queue,done=items.slice(0,p.pos).filter(e=>!e.retry).length+(p.state?.checked&&!items[p.pos]?.retry?1:0),total=stage===2?p.L.items.length:stage===0?p.recall.length:0;
+ const fraction=total?Math.min(1,done/total):0,pct=stage===4?100:Math.round(stage*20+((stage===0||stage===2)?fraction*20:0));
+ const label=stage===2?(items[p.pos]?.retry?"Errepasoa":Math.min(total,p.pos+1)+"/"+total):stage===0&&total&&p.phase==="play"?Math.min(total,p.pos+1)+"/"+total:(stage+1)+"/5";
+ return {stage,pct,label};
+}
+function episodeTop(){
+ const {stage,pct,label}=episodeProgress(),stages=["Gogoratu","Eszena","Erronka","Altxorra","Hurrengoa"];
+ return '<header class="bd-ptop bd-episode-top"><button class="bd-x" onclick="HBBidea.askQuit()" aria-label="Itxi">'+svg("x")+'</button><div class="bd-bar bd-episode-bar" role="progressbar" aria-label="Atalaren aurrerapena" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'"><span class="bd-bar-fill" style="width:'+pct+'%"></span></div><span class="bd-step-count">'+esc(label)+'</span><ol class="bd-episode-stages" aria-label="Ataleko urratsak">'+stages.map((s,i)=>'<li class="'+(i<stage?"is-done":i===stage?"is-current":"")+'"'+(i===stage?' aria-current="step"':'')+'><span class="bd-stage-dot">'+(i<stage?svg("check"):i+1)+'</span><span class="bd-stage-name">'+s+'</span></li>').join("")+'</ol></header>';
+}
+function top(){if(player.mode==="episode")return episodeTop();const {done,total,pct}=progressPct(),xpBump=player.xp>(player.lastXp||0);
  const stepText=player.phase==="gogoratu"?"Gogoratu":player.phase==="altxorra"?"Altxorra":player.phase==="intro"?"Sarrera":player.phase==="end"||player.phase==="placed"?`${total}/${total}`:`${Math.min(player.pos+1,total)}/${total}`;
  const rightBadge=player.mode==="episode"?`<span class="bd-step-count">${stepText}</span>`:player.mode==="test"?`<span class="bd-xp">${stepText}</span>`:`<span class="bd-step-count">${stepText}</span><span class="bd-xp${player.combo>=2?" is-combo":""}${xpBump?" is-bump":""}">${player.combo>=2?svg("bolt")+player.combo+" · ":""}${player.xp} XP</span>`;
  return `<header class="bd-ptop"><button class="bd-x" onclick="HBBidea.askQuit()" aria-label="Itxi">${svg("x")}</button><div class="bd-bar" role="progressbar" aria-label="Ikasgaiaren aurrerapena" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}"><span class="bd-bar-fill${player.combo>=2?" is-charged":""}" style="width:${pct}%"></span></div>${rightBadge}</header>`}
@@ -335,7 +347,7 @@ function learnHtml(L){
  if(L.learn==="order")return `<div class="bd-order">${L.keys.map((k,i)=>`<span><i>${i+1}</i><b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</span>`).join(svg("arrow"))}</div>`;
  /* B1–B2: lokailuen norabidea */
  const special={"-lako":"lako",baina:"baina",arren:"arren","nahiz eta":"nahiz"};
- const seen=new Set(),rows=[];for(const k of L.keys){const g=special[k.toLowerCase()]||groupOf(k,DATA.groups);if(!g||seen.has(g)||!DATA.patterns[g])continue;seen.add(g);rows.push([k,DATA.patterns[g],g])}
+ const seen=new Set(),rows=[],patterns=L.patterns||DATA.patterns;for(const k of L.keys){const g=special[k.toLowerCase()]||groupOf(k,DATA.groups);if(!g||seen.has(g)||!patterns[g])continue;seen.add(g);rows.push([k,patterns[g],g])}
  return `<div class="bd-flows">${rows.map(([k,p,g])=>flow(p,special[k.toLowerCase()]?"":k)).join("")}</div>`}
 function flow(p,k,compact){const kk=k&&k!=="-lako"?caseLike(k,true)+",":p.k;
  return `<div class="bd-flow bd-flow-${p.dir}${compact?" is-compact":""}"><span class="bd-flow-tag">${p.dir==="back"?"←":p.dir==="cross"?"⇄":"→"} ${esc(p.tag)}</span><div class="bd-flow-row"><span class="bd-flow-a">${esc(p.a)}</span>${kk?`<b class="bd-flow-k">${esc(kk)}</b>`:""}<span class="bd-flow-b">${esc(p.b)}</span></div>${compact?"":`<small>${esc(p.why)}${help()?` · <i>${esc(p.es)}</i>`:""}</small>`}</div>`}
@@ -376,13 +388,13 @@ function deskSide(){if(!player||player.mode==="test"||!player.L)return "";const 
 /* Feedbacka: esaldi zuzena osorik + zergatia, laburra eta bisuala. Azalpen teknikoa nahi duenarentzat. */
 function feedback(){const it=cur().item,st=player.state;if(!st.checked)return "";
  if(player.mode==="episode"&&st.neutral)return '<section class="bd-fb" role="status"><div><strong>'+(it.t==="write"?"Zure testua prest dago.":"Alderatu proposamenarekin.")+'</strong><p><b>Eredu bat:</b> '+esc(it.t==="write"?it.model:(solvedParts(it)||[]).join(""))+'</p><p>'+esc(it.ex)+'</p><p class="bd-note">Erantzuna ez da automatikoki baliozkotu.</p></div></section>';
- const parts=solvedParts(it),key=it.t==="fix"?it.r:it.t==="build"?it.k:it.a[0],g=S.level==="b1b2"&&key?groupOf(key,DATA.groups):null,p=g&&DATA.patterns[g],gl=key&&DATA.gloss[norm(key)];
+ const parts=solvedParts(it),key=it.t==="fix"?it.r:it.t==="build"?it.k:it.a[0],g=S.level==="b1b2"&&key?groupOf(key,DATA.groups):null,p=g&&(player.mode==="episode"&&player.segment==="story"?player.L.patterns:DATA.patterns)[g],gl=key&&DATA.gloss[norm(key)];
  const sentence=it.t==="write"?`<p class="bd-model"><span>Eredu bat:</span> ${esc(it.model)}</p>`:it.t==="match"?`<p class="bd-full">${it.pairs.map(p=>`<span>${esc(p[0])} <b>${esc(p[1])}</b></span>`).join(" · ")}</p>`:parts?`<p class="bd-full">${esc(parts[0])}<mark>${esc(parts[1])}</mark>${esc(parts[2])}</p>`:(st.ok?"":`<p class="bd-full"><mark>${esc(it.a[0])}</mark></p>`);
  const title=it.t==="write"?"Bikain! Zure testua idatzita.":st.msg;
  return `<section class="bd-fb ${st.ok?"is-ok":"is-bad"}" role="status" aria-live="assertive">${bira(st.ok?(Math.random()<.5?"celebrate":"calm"):"retry","bd-bira-sm")}<div><strong>${esc(title)}</strong>${sentence}
- ${p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
+ ${player.mode==="episode"&&player.segment==="story"?`<p class="bd-why">${esc(it.ex)}</p>`:p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
  ${help()&&gl?`<small class="bd-es">ES · ${esc(key)} = ${esc(gl)}</small>`:""}
- ${p&&it.ex?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
+ ${p&&it.ex&&!(player.mode==="episode"&&player.segment==="story")?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
 function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"MAILA-PROBA":player.mode==="episode"?(player.segment==="recall"?"1 · GOGORATU":"3 · ERRONKA")+" · "+TYPE[it.t]:(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
  const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
  const side=deskSide();
