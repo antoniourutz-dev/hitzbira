@@ -302,6 +302,14 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.begin();w.HBBidea.sel('liburutegian');w.HBBidea.check();
  check('autonomous delayed recall schedules next interval without mastery claim',memory.non.recoveries===1&&memory.non.step===1&&memory.non.dueAt>Date.now()+2*86400000);
  w.HBBidea.askQuit();
+ w.HBData.guestLimited=()=>true;
+ check('guest sees only A1-A2 story and local progress, not account-only navigation',w.HBBidea.gaur().includes('Gonbidatua')&&!w.HBBidea.gaur().includes('HITZBIRA WORLD')&&!w.HBBidea.gaur().includes('ZURE LORPENAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&!w.HBBidea.bidea().includes('Ikasgai gehiago'));
+ w.HBBidea.setLevel('b1b2',false);check('guest cannot switch to higher level',w.HBBidea._state().level==='a1a2');
+ w.HBBidea.startTest();check('guest placement test is not required or accessible',w.HBBidea._player()===null);
+ w.HBBidea.startReview('b1b2-k1-i1');check('guest cannot enter registered review route directly',w.HBBidea._player()===null);
+ w.HBBidea.auditor(true);check('guest cannot enter audit mode',!w.HBBidea.isAuditor());
+ w.HBBidea.startEpisode();check('guest resumes stored A1-A2 draft',w.HBBidea._player()?.L?.forest===true);w.HBBidea.askQuit();
+ w.HBData.guestLimited=()=>false;
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Maila-proba egin (aukerakoa)'));
