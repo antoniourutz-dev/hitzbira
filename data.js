@@ -89,13 +89,37 @@ function persistEvent(stream,p,details={}){
 function save(k,value,details={}){
  if(!streams.includes(k))throw Error("Unknown stream");
  const old=prev.has(k)?prev.get(k):readLocal(keyFor(k));
- const next=copy(value),p=patch(old,next,[],k);
+ const next=copy(value);
+ // Preserve the independently versioned Bidea namespace when legacy Journey saves lessons/labs.
+ if(k==="hitzbira-journey-v1"&&obj(next)&&obj(old)&&typeof old.bideaPilotV1==="string"&&!Object.prototype.hasOwnProperty.call(next,"bideaPilotV1"))next.bideaPilotV1=old.bideaPilotV1;
+ const p=patch(old,next,[],k);
  // Durable journal first; never acknowledge a local save which was not written.
  if(authorized&&p)persistEvent(k,p,details);
  try{localStorage.setItem(keyFor(k),JSON.stringify(next));prev.set(k,next)}catch(e){storageError="Gailuko biltegia beteta dago.";paint();if(!authorized||!p)throw e}
  touchLocalDay(details);
  paint();
  if(authorized)void flush();
+}
+
+/* Bidea pilot uses the existing authenticated journey stream, not a new table or permission.
+   The scalar snapshot deliberately replaces arrays/drafts rather than applying union semantics.
+   The existing outbox and server acknowledgment govern synchronization. Sequential devices only. */
+function loadBidea(){
+ if(!authorized)return null;
+ const j=readLocal(keyFor("hitzbira-journey-v1"));if(typeof j?.bideaPilotV1!=="string")return null;
+ try{const e=JSON.parse(j.bideaPilotV1);if(e?.v===1&&obj(e.state))return e.state}catch{}
+ return null
+}
+function saveBidea(state){
+ if(!authorized)return;
+ if(!obj(state))throw Error("Bideko egoera baliogabea.");
+ const k="hitzbira-journey-v1",raw=readLocal(keyFor(k)),j=obj(raw)?raw:{};
+ const encoded=JSON.stringify({v:1,state});
+ if(encoded===j.bideaPilotV1)return;
+ // Check the serialized patch, including escaping; never send oversized snapshots.
+ const candidate={...j,bideaPilotV1:encoded};
+ if(new TextEncoder().encode(JSON.stringify(patch(j,candidate,[],k))).length>300000){storageError="Bideko datuak handiegiak dira sinkronizatzeko.";paint();throw Error(storageError)}
+ save(k,candidate,{kind:"bidea_checkpoint"});
 }
 function activity(details){touchLocalDay(details);if(!authorized){paint();return}persistEvent("activity",{t:"set",v:null},details);paint();void flush()}
 async function pull(){const result=await gateway({action:"learning_load"},await currentToken());if(!Array.isArray(result.state)||!result.streak)throw Error("Sinkronizazio-erantzuna ez da baliozkoa.");streak=result.streak;return result.state}
@@ -140,7 +164,7 @@ function aux(s=-1,m=-1){let n=count(s,m);return cached("aux:"+s+":"+m,async()=>{
  return validate(rows,n,d=>(s===-1||d.s===s)&&(m===-1||d.m===m)&&typeof d.form==="string"&&Array.isArray(d.roles))})}
 function synthetic(){return cached("synthetic",async()=>{let rows;if(authorized){try{rows=await query("synthetic",META.synthetic)}catch(e){if(e.status===401||e.status===403)throw e}}return validate(rows||await staticBlock("synthetic"),META.synthetic,d=>typeof d.form==="string"&&typeof d.lemma==="string")})}
 function grammar(n){if(!["decl","bank05","bank06","bank07","bank08"].includes(n))throw Error("Banku ezezaguna");return cached("grammar:"+n,async()=>{if(authorized){try{const rows=await query("grammar_bank",1,{record_id:"eq."+n});return rows[0].payload}catch(e){if(e.status===401||e.status===403)throw e}}const r=await fetch("/legacy/"+n+".js");if(!r.ok)throw Error("Bankua ezin izan da kargatu.");const m=(await r.text()).match(/^\s*const\s+(?:BANK|DATA)\s*=\s*([\s\S]*);\s*$/);if(!m)throw Error("Datu-formatua ez da zuzena.");return JSON.parse(m[1])})}
-window.HBData={meta:META,count,aux,synthetic,grammar,isRemote:()=>authorized,release:RELEASE,keyFor,save,activity,flush,clearLocalStreak};
+window.HBData={meta:META,count,aux,synthetic,grammar,isRemote:()=>authorized,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak};
 const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop");
 function setStreakOpen(open){if(!streakBtn||!streakPop)return;streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
 if(streakBtn&&streakPop){
