@@ -54,7 +54,7 @@ function select(cards,input={}){
   families:["decl",...new Set(pool.map(c=>c.family))],
   blocked:cards.filter(c=>target.has(c.id)&&!available(c.id)),
   complementary:cards.filter(c=>!pool.some(x=>x.id===c.id)),
-  reason:!route?"Oraindik ez dago abiapuntuari buruzko ebidentziarik. Oinarrizko materialarekin has zaitezke, probarik egin gabe.":"Zure abenturako ibilbidea eta erregistratutako praktika erabiltzen ditugu. Ez dugu A1 eta A2 edo B1 eta B2 banaka bereizten; ez da maila ofiziala."};
+  reason:!route?"Hasi oinarrizko egiturekin eta aukeratu zure abentura.":"Hemen dituzu abenturan lagunduko dizuten egiturak eta berrikusteko gaiak."};
 }
 function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));

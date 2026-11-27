@@ -230,7 +230,7 @@ function gaur(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-g
   </div>
  </div>
  ${S.level==="a1a2"?forestMissionsHtml():""}
- <details class="bd-explore bd-world-legacy"><summary><span>Ikasgai gehiago</span><small>Gramatika eta praktika osagarria</small></summary>${courseGrid()}</details>
+ <section class="bd-card bd-route-overview"><span class="bd-kicker">IKASI ETA PRAKTIKATU</span><h2>Lagundu zure abenturari</h2><div class="bd-row"><button class="bd-btn bd-btn-ghost" onclick="catalogRoot()">Ikasi</button><button class="bd-btn bd-btn-ghost" onclick="practiceRoot()">Praktikatu</button></div></section>
  </div>`}
 /* Bidea dagoenean, hasierako pantaila garbia da: gomendioa bakarrik. */
 function focused(){return true}
@@ -259,11 +259,10 @@ function bidea(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-
  return `<div class="bd-mapa bd-mapa-world bd-mapa-polished">
  <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">ZURE BIDEA</span><h1>${esc(currentAdventureTitle())}</h1><p>${episodeIds().filter(id=>S.episodes?.[id]).length}/${episodeIds().length} atal amaituta</p>
   <div class="bd-ni-bar"><span style="width:${Math.round(episodeIds().filter(id=>S.episodes?.[id]).length/episodeIds().length*100)}%"></span></div></div></section>
- <section class="bd-ni-stats">${[[svg("bolt"),S.xp,"XP guztira"],[svg("star"),totalStars(),"izar"],[svg("fire"),sk,"egun jarraian"],[svg("check"),Object.keys(S.days).filter(k=>S.days[k]>0).length,"egun ikasten"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
- <section class="bd-card bd-island bd-island-${I.id}">${worldMissionHtml()}${S.level==="a1a2"?forestMissionsHtml():""}<details class="bd-explore bd-world-legacy"><summary><span>Ikasgai gehiago</span><small>Gramatika eta praktika osagarria</small></summary>${islandPath(I)}</details></section>
+ <section class="bd-ni-stats bd-narrative-stats">${[[svg("flag"),Object.keys(S.episodes||{}).filter(id=>[...FOREST_IDS,...SHELTER_IDS,...EPISODE_IDS].includes(id)).length,"atal amaituta"],[svg("star"),Object.entries(S.episodes||{}).filter(([id,e])=>[...FOREST_IDS,...SHELTER_IDS,...EPISODE_IDS].includes(id)&&e?.treasure).length,"altxorrak"],[svg("fire"),root.HBData?.streakSummary?.()?.current??"—","egun jarraian"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
+ <section class="bd-card bd-island bd-island-${I.id}">${worldMissionHtml()}${S.level==="a1a2"?forestMissionsHtml():""}</section>
  ${typeof root.storyJournal==="function"?`<details class="bd-explore bd-more-adventures"><summary><span>Abentura gehiago</span><small>Itsasargiaren sekretua · Hiru kapitulu, sei bide</small></summary>${root.storyJournal()}</details>`:""}
- <div class="bd-mapa-meta">${collectionHtml()}${worldGamesHtml()}<section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
-  ${ni>=0?`<button class="bd-btn bd-btn-main bd-ni-go" onclick="HBBidea.start(${ni})">${svg("play")} Hurrengoa: ${esc(ls[ni].title)}</button>`:""}</section>
+ <div class="bd-mapa-meta">${collectionHtml()}${worldGamesHtml()}<section class="bd-card bd-route-overview"><span class="bd-kicker">IKASI ETA PRAKTIKATU</span><h2>Lagundu zure abenturari</h2><p>Azalpenak eta ariketak, zure ibilbideari lotuta.</p><button class="bd-btn bd-btn-ghost" onclick="catalogRoot()">Ikasi ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="practiceRoot()">Praktikatu ${svg("arrow")}</button></section>
  ${other.map(o=>`<section class="bd-card bd-switch"><div><span class="bd-kicker">${esc(o.adventure.title)}</span><strong>${esc(o.title)}</strong><small>${esc(o.blurb)}</small></div><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.chooseAdventure('${o.adventure.id}')">Abentura hau aukeratu</button></section>`).join("")}
  <div class="bd-bidea-foot"><button class="bd-linkbtn" onclick="HBBidea.startTest()">Zure abiapuntua ezagutu (aukerakoa)</button>${root.HBData?.isRemote?.()?"":`<button class="bd-linkbtn bd-linkbtn-muted" onclick="reset()">Tokiko datuak ezabatu</button>`}</div></div></div>`}
 function mapa(){return bidea()}
@@ -674,7 +673,8 @@ function episodeEnd(){if(player.L.shelter){const n=player.L.n,t=SHELTER_TREASURE
 function updatePlayerViewport(){const el=document.getElementById("bd-player"),v=root.visualViewport;if(el?.style&&v?.height>0)el.style.setProperty("--bd-visible-height",Math.floor(v.height)+"px")}
 root.visualViewport?.addEventListener?.("resize",updatePlayerViewport);
 function ensureEl(){let el=document.getElementById("bd-player");if(!el){el=document.createElement("div");el.id="bd-player";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Ikasgaia");document.body.appendChild(el)}document.documentElement.classList.add("bd-lock");el.hidden=false;updatePlayerViewport();return el}
-function start(i){syncState();if(guestLimited()){loginForMore();return}const L=lessons()[i];if(!L||!unlocked(i))return;player={mode:"lesson",i,L,phase:"intro",queue:L.items.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
+function supplementaryPracticeHtml(){syncState();if(guestLimited()||!S.level)return "";return `<details class="academy-search"><summary>Abenturako praktika gehiago</summary><div class="bd-supplementary-list">${lessons().map((L,i)=>`<button class="bd-game-tile" onclick="HBBidea.start(${i},true)">${svg("play")}<span><strong>${esc(L.title)}</strong><small>${done(L.id)?"Berriro praktikatu":"Praktikatu"}</small></span>${svg("arrow")}</button>`).join("")}</div></details>`}
+function start(i,supplementary=false){syncState();if(guestLimited()){loginForMore();return}const L=lessons()[i];if(!L||(!supplementary&&!unlocked(i)))return;player={mode:"lesson",supplementary:supplementary===true,i,L,phase:"intro",queue:L.items.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  const el=ensureEl();render();el.focus?.()}
 function startReview(lessonId){syncState();if(guestLimited()){loginForMore();return}const L=allLessons().find(x=>x.id===lessonId);if(!L)return;const pool=L.items.filter(x=>x.t!=="write");const picked=shuffle(pool.length?pool:L.items).slice(0,5);
  player={mode:"review",i:-1,L,phase:"play",queue:picked.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false,totalInit:picked.length};
@@ -827,9 +827,9 @@ function end(){const L=player.L,isRev=player.mode==="review",ni=nextLesson(),tot
  return `<div class="bd-pwrap bd-endwrap">${top()}<main class="bd-end">${s>=2||isRev?`<div class="bd-confetti" aria-hidden="true">${Array.from({length:22},(_,k)=>`<i style="--k:${k}"></i>`).join("")}</div>`:""}
  ${bira(s>=2||isRev?"celebrate":"effort","bd-bira-lg")}<h1>${msg}</h1><div class="bd-bigstars" aria-label="${s} izar">${[0,1,2].map(k=>`<span class="${k<s?"on":""}" style="--k:${k}">★</span>`).join("")}</div>
  <div class="bd-endstats"><div><b>${player.first}/${total}</b><small>lehen saiakeran</small></div><div><b>+${player.xp}</b><small>XP</small></div><div><b>${player.best}</b><small>jarraian</small></div></div>
- <div class="bd-learned"><span class="bd-kicker">${isRev?"BERRIKUSI DUZU":"IKASI DUZU"}</span><div>${L.keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b></span>`).join("")}</div></div>
+ <div class="bd-learned"><span class="bd-kicker">${isRev?"BERRIKUSI DUZU":"LANDU DUZU"}</span><div>${L.keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b></span>`).join("")}</div></div>
  ${player.errors.size?`<p class="bd-note">${player.errors.size} ariketa landu dituzu berriro. Hurrengoan, lehen saiakeran!</p>`:""}</main>
- <footer class="bd-pfoot">${!isRev&&ni>=0&&ni!==player.i?`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.start(${ni})">Hurrengo ikasgaia ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button>`:`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button>`}</footer></div>`}
+ <footer class="bd-pfoot">${!isRev&&!player.supplementary&&ni>=0&&ni!==player.i?`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.start(${ni})">Hurrengo ikasgaia ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button>`:`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button>`}</footer></div>`}
 
 /* ---------- Maila-proba ---------- */
 function testAnswer(ok){const p=player;if(p.busy)return;p.busy=true;p.state.checked=false;if(ok){p.score++;p.row=0}else p.row++;render();
@@ -865,6 +865,6 @@ function learningContext(){
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
   focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors};
 }
-root.HBBidea={...api,learningContext,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,learningContext,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

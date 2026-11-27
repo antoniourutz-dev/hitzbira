@@ -149,8 +149,8 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('first World episode is discoverable from Gaur',w.HBBidea.gaur().includes('Non dago ura?')&&w.HBBidea.gaur().includes('HBBidea.startEpisode()'));
  check('treasure collection starts undiscovered and does not reveal locked cards',w.HBBidea.gaur().includes('Nire altxorrak')&&w.HBBidea.gaur().includes('0/5 aurkituta')&&!w.HBBidea.gaur().includes('Auzolana'));
  const route=w.HBBidea.bidea(),home=w.HBBidea.gaur();
- check('Bidea shows five narrative episode titles before any completion and preserves optional grammar',["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"].every(t=>route.includes(t))&&route.includes('bd-world-path')&&route.indexOf('Uraren misterioa')<route.indexOf('Ikasgai gehiago'));
- check('Gaur recommends the narrative before optional grammar, with games available from the start',home.indexOf('Non dago ura?')<home.indexOf('Ikasgai gehiago')&&home.includes('Hitzak lotu')&&route.includes('Loturen erronka'));
+ check('Bidea shows five narrative episode titles before any completion and preserves optional grammar',["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"].every(t=>route.includes(t))&&route.includes('bd-world-path')&&!route.includes('Ikasgai gehiago')&&route.includes('Lagundu zure abenturari'));
+ check('Gaur recommends the narrative before optional grammar, with games available from the start',home.includes('Non dago ura?')&&!home.includes('Ikasgai gehiago')&&home.includes('Hitzak lotu')&&route.includes('Loturen erronka'));
  w.HBBidea.startEpisode(3);check('later episodes cannot be opened out of sequence',w.HBBidea._player()===null);
  w.HBBidea.startWorldGame('words');check('starter word game has four groups without any treasure unlocked',w.HBBidea._player().mode==='worldgame'&&w.HBBidea._player().queue.length===4&&w.HBBidea._player().queue[0].item.pairs.length===3);w.HBBidea.close(true);
  w.HBBidea.startWorldGame('links');check('starter connector game is accessible immediately',w.HBBidea._player().queue.length===2);w.HBBidea.close(true);
@@ -322,7 +322,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('polished guest home shows a real mission meter and one games section',w.HBBidea.gaur().includes('bd-mission-meter')&&(w.HBBidea.gaur().match(/aria-label="Jolastokia"/g)||[]).length===1);
  check('guest map puts mission path before games and retains guest card',w.HBBidea.bidea().indexOf('bd-world-path')<w.HBBidea.bidea().indexOf('aria-label="Jolastokia"')&&w.HBBidea.bidea().includes('bd-account-card'));
  w.HBData.guestLimited=()=>false;
- check('registered home preserves adventure progress and secondary content',w.HBBidea.gaur().includes('bd-route-overview')&&w.HBBidea.gaur().includes('Ikasgai gehiago'));
+ check('registered home preserves adventure progress and secondary content',w.HBBidea.gaur().includes('bd-route-overview')&&!w.HBBidea.gaur().includes('Ikasgai gehiago')&&w.HBBidea.supplementaryPracticeHtml().includes('Abenturako praktika gehiago'));
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

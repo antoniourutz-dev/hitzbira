@@ -38,6 +38,7 @@ test('route switch resets complementary scope and stale search filters',()=>{run
 test('account switch clears another learners voluntary catalogue view',()=>{run(`setMaterialScope('extra');window.HBData.keyFor=k=>k+'::hb::second';materialSelection()`);assert.equal(run('materialScope'),'route')});
 test('last opened extra material does not become a main recommendation',()=>{run(`journey.lessons=['HB06-bal-05']`);assert.equal(run('practiceLearningLink()'),'')});
 test('guest scope change and practice entry are denied',()=>{run(`window.HBData.guestLimited=()=>true;window.HBBidea.loginForMore=()=>{};materialScope='route';setMaterialScope('extra');startGoal();startMini()`);assert.equal(run('materialScope'),'route');assert.equal(run('queue.length'),0)});
+test('student material headers never expose CEFR labels',()=>{for(const route of [null,'a1a2','b1b2']){run("window.HBBidea.learningContext=()=>({route:"+JSON.stringify(route)+"});materialScope='route';");assert.ok(!/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(run('materialHeader()')))}});
 const graphWindow={};new Function('window',read('core.js'))(graphWindow);
 test('existing graph prerequisites participate in selection',()=>{const s=policy.select(cards,{context:{route:'a1a2'},curriculum:graphWindow.HitzBiraCurriculum});assert.ok(has(s.prerequisites,'GB-ize-01'));assert.ok(!has(s.pool,'HB08-jos-01'))});
 const store=new Map();let owner='guest',remote=false;
@@ -51,5 +52,5 @@ test('real account route projects chosen adventure without placement',()=>{owner
 test('real route switch changes episode and retains previous progress',()=>{bw.HBBidea._state().episodes={'HB-EP-CAUSE-01':{treasure:'water'}};bw.HBBidea.setLevel('a1a2',false);const c=bw.HBBidea.learningContext();assert.equal(c.route,'a1a2');assert.equal(c.episode.id,'HB-EP-FOREST-01');assert.equal(bw.HBBidea._state().episodes['HB-EP-CAUSE-01'].treasure,'water')});
 test('real engine projector cannot expose another accounts route',()=>{owner='two';assert.equal(bw.HBBidea.learningContext().route,null);owner='one';assert.equal(bw.HBBidea.learningContext().route,'a1a2')});
 test('returned difficulty snapshot cannot mutate stored history',()=>{bw.HBBidea._state().episodeErrorMemory={non:{errors:2,lastErrorAt:10}};const c=bw.HBBidea.learningContext();c.errors.non.errors=100;assert.equal(bw.HBBidea._state().episodeErrorMemory.non.errors,2)});
-test('offline shell includes selection policy with matching version',()=>{assert.ok(read('sw.js').includes('"/learning-selection.js"'));assert.ok(read('index.html').includes('/learning-selection.js?v=2.11.1'))});
+test('offline shell includes selection policy with matching version',()=>{assert.ok(read('sw.js').includes('"/learning-selection.js"'));assert.ok(read('index.html').includes('/learning-selection.js?v=2.11.2'))});
 console.log(n+' route material checks passed');
