@@ -152,11 +152,15 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('episode starts with Gogoratu without inventing previous evidence',w.HBBidea._player().phase==='gogoratu'&&w.HBBidea._player().recall.length===0);
  w.HBBidea.begin();
  check('episode opens Argi scene and uses seven activities',w.HBBidea._player().phase==='intro'&&w.HBBidea._player().queue.length===7&&els.get('bd-player').innerHTML.includes('2 · ESZENA'));
+ check('episode keys match the water mystery, not the bus example',els.get('bd-player').innerHTML.includes('iturburuko hodia hautsi da.')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.')&&els.get('bd-player').innerHTML.includes('width:20%'));
+ check('episode tracker includes five stages and current step',els.get('bd-player').innerHTML.includes('bd-episode-stages')&&els.get('bd-player').innerHTML.includes('aria-current="step"')&&els.get('bd-player').innerHTML.includes('Hurrengoa'));
  w.HBBidea.begin();
  w.HBBidea.sel('Beraz');w.HBBidea.check();
  check('episode clear error receives hint and another try',w.HBBidea._player().state.tries===1&&!w.HBBidea._player().state.checked);
  w.HBBidea.sel('Izan ere');w.HBBidea.check();
  check('assisted answer does not count as first try',w.HBBidea._player().state.ok&&w.HBBidea._player().first===0);
+ check('episode progress is visible after first answered item and feedback stays contextual',els.get('bd-player').innerHTML.includes('width:43%')&&els.get('bd-player').innerHTML.includes('Erreka lehor egoteak')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.'));
+
  w.HBBidea.next();
  for(let i=1;i<4;i++){const item=w.HBBidea._player().queue[i].item;w.HBBidea.sel(item.a[0]);w.HBBidea.check();w.HBBidea.next();}
  w.HBBidea.typed('Beste aukera bat');w.HBBidea.check();
@@ -165,11 +169,13 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.typed('Herrira ez da urik iristen. Izan ere, hodia hautsi da.');w.HBBidea.check();
  check('final writing is not auto-validated',w.HBBidea._player().state.neutral&&els.get('bd-player').innerHTML.includes('Eredu bat:'));
  w.HBBidea.next();
- check('Altxorra follows the practice',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Auzolana'));
+ check('Altxorra follows the practice',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Auzolana')&&els.get('bd-player').innerHTML.includes('width:60%'));
  w.HBBidea.finishEpisode();
+ check('episode reaches 100 percent only at the final stage',els.get('bd-player').innerHTML.includes('aria-valuenow="100"')&&els.get('bd-player').innerHTML.includes('width:100%'));
  check('Hurrengoa closes episode without claiming mastery or XP',w.HBBidea._player().phase==='end'&&els.get('bd-player').innerHTML.includes('5 · HURRENGOA')&&w.HBBidea._state().episodes['HB-EP-CAUSE-01'].treasure==='auzolana'&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
  w.HBBidea.close(true);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
+ check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();
 console.log(n+' checks passed (bidea)');
