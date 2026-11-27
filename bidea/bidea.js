@@ -218,7 +218,7 @@ function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-fir
  <div class="bd-gaur-top">
   <div class="bd-col">
    <section class="bd-hello"><div class="bd-hello-bira">${bira(x>=GOAL?"celebrate":"hello","bd-bira-md")}</div><div class="bd-bubble"><strong>${esc(g)} ${esc(line)}</strong>${help()?`<small>${esc(gEs)} ${esc(lineEs)}</small>`:""}</div></section>
-   ${todayCard()}${tools()}
+   ${I.id==="b1b2"?episodeCard():todayCard()}${worldGamesHtml()}${tools()}
   </div>
   <div class="bd-col bd-side">
    ${statsCard(x,sk)}
@@ -227,10 +227,8 @@ function gaur(){applyLevel();if(!S.level)return `<div class="bd-gaur bd-gaur-fir
   </div>
  </div>
  ${reviewCard()}
- ${I.id==="b1b2"?episodeCard():""}
  ${collectionHtml()}
- ${worldGamesHtml()}
- ${courseGrid()}
+ ${I.id==="b1b2"?`<details class="bd-explore bd-world-legacy"><summary><span>Ikasgai gehiago</span><small>Gramatika eta praktika osagarria</small></summary>${courseGrid()}</details>`:courseGrid()}
  </div>`}
 /* Bidea dagoenean, hasierako pantaila garbia da: gomendioa bakarrik. */
 function focused(){return true}
@@ -246,13 +244,13 @@ function islandPath(I){const cur=I.id===S.level,ni=cur?nextLesson():-1;let offse
    <ol class="bd-path">${ls.map((l,k)=>{const idx=startIdx+k,st=S.lessons[l.id],open=cur&&unlocked(idx),now=idx===ni;return `<li class="bd-node${st?" is-done":""}${now?" is-now":""}${open?"":" is-locked"}${l.challenge?" is-boss":""}" style="--i:${k}"><button class="bd-dot" ${open?`onclick="HBBidea.start(${idx})"`:"disabled"} aria-label="${esc(l.title)}${open?"":" (blokeatuta)"}">${open?(l.challenge?svg("flag"):st?svg("check"):svg("play")):svg("lock")}</button><span class="bd-label">${esc(l.title)}${help()?`<small>${esc(l.es)}</small>`:""}${st?`<span class="bd-stars">${"★".repeat(st.stars)}${"☆".repeat(3-st.stars)}</span>`:""}</span></li>`}).join("")}</ol></div>`;
  }).join("")}
 function bidea(){applyLevel();if(!S.level)return `<div class="bd-mapa bd-mapa-first">${onboarding()}</div>`;const I=island(),other=DATA.islands.filter(x=>x.id!==I.id),ls=lessons(),d=ls.filter(l=>done(l.id)),sk=streak(),ni=nextLesson(),keys=[...new Set(d.flatMap(l=>l.keys))];
- return `<div class="bd-mapa">
- <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${playableChapters(I).length} kapitulu irekita · ${d.length}/${ls.length} ikasgai</p>
-  <div class="bd-ni-bar"><span style="width:${Math.round(d.length/Math.max(1,ls.length)*100)}%"></span></div></div></section>
+ return `<div class="bd-mapa${I.id==="b1b2"?" bd-mapa-world":""}">
+ <section class="bd-card bd-ni-head"><div>${bira(d.length?"calm":"curious","bd-bira-md")}</div><div><span class="bd-kicker">${esc(I.level)} · ZURE BIDEA</span><h1>${esc(I.title)}</h1><p>${I.id==="b1b2"?`${EPISODE_IDS.filter(id=>S.episodes?.[id]).length}/${EPISODE_IDS.length} atal amaituta`: `${playableChapters(I).length} kapitulu irekita · ${d.length}/${ls.length} ikasgai`}</p>
+  <div class="bd-ni-bar"><span style="width:${I.id==="b1b2"?Math.round(EPISODE_IDS.filter(id=>S.episodes?.[id]).length/EPISODE_IDS.length*100):Math.round(d.length/Math.max(1,ls.length)*100)}%"></span></div></div></section>
  <section class="bd-ni-stats">${[[svg("bolt"),S.xp,"XP guztira"],[svg("star"),totalStars(),"izar"],[svg("fire"),sk,"egun jarraian"],[svg("check"),Object.keys(S.days).filter(k=>S.days[k]>0).length,"egun ikasten"]].map(([i,n,l])=>`<div>${i}<b>${n}</b><small>${l}</small></div>`).join("")}</section>
- <section class="bd-card bd-island bd-island-${I.id}">${islandPath(I)}</section>
+ <section class="bd-card bd-island bd-island-${I.id}">${I.id==="b1b2"?`${worldMissionHtml()}${worldGamesHtml()}${collectionHtml()}<details class="bd-explore bd-world-legacy"><summary><span>Ikasgai gehiago</span><small>Gramatika eta praktika osagarria</small></summary>${islandPath(I)}</details>`:islandPath(I)}</section>
  ${typeof root.storyJournal==="function"?`<details class="bd-explore"><summary><span>Abentura gehiago</span><small>Itsasargiaren sekretua · Hiru kapitulu, sei bide</small></summary>${root.storyJournal()}</details>`:""}
- <div class="bd-mapa-meta">${collectionHtml()}${worldGamesHtml()}<section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
+ <div class="bd-mapa-meta">${I.id==="b1b2"?"":collectionHtml()+worldGamesHtml()}<section class="bd-card"><span class="bd-kicker">LANDU DITUZU</span>${keys.length?`<div class="bd-mastered">${keys.map(k=>`<span class="bd-key"><b>${esc(k)}</b>${help()&&DATA.gloss[k.toLowerCase()]?`<small>${esc(DATA.gloss[k.toLowerCase()])}</small>`:""}</span>`).join("")}</div>`:`<p class="bd-note">Egin zure lehen ikasgaia, eta hemen agertuko dira landutako hitzak eta egiturak.</p>`}
   ${ni>=0?`<button class="bd-btn bd-btn-main bd-ni-go" onclick="HBBidea.start(${ni})">${svg("play")} Hurrengoa: ${esc(ls[ni].title)}</button>`:""}</section>
  ${other.map(o=>`<section class="bd-card bd-switch"><div><span class="bd-kicker">${esc(o.level)}</span><strong>${esc(o.title)}</strong><small>${esc(o.blurb)}</small></div><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}')">Aldatu maila</button></section>`).join("")}
  <div class="bd-bidea-foot"><button class="bd-linkbtn" onclick="HBBidea.startTest()">Egin berriro maila-proba</button>${root.HBData?.isRemote?.()?"":`<button class="bd-linkbtn bd-linkbtn-muted" onclick="reset()">Tokiko datuak ezabatu</button>`}</div></div></div>`}
@@ -365,10 +363,10 @@ const EPISODE_IDS=["HB-EP-CAUSE-01","HB-EP-CAUSE-02","HB-EP-CAUSE-03","HB-EP-CAU
 /* Optional games share the existing player; no XP, mastery or mission progress. */
 function worldGameItems(kind){
  const pairs=EP_TREASURES.filter((t,i)=>S.episodes?.[EPISODE_IDS[i]]?.treasure===t.id);
- const n=pairs.length;if(!n)return [];
+ const n=pairs.length;
  if(kind==="words"){
   const words=[{title:"Hodia",desc:"Ura edo beste likido bat toki batetik bestera eramateko pieza hutsa."},{title:"Erreka",desc:"Ibai txikia, bere ibilgutik ura daramana."}];
-  const selected=[...pairs,...words].slice(0,5);
+  const selected=[...pairs,...words,...(n===0?[EP_TREASURES[1]]:[])].slice(0,5);
   return [{id:"HB-WORLD-GAME-WORDS",t:"match",q:"Lotu abenturako hitzak eta esanahiak.",pairs:selected.map(t=>[t.title,t.desc]),a:["loturak"],ex:"Hitzak eta haien esanahiak lotu dituzu."}];
  }
  const rows=[
@@ -378,12 +376,11 @@ function worldGameItems(kind){
  ["Zubia hondatuta dago. ____, beste bide bat hartu dugu.",["Izan ere","Horregatik","Adibidez"],"Horregatik","Beste bidea hartzea da ondorioa."],
  ["Herriko lagunak elkartu dira, ura behar ____.",["dutelako","dutela","dute"],"dutelako","Uraren beharrak elkartzeko arrazoia adierazten du."]
  ];
- return rows.slice(0,Math.min(5,n+1)).map(([q,ch,answer,ex],i)=>({id:"HB-WORLD-GAME-LINK-"+i,t:"mc",q,ch,a:[answer],ex}));
+ return rows.slice(0,Math.min(5,Math.max(2,n+1))).map(([q,ch,answer,ex],i)=>({id:"HB-WORLD-GAME-LINK-"+i,t:"mc",q,ch,a:[answer],ex}));
 }
 function worldGamesHtml(){
  const count=EPISODE_IDS.filter(id=>S.episodes?.[id]).length;
- if(!count)return "";
- return '<section class="bd-card bd-world-games"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu abenturako hitzekin</h2><p>Praktika librea, presarik eta zigorrik gabe.</p><div class="bd-world-game-grid"><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Hitza eta esanahia elkartu</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>Loturen erronka</strong><small>Kausa ala ondorioa?</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu abenturako hitzekin</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p><div class="bd-world-game-grid"><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Hitza eta esanahia elkartu</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>Loturen erronka</strong><small>Kausa ala ondorioa?</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
  syncState();if(!["words","links"].includes(kind))return;const items=worldGameItems(kind);if(!items.length)return;
@@ -404,9 +401,20 @@ function restoreEpisodeDraft(L){
  if(queue.some(e=>!e.item)||recall.some(i=>!i)||!Number.isInteger(d.pos)||d.pos<0||d.pos>queue.length||(d.phase==="play"&&(!d.state||d.pos>=queue.length)))return null;
  return {mode:"episode",owner:keyFor(KEY),i:-1,L,phase:d.phase,segment:d.segment,recall,queue,pos:d.pos,state:d.state,first:d.first||0,errors:new Set(Array.isArray(d.errors)?d.errors:[]),combo:d.combo||0,best:d.best||0,xp:d.xp||0,lastPct:0,lastXp:0,quit:false}
 }
+
+function worldMissionHtml(){
+ const count=EPISODE_IDS.filter(id=>S.episodes?.[id]).length;
+ const draft=S.episodeDraft?.v===1&&EPISODE_IDS.includes(S.episodeDraft.id)?S.episodeDraft:null;
+ const list=EPISODE_IDS.map((id,i)=>{
+  const n=i+1,L=episodeLesson(n),done=!!S.episodes?.[id],open=n===1||!!S.episodes?.[EPISODE_IDS[i-1]],paused=draft?.id===id,blocked=!!draft&&!paused,can=!!L&&open&&!blocked;
+  const status=paused?"Jarraitu":done?"Berriro bizi":open?"Hasi":"Aurreko atala amaitu";
+  return '<li class="bd-world-step '+(done?"is-done":can?"is-ready":"is-locked")+'"><button type="button" class="bd-world-step-btn" '+(can?'onclick="HBBidea.startEpisode('+n+')"':'disabled')+'><span class="bd-world-step-num">'+n+'</span><span class="bd-world-step-copy"><strong>'+esc(L?.title||"Atala")+'</strong><small>'+esc(blocked?"Jarraitu irekita duzun atala":status)+'</small></span>'+svg(can?(done?"check":"play"):"lock")+'</button></li>';
+ }).join("");
+ return '<div class="bd-world-mission"><span class="bd-kicker">HITZBIRA WORLD</span><div class="bd-world-mission-head"><h2>Uraren misterioa</h2><span class="bd-chip">'+count+'/'+EPISODE_IDS.length+'</span></div>'+episodeLandscape(1)+'<p class="bd-note">Bost atal, abentura bakarra.</p><ol class="bd-world-path">'+list+'</ol></div>'
+}
 function episodeCard(){const n=episodeNumber(),L=episodeLesson(n);if(!L)return "";return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">HITZBIRA WORLD · '+n+'. ATALA</span><h2>'+esc(L.title)+'</h2><p>Argirekin ikertu herriko uraren misterioa.</p><p class="bd-meta">7 erronka · 8–12 min inguru</p><button class="bd-btn bd-btn-main" onclick="HBBidea.startEpisode()">'+svg("play")+' '+(S.episodeDraft?.id===L.id?"Jarraitu abenturarekin":S.episodes?.[L.id]?"Berriro bizi":"Abentura hasi")+'</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>'}
 function startEpisode(n){
- syncState();n=n||episodeNumber();const L=episodeLesson(n);if(!L||S.level!=="b1b2"||(n>1&&!S.episodes?.[EPISODE_IDS[n-2]]))return;
+ syncState();n=n||episodeNumber();const L=episodeLesson(n);if(!L||S.level!=="b1b2"||(n>1&&!S.episodes?.[EPISODE_IDS[n-2]])||(S.episodeDraft?.v===1&&EPISODE_IDS.includes(S.episodeDraft.id)&&S.episodeDraft.id!==L.id))return;
  const saved=restoreEpisodeDraft(L);if(saved){player=saved;const el=ensureEl();render();el.focus?.();return}
  const previous=dueReviews(S.lessons,lessons()).flatMap(x=>x.lesson.items.filter(it=>it.t==="mc")).slice(0,3);
  player={mode:"episode",owner:keyFor(KEY),i:-1,L,phase:"gogoratu",segment:"recall",recall:previous,queue:previous.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
