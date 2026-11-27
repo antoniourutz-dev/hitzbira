@@ -65,6 +65,9 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.reset();
  check('remote account reset is blocked',JSON.parse(store.get('hitzbira-bidea-v1::hb::user-1')).level==='b1b2');
  check('Bidea screen combines map and honest LANDU DITUZU progress and hides guest reset for remote accounts',(()=>{const b=w.HBBidea.bidea();return b.includes('bd-map')&&b.includes('LANDU DITUZU')&&!b.includes('MENPERATZEN DITUZU')&&!b.includes('Tokiko datuak ezabatu')})());
+ w.storyJournal=()=>'<section id="world-test-journal">World journal</section>';
+ check('existing World journal is reachable through a collapsed Bidea section, not Gaur',()=>{const b=w.HBBidea.bidea();return b.includes('<details class="bd-explore">')&&b.includes('Abentura gehiago')&&b.includes('world-test-journal')&&!w.HBBidea.gaur().includes('world-test-journal')});
+ delete w.storyJournal;
  check('isAuditor defaults to false and toggles cleanly',(()=>{const def=w.HBBidea.isAuditor();w.HBBidea.auditor(true);const on=w.HBBidea.isAuditor();w.HBBidea.auditor(false);const off=w.HBBidea.isAuditor();return def===false&&on===true&&off===false})());
  remote=false;uid=null;
  check('guest Bidea screen exposes local reset action',w.HBBidea.bidea().includes('Tokiko datuak ezabatu'));
@@ -142,7 +145,157 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  const gaurHtml=w.HBBidea.gaur();
  check('Gaur renders editorial greeting bar, redesigned Eguneko helburua with single-line ring and tinted stat icons',gaurHtml.includes('bd-desk-greet')&&gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-stat-ico is-fire')&&gaurHtml.includes('bd-review-banner'));
  check('Gaur includes full desktop course syllabus with chapter progress bars and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&gaurHtml.includes('bd-ch-prog')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
+ w.HBBidea.setLevel('b1b2',false);
+ check('first World episode is discoverable from Gaur',w.HBBidea.gaur().includes('Non dago ura?')&&w.HBBidea.gaur().includes('HBBidea.startEpisode()'));
+ check('treasure collection starts undiscovered and does not reveal locked cards',w.HBBidea.gaur().includes('Nire altxorrak')&&w.HBBidea.gaur().includes('0/5 aurkituta')&&!w.HBBidea.gaur().includes('Auzolana'));
+ const route=w.HBBidea.bidea(),home=w.HBBidea.gaur();
+ check('Bidea shows five narrative episode titles before any completion and preserves optional grammar',["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"].every(t=>route.includes(t))&&route.includes('bd-world-path')&&route.indexOf('Uraren misterioa')<route.indexOf('Ikasgai gehiago'));
+ check('Gaur recommends the narrative before optional grammar, with games available from the start',home.indexOf('Non dago ura?')<home.indexOf('Ikasgai gehiago')&&home.includes('Hitzak lotu')&&route.includes('Loturen erronka'));
+ w.HBBidea.startEpisode(3);check('later episodes cannot be opened out of sequence',w.HBBidea._player()===null);
+ w.HBBidea.startWorldGame('words');check('starter word game works without any treasure unlocked',w.HBBidea._player().mode==='worldgame'&&w.HBBidea._player().queue[0].item.pairs.length===3);w.HBBidea.close(true);
+ w.HBBidea.startWorldGame('links');check('starter connector game is accessible immediately',w.HBBidea._player().queue.length===2);w.HBBidea.close(true);
+ const before=JSON.stringify(w.HBBidea._state().lessons),beforeXp=w.HBBidea._state().xp;
+ w.HBBidea.startEpisode();
+ check('episode starts with Gogoratu without inventing previous evidence',w.HBBidea._player().phase==='gogoratu'&&w.HBBidea._player().recall.length===0);
+ w.HBBidea.begin();
+ check('episode renders original location artwork and existing mascot',els.get('bd-player').innerHTML.includes('bd-episode-landscape')&&els.get('bd-player').innerHTML.includes('Herriko iturria')&&els.get('bd-player').innerHTML.includes('bd-landscape-bira'));
+ check('episode opens Argi scene and uses seven activities',w.HBBidea._player().phase==='intro'&&w.HBBidea._player().queue.length===7&&els.get('bd-player').innerHTML.includes('2 · ESZENA'));
+ check('episode keys match the water mystery, not the bus example',els.get('bd-player').innerHTML.includes('iturburuko hodia hautsi da.')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.')&&els.get('bd-player').innerHTML.includes('width:20%'));
+ check('episode tracker includes five stages and current step',els.get('bd-player').innerHTML.includes('bd-episode-stages')&&els.get('bd-player').innerHTML.includes('aria-current="step"')&&els.get('bd-player').innerHTML.includes('Hurrengoa'));
+ w.HBBidea.begin();
+ w.HBBidea.sel('Beraz');w.HBBidea.check();
+ check('episode clear error receives hint and another try',w.HBBidea._player().state.tries===1&&!w.HBBidea._player().state.checked);
+ w.HBBidea.sel('Izan ere');w.HBBidea.check();
+ check('assisted answer does not count as first try',w.HBBidea._player().state.ok&&w.HBBidea._player().first===0);
+ check('episode progress is visible after first answered item and feedback stays contextual',els.get('bd-player').innerHTML.includes('width:43%')&&els.get('bd-player').innerHTML.includes('Erreka lehor egoteak')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.'));
+
+ w.HBBidea.next();
+ for(let i=1;i<4;i++){const item=w.HBBidea._player().queue[i].item;w.HBBidea.sel(item.a[0]);w.HBBidea.check();w.HBBidea.next();}
+ w.HBBidea.typed('Beste aukera bat');w.HBBidea.check();
+ check('unmatched open text is neutral, without false penalty',w.HBBidea._player().state.neutral&&!w.HBBidea._player().errors.has('HB-EP-CAUSE-01-5')&&els.get('bd-player').innerHTML.includes('Erantzuna ez da automatikoki baliozkotu.'));
+ w.HBBidea.next();w.HBBidea.typed('Izan ere');w.HBBidea.check();w.HBBidea.next();
+ w.HBBidea.typed('Herrira ez da urik iristen. Izan ere, hodia hautsi da.');w.HBBidea.check();
+ check('final writing is not auto-validated',w.HBBidea._player().state.neutral&&els.get('bd-player').innerHTML.includes('Eredu bat:'));
+ w.HBBidea.next();
+ check('Altxorra follows the practice',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Auzolana')&&els.get('bd-player').innerHTML.includes('width:60%'));
+ w.HBBidea.finishEpisode();
+ check('episode reaches 100 percent only at the final stage',els.get('bd-player').innerHTML.includes('aria-valuenow="100"')&&els.get('bd-player').innerHTML.includes('width:100%'));
+ check('Hurrengoa closes episode without claiming mastery or XP',w.HBBidea._player().phase==='end'&&els.get('bd-player').innerHTML.includes('5 · HURRENGOA')&&w.HBBidea._state().episodes['HB-EP-CAUSE-01'].treasure==='auzolana'&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
+ check('first ending links to actual second episode',els.get('bd-player').innerHTML.includes('HBBidea.startEpisode(2)'));
+ w.HBBidea.close(true);
+ check('first earned treasure is visible in Gaur and Bidea',w.HBBidea.gaur().includes('1/5 aurkituta')&&w.HBBidea.gaur().includes('Auzolana')&&w.HBBidea.bidea().includes('Auzolana'));
+ check('Gaur recommends second episode after visiting first',w.HBBidea.gaur().includes('Giltza zaharra'));
+ w.HBBidea.startEpisode();
+ check('second episode uses same five-stage player',w.HBBidea._player().L.id==='HB-EP-CAUSE-02'&&w.HBBidea._player().phase==='gogoratu');
+ w.HBBidea.begin();w.HBBidea.begin();
+ w.HBBidea.sel('dugu');w.HBBidea.check();
+ w.HBBidea.askQuit();
+ check('exit saves assisted attempt without losing position',w.HBBidea._player()===null&&w.HBBidea._state().episodeDraft.state.tries===1&&w.HBBidea.gaur().includes('Jarraitu abenturarekin'));
+ w.HBBidea.startEpisode();
+ check('resumed episode preserves hint and position',w.HBBidea._player().pos===0&&w.HBBidea._player().state.tries===1&&w.HBBidea._player().state.hintOn);
+ w.HBBidea.sel('dugulako');w.HBBidea.check();w.HBBidea.next();
+ for(let i=1;i<4;i++){w.HBBidea.sel(w.HBBidea._player().queue[i].item.a[0]);w.HBBidea.check();w.HBBidea.next()}
+ w.HBBidea.typed('duela');
+ w.HBBidea.askQuit();
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
+ w.HBBidea.startEpisode();
+ check('fresh VM reload restores exact draft input and item',w.HBBidea._player().pos===4&&w.HBBidea._player().state.typed==='duela');
+ w.HBBidea.typed('duelako');w.HBBidea.check();w.HBBidea.next();
+ w.HBBidea.typed('Izan ere');w.HBBidea.check();w.HBBidea.next();
+ w.HBBidea.typed('Errotara etorri gara, ikurra ikusi dugulako.');w.HBBidea.check();w.HBBidea.next();
+ check('second treasure is linked to the story',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Giltza'));
+ w.HBBidea.finishEpisode();
+ check('second episode completed and draft cleared without academic claim',w.HBBidea._state().episodes['HB-EP-CAUSE-02'].treasure==='giltza'&&!w.HBBidea._state().episodeDraft&&JSON.stringify(w.HBBidea._state().lessons)===before);
+ check('second ending links to third episode',els.get('bd-player').innerHTML.includes('HBBidea.startEpisode(3)'));
+ w.HBBidea.close(true);
+ check('Gaur recommends third episode and shows two distinct treasures',w.HBBidea.gaur().includes('Errotaren sekretua')&&w.HBBidea.gaur().includes('2/5 aurkituta'));
+ w.HBBidea.startEpisode();w.HBBidea.begin();
+ check('third episode has distinct illustrated location and contextual examples',w.HBBidea._player().L.id==='HB-EP-CAUSE-03'&&els.get('bd-player').innerHTML.includes('Errotaren barrua')&&els.get('bd-player').innerHTML.includes('Hodia buxatuta dago.'));
+ w.HBBidea.begin();
+ for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
+ w.HBBidea.typed('Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.');w.HBBidea.check();w.HBBidea.next();
+ check('third treasure does not require autonomous production credit',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Errota'));
+ w.HBBidea.finishEpisode();w.HBBidea.close(true);
+ check('all three collectible cards are visible with no duplicate rewards',w.HBBidea.gaur().includes('3/5 aurkituta')&&w.HBBidea.bidea().includes('Errota')&&Object.keys(w.HBBidea._state().episodes).length===3);
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
+ check('treasure collection survives fresh runtime',w.HBBidea.gaur().includes('3/5 aurkituta')&&w.HBBidea.bidea().includes('Auzolana'));
+ check('Gaur offers optional vocabulary and connector games after discovering treasures',w.HBBidea.gaur().includes('Hitzak lotu')&&w.HBBidea.bidea().includes('Loturen erronka'));
+ for(let n=4;n<=5;n++){
+  w.HBBidea.startEpisode();w.HBBidea.begin();
+  check('next narrative episode uses the shared player and seven original tasks',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===7);
+  w.HBBidea.begin();
+  for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
+  w.HBBidea.typed('Hodia buxatuta zegoen. Beraz, garbitu egin dugu.');w.HBBidea.check();
+  check('written production is neutral and not automatically certified',w.HBBidea._player().state.neutral);
+  w.HBBidea.next();w.HBBidea.finishEpisode();
+  if(n===5)check('mission ends with resolved story and optional game, not a nonexistent episode',els.get('bd-player').innerHTML.includes('Misterioa argituta!')&&els.get('bd-player').innerHTML.includes('Jolastokira')&&!els.get('bd-player').innerHTML.includes('startEpisode(6)'));
+  w.HBBidea.close(true);
+ }
+ check('five treasure cards persist without adding XP or formal evidence',w.HBBidea.gaur().includes('5/5 aurkituta')&&Object.keys(w.HBBidea._state().episodes).length===5&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
+ const savedEpisodes=JSON.stringify(w.HBBidea._state().episodes);
+ w.HBBidea.startWorldGame('words');
+ const pairs=w.HBBidea._player().queue[0].item.pairs;
+ check('word game uses all five earned vocabulary treasures',pairs.length===5&&pairs.some(p=>p[0]==='Iturburua'));
+ for(let i=0;i<pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}
+ check('matching game completes with feedback',w.HBBidea._player().state.checked&&w.HBBidea._player().state.ok);
+ w.HBBidea.next();
+ check('game finishes without changing mission or XP',w.HBBidea._player().phase==='end'&&JSON.stringify(w.HBBidea._state().episodes)===savedEpisodes&&w.HBBidea._state().xp===beforeXp);
+ w.HBBidea.close(true);w.HBBidea.startWorldGame('links');
+ check('connector game offers five contextual items',w.HBBidea._player().queue.length===5);
+ for(let i=0;i<5;i++){w.HBBidea.sel(w.HBBidea._player().queue[i].item.a[0]);w.HBBidea.check();w.HBBidea.next()}
+ check('connector game ends without formal learning credit',w.HBBidea._player().phase==='end'&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
+ w.HBBidea.close(true);
+ const bDone=JSON.stringify(w.HBBidea._state().episodes);
+ w.HBBidea.startEpisode(5);w.HBBidea.begin();w.HBBidea.askQuit();
+ const bDraft=JSON.stringify(w.HBBidea._state().episodeDraft);
+ w.HBBidea.setLevel('a1a2',false);
+ check('forest narrative is visible in Gaur and Bidea without mixing water-mystery navigation',w.HBBidea.gaur().includes('KONDAIREN ZAINDARIAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('0/5'));
+ check('beginner games are available before completion',w.HBBidea.gaur().includes('Hitzak lotu')&&w.HBBidea.bidea().includes('Non, nora, nondik?'));
+ w.HBBidea.startWorldGame('links');check('beginner game uses contextual locatives',w.HBBidea._player().queue.length===3&&w.HBBidea._player().queue[0].item.a[0]==='basoan');w.HBBidea.close(true);
+ w.HBBidea.startEpisode();if(w.HBBidea._player().recall.length){w.HBBidea.begin();while(w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}}else w.HBBidea.begin();
+ check('forest scene reuses canonical message and illustration',w.HBBidea._player().L.id==='HB-EP-FOREST-01'&&els.get('bd-player').innerHTML.includes('Menditik nator, basoan bizi naiz eta errekara noa.')&&els.get('bd-player').innerHTML.includes('Basoko bidea'));
+ w.HBBidea.begin();w.HBBidea.sel('Errekara');w.HBBidea.check();w.HBBidea.next();w.HBBidea.askQuit();
+ check('beginner draft does not overwrite B1–B2 draft',w.HBBidea._state().forestDraft.pos===1&&JSON.stringify(w.HBBidea._state().episodeDraft)===bDraft);
+ w.HBBidea.setLevel('b1b2',false);w.HBBidea.startEpisode();check('intermediate draft remains resumable',w.HBBidea._player().L.n===5);w.HBBidea.close(true);
+ w.HBBidea.setLevel('a1a2',false);w.HBBidea.startEpisode();
+ check('beginner resumes exact item',w.HBBidea._player().pos===1);
+ while(w.HBBidea._player().phase==='play'){const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}else if(it.t==='gap'||it.t==='write'){w.HBBidea.typed(it.t==='write'?'Errekara noa.':it.a[0]);w.HBBidea.check()}else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}if(it.t==='write')check('forest open answer remains neutral',w.HBBidea._player().state.neutral);w.HBBidea.next()}
+ w.HBBidea.finishEpisode();check('forest treasure is distinct and prior mission remains completed',w.HBBidea._state().episodes['HB-EP-FOREST-01'].treasure==='basoa'&&!w.HBBidea._state().forestDraft&&JSON.stringify(w.HBBidea._state().episodeDraft)===bDraft&&Object.keys(JSON.parse(bDone)).every(k=>w.HBBidea._state().episodes[k].treasure===JSON.parse(bDone)[k].treasure));w.HBBidea.close(true);
+ check('forest collection shows its own earned treasure',w.HBBidea.bidea().includes('1/5 aurkituta')&&w.HBBidea.bidea().includes('Basoa'));
+ check('forest map shows all five episodes',["Enborreko mezua","Basoko hitzak","Non, nora, nondik?","Hiru bideak","Zure mapa"].every(t=>w.HBBidea.bidea().includes(t)));
+ const firstCause=w.HBBidea._state().episodeErrorMemory?.cause;
+ check('known cause-result error is remembered once and does not certify mastery',firstCause?.errors===1&&firstCause.confused==='result'&&firstCause.recoveries===0);
+ for(let n=2;n<=5;n++){
+  w.HBBidea.startEpisode(n);w.HBBidea.begin();
+  let recallGuard=0;while(w.HBBidea._player().phase==='play'&&w.HBBidea._player().segment==='recall'){if(++recallGuard>10)throw Error('stalled recall');const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}
+  check('forest continuation uses seven activities per episode',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===7);
+  w.HBBidea.begin();
+  let loops=0;
+  while(w.HBBidea._player().phase==='play'){
+   if(++loops>20)throw Error('stalled forest player');
+   const p=w.HBBidea._player(),it=p.queue[p.pos].item;
+   if(n===3&&p.pos===0){w.HBBidea.sel('eskolara');w.HBBidea.check();check('locative diagnosis distinguishes destination from place',w.HBBidea._state().episodeErrorMemory.non.confused==='nora'&&els.get('bd-player').innerHTML.includes('helmuga'));w.HBBidea.sel('eskolan');w.HBBidea.check()}
+   else if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}
+   else if(it.t==='build'){for(const word of w.HBBidea.tilesFor(it.a[0])){const st=w.HBBidea._player().state;w.HBBidea.tile(st.tiles.find(t=>t.w===word&&!st.picked.includes(t.k)).k)}w.HBBidea.check()}
+   else if(it.t==='fix'){w.HBBidea.tap(p.state.tokens.indexOf(it.w));w.HBBidea.sel(it.r);w.HBBidea.check()}
+   else if(it.t==='gap'||it.t==='write'){w.HBBidea.typed(it.t==='write'?it.model:it.a[0]);w.HBBidea.check()}
+   else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}
+   if(it.t==='write')check('open production does not create false learning evidence',w.HBBidea._player().state.neutral);
+   if(!w.HBBidea._player().state.checked)throw Error('not checked: '+it.id);
+   w.HBBidea.next();
+  }
+  w.HBBidea.finishEpisode();w.HBBidea.close(true);
+ }
+ check('all five forest treasures and water history preserved',w.HBBidea.bidea().includes('5/5 aurkituta')&&Object.keys(w.HBBidea._state().episodes).length===10);
+ const memory=w.HBBidea._state().episodeErrorMemory;
+ check('assisted retry does not count as delayed recovery',memory.non.errors===1&&memory.non.recoveries===0);
+ memory.non.dueAt=Date.now()-1;
+ w.HBBidea.startEpisode(5);check('due linguistic difficulty selects a new contextual recall',w.HBBidea._player().recall[0].id==='HB-RECALL-NON');
+ w.HBBidea.begin();w.HBBidea.sel('liburutegian');w.HBBidea.check();
+ check('autonomous delayed recall schedules next interval without mastery claim',memory.non.recoveries===1&&memory.non.step===1&&memory.non.dueAt>Date.now()+2*86400000);
+ w.HBBidea.askQuit();
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
+ check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();
 console.log(n+' checks passed (bidea)');
