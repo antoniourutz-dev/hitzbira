@@ -249,7 +249,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.startEpisode(5);w.HBBidea.begin();w.HBBidea.askQuit();
  const bDraft=JSON.stringify(w.HBBidea._state().episodeDraft);
  w.HBBidea.setLevel('a1a2',false);
- check('forest narrative is visible in Gaur and Bidea without mixing water-mystery navigation',w.HBBidea.gaur().includes('KONDAIREN ZAINDARIAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('0/1'));
+ check('forest narrative is visible in Gaur and Bidea without mixing water-mystery navigation',w.HBBidea.gaur().includes('KONDAIREN ZAINDARIAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('0/5'));
  check('beginner games are available before completion',w.HBBidea.gaur().includes('Hitzak lotu')&&w.HBBidea.bidea().includes('Non, nora, nondik?'));
  w.HBBidea.startWorldGame('links');check('beginner game uses contextual locatives',w.HBBidea._player().queue.length===3&&w.HBBidea._player().queue[0].item.a[0]==='basoan');w.HBBidea.close(true);
  w.HBBidea.startEpisode();if(w.HBBidea._player().recall.length){w.HBBidea.begin();while(w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}}else w.HBBidea.begin();
@@ -261,7 +261,38 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('beginner resumes exact item',w.HBBidea._player().pos===1);
  while(w.HBBidea._player().phase==='play'){const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}else if(it.t==='gap'||it.t==='write'){w.HBBidea.typed(it.t==='write'?'Errekara noa.':it.a[0]);w.HBBidea.check()}else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}if(it.t==='write')check('forest open answer remains neutral',w.HBBidea._player().state.neutral);w.HBBidea.next()}
  w.HBBidea.finishEpisode();check('forest treasure is distinct and prior mission remains completed',w.HBBidea._state().episodes['HB-EP-FOREST-01'].treasure==='basoa'&&!w.HBBidea._state().forestDraft&&JSON.stringify(w.HBBidea._state().episodeDraft)===bDraft&&Object.keys(JSON.parse(bDone)).every(k=>w.HBBidea._state().episodes[k].treasure===JSON.parse(bDone)[k].treasure));w.HBBidea.close(true);
- check('forest collection shows its own earned treasure',w.HBBidea.bidea().includes('1/1 aurkituta')&&w.HBBidea.bidea().includes('Basoa'));
+ check('forest collection shows its own earned treasure',w.HBBidea.bidea().includes('1/5 aurkituta')&&w.HBBidea.bidea().includes('Basoa'));
+ check('forest map shows all five episodes',["Enborreko mezua","Basoko hitzak","Non, nora, nondik?","Hiru bideak","Zure mapa"].every(t=>w.HBBidea.bidea().includes(t)));
+ const firstCause=w.HBBidea._state().episodeErrorMemory?.cause;
+ check('known cause-result error is remembered once and does not certify mastery',firstCause?.errors===1&&firstCause.confused==='result'&&firstCause.recoveries===0);
+ for(let n=2;n<=5;n++){
+  w.HBBidea.startEpisode();w.HBBidea.begin();
+  check('forest continuation uses seven activities per episode',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===7);
+  w.HBBidea.begin();
+  let loops=0;
+  while(w.HBBidea._player().phase==='play'){
+   if(++loops>20)throw Error('stalled forest player');
+   const p=w.HBBidea._player(),it=p.queue[p.pos].item;
+   if(n===3&&p.pos===0){w.HBBidea.sel('eskolara');w.HBBidea.check();check('locative diagnosis distinguishes destination from place',w.HBBidea._state().episodeErrorMemory.non.confused==='nora'&&els.get('bd-player').innerHTML.includes('helmuga'));w.HBBidea.sel('eskolan');w.HBBidea.check()}
+   else if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}
+   else if(it.t==='build'){for(const word of w.HBBidea.tilesFor(it.a[0])){const st=w.HBBidea._player().state;w.HBBidea.tile(st.tiles.find(t=>t.w===word&&!st.picked.includes(t.k)).k)}w.HBBidea.check()}
+   else if(it.t==='fix'){w.HBBidea.tap(p.state.tokens.indexOf(it.w));w.HBBidea.sel(it.r);w.HBBidea.check()}
+   else if(it.t==='gap'||it.t==='write'){w.HBBidea.typed(it.t==='write'?it.model:it.a[0]);w.HBBidea.check()}
+   else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}
+   if(it.t==='write')check('open production does not create false learning evidence',w.HBBidea._player().state.neutral);
+   if(!w.HBBidea._player().state.checked)throw Error('not checked: '+it.id);
+   w.HBBidea.next();
+  }
+  w.HBBidea.finishEpisode();w.HBBidea.close(true);
+ }
+ check('all five forest treasures and water history preserved',w.HBBidea.bidea().includes('5/5 aurkituta')&&Object.keys(w.HBBidea._state().episodes).length===10);
+ const memory=w.HBBidea._state().episodeErrorMemory;
+ check('assisted retry does not count as delayed recovery',memory.non.errors===1&&memory.non.recoveries===0);
+ memory.non.dueAt=Date.now()-1;
+ w.HBBidea.startEpisode(5);check('due linguistic difficulty selects a new contextual recall',w.HBBidea._player().recall[0].id==='HB-RECALL-NON');
+ w.HBBidea.begin();w.HBBidea.sel('liburutegian');w.HBBidea.check();
+ check('autonomous delayed recall schedules next interval without mastery claim',memory.non.recoveries===1&&memory.non.step===1&&memory.non.dueAt>Date.now()+2*86400000);
+ w.HBBidea.askQuit();
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
