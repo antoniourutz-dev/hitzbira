@@ -410,7 +410,7 @@ function forestMissionsHtml(){
 function shelterEpisode(n){
  const base=allLessons().find(l=>l.id==="a1a2-k2-i"+Math.min(n,4));if(!base||!SHELTER_IDS[n-1])return null;
  const scenes=[
- ["Euriaren bila","Un refugio de la lluvia","Ane eta Iker basotik atera dira. Euria hasi da. Anek aterpetxea ikusi du. Zer egin du bakoitzak?","Ane e Iker salen del bosque. Empieza a llover. Ane ve un refugio. ¿Qué ha hecho cada uno?","Ni aterpera joan naiz.","He ido al refugio."],
+ ["Aterpe bila","En busca de refugio","Ane eta Iker basotik atera dira. Euria hasi da. Anek aterpetxea ikusi du. Zer egin du bakoitzak?","Ane e Iker salen del bosque. Empieza a llover. Ane ve un refugio. ¿Qué ha hecho cada uno?","Ni aterpera joan naiz.","He ido al refugio."],
  ["Atea ireki","Abrir la puerta","Lur eta Txinpart iritsi dira. Lau lagunak atearen aurrean daude. Giltza lurrean dago. Zer egin dute elkarrekin?","Lur y Txinpart llegan. Los cuatro están ante la puerta. La llave está en el suelo. ¿Qué han hecho juntos?","Guk giltza hartu dugu.","Hemos cogido la llave."],
  ["Kutxako sekretua","El secreto de la caja","Barruan, kutxa bat dago. Anek gutun bat ikusi du, baina Ikerrek bi gutun aurkitu ditu. Zenbat gauza aurkitu dituzte?","Dentro hay una caja. Ane ve una carta, pero Iker encuentra dos. ¿Cuántas cosas han encontrado?","Nik bi gutun aurkitu ditut.","He encontrado dos cartas."],
  ["Zer gertatu da?","¿Qué ha pasado?","Txinpartek aterpean gertatutakoa jakin nahi du. Ane barrura sartu da eta Lurrek kutxa ireki du. Kontatu gertatutakoa.","Txinpart quiere saber lo sucedido. Ane ha entrado y Lur ha abierto la caja. Cuenta lo que ha pasado.","Ane sartu da. Lurrek kutxa ireki du.","Ane ha entrado. Lur ha abierto la caja."],
@@ -489,8 +489,12 @@ function activeDraft(){return S[draftKey()]}
 function wordGameGroups(){
  const forest=S.level==="a1a2",ts=episodeTreasures(),ids=episodeIds();
  const discovered=ts.filter((t,i)=>S.episodes?.[ids[i]]?.treasure===t.id).map(t=>[t.title,t.desc]);
- const starter=forest?[["Basoa","Zuhaitz asko dauden lekua."],["Erreka","Ibai txikia."],["Mendia","Lur garaia."]]:[["Hodia","Likidoa garraiatzeko pieza hutsa."],["Erreka","Ibai txikia."],["Giltza","Atea edo sarraila irekitzeko tresna."]];
- const extra=forest?[
+ const starter=inShelter()?SHELTER_TREASURES.slice(0,3).map(t=>[t.title,t.desc]):forest?[["Basoa","Zuhaitz asko dauden lekua."],["Erreka","Ibai txikia."],["Mendia","Lur garaia."]]:[["Hodia","Likidoa garraiatzeko pieza hutsa."],["Erreka","Ibai txikia."],["Giltza","Atea edo sarraila irekitzeko tresna."]];
+ const extra=inShelter()?[
+ [["Giltza","Atea irekitzeko tresna."],["Atea","Sarrera ireki edo ixteko atala."],["Leihoa","Argia eta airea sartzeko irekidura."]],
+ [["Euria","Hodeietatik erortzen den ura."],["Hodeia","Zeruan ikusten den ur tanta multzoa."],["Eguzkia","Egunez argia eta beroa ematen digun izarra."]],
+ [["Papera","Idazteko edo marrazteko erabiltzen den materiala."],["Arkatza","Idazteko edo marrazteko tresna."],["Mapa","Leku baten irudikapena."]]
+ ]:forest?[
  [["Enborra","Zuhaitzaren zurezko atal nagusia."],["Hostoa","Landarearen atal laua, gehienetan berdea."],["Adarra","Enborretik ateratzen den zurezko atala."]],
  [["Bidea","Leku batetik bestera joateko ibilbidea."],["Seinalea","Informazioa edo norabidea adierazten duen ikurra."],["Gurutzebidea","Bi bide edo gehiago elkartzen diren lekua."]],
  [["Eskola","Ikasteko lekua."],["Plaza","Herriko edo hiriko gune irekia."],["Liburutegia","Liburuak irakurtzeko edo maileguan hartzeko lekua."]]
@@ -500,7 +504,7 @@ function wordGameGroups(){
  [["Herritarra","Herri bateko biztanlea."],["Batzarra","Gai bat aztertzeko pertsonen bilera."],["Konponbidea","Arazoa konpontzeko modua."]]
  ];
  const primary=[...discovered,...starter.filter(p=>!discovered.some(d=>d[0]===p[0]))].slice(0,Math.max(3,discovered.length));
- return [primary,...extra].map((pairs,i)=>({id:(forest?"HB-FOREST":"HB-WORLD")+"-GAME-WORDS-"+(i+1),t:"match",q:"Lotu hitzak eta esanahiak · "+(i+1)+"/4",pairs:shuffle(pairs),a:["loturak"],ex:"Hitzak eta esanahiak lotu dituzu."}));
+ return [primary,...extra].map((pairs,i)=>({id:(inShelter()?"HB-SHELTER":forest?"HB-FOREST":"HB-WORLD")+"-GAME-WORDS-"+(i+1),t:"match",q:"Lotu hitzak eta esanahiak · "+(i+1)+"/4",pairs:shuffle(pairs),a:["loturak"],ex:"Hitzak eta esanahiak lotu dituzu."}));
 }
 const VERB_TASKS=[
  {id:"HB-VERB-NOR-1",code:"nor",level:"a1a2",t:"mc",q:"Ane basora joan ____. (Ane bakarrik.)",ch:["da","du","dio"],a:["da"],ex:"Ane da joan dena; ez dago objekturik edo hartzailerik.",why:{du:"«Du» objektua eta egilea lotzeko erabiltzen da. Hemen Ane da joan dena.",dio:"«Dio» hartzailea ere adierazteko erabiltzen da. Hemen Ane da joan dena."}},
@@ -644,7 +648,7 @@ function worldMissionHtml(){
  return '<div class="bd-world-mission"><span class="bd-kicker">'+(S.level==="a1a2"?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+'</span><div class="bd-world-mission-head"><h2>'+(S.level==="a1a2"?forestTitle():"Uraren misterioa")+'</h2><span class="bd-chip">'+count+'/'+ids.length+'</span></div>'+worldGamesHtml()+'<p class="bd-note">'+("Bost atal, abentura bakarra.")+'</p><ol class="bd-world-path">'+list+'</ol></div>'
 }
 function resumeLabel(){const d=activeDraft();if(!d)return "";const phase=({gogoratu:"Gogoratu",intro:"Eszena",play:"Erronka",altxorra:"Altxorra"})[d.phase];return phase?"<p class=\"bd-note\">Gordetako urratsa: "+esc(phase)+(d.phase==="play"&&d.segment==="story"?" · "+Math.min(d.pos+1,7)+"/7":"")+"</p>":""}
-function episodeCard(){const n=episodeNumber(),L=episodeLesson(n);if(!L)return "";return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">'+(L.forest?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+' · '+n+'. ATALA</span><h2>'+esc(L.title)+'</h2><p>'+(L.shelter?"Ane eta Ikerrekin argitu aterpetxeko misterioa.":L.forest?"Ane, Iker eta Lurrekin aurkitu basoko mezua.":"Argirekin ikertu herriko uraren misterioa.")+'</p><p class="bd-meta">7 erronka · 8–12 min inguru</p>'+resumeLabel()+'<button class="bd-btn bd-btn-main" onclick="HBBidea.startEpisode()">'+svg("play")+' '+(activeDraft()?.id===L.id?"Jarraitu abenturarekin":S.episodes?.[L.id]?"Berriro bizi":"Abentura hasi")+'</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>'}
+function episodeCard(){if(S.level==="a1a2"&&!inShelter()&&shelterUnlocked()&&!S.forestDraft&&!S.episodes?.[SHELTER_IDS[0]])return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">KONDAIREN ZAINDARIAK · ABENTURA BERRIA</span><h2>Aterpetxeko giltza</h2><p>Euria hasi da! Lagundu Aneri eta Ikerri aterpea aurkitzen.</p><button class="bd-btn bd-btn-main" onclick="HBBidea.chooseForestMission(2,true)">'+svg("play")+' Hasi abentura berria</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>';const n=episodeNumber(),L=episodeLesson(n);if(!L)return "";return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">'+(L.forest?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+' · '+n+'. ATALA</span><h2>'+esc(L.title)+'</h2><p>'+(L.shelter?"Ane eta Ikerrekin argitu aterpetxeko misterioa.":L.forest?"Ane, Iker eta Lurrekin aurkitu basoko mezua.":"Argirekin ikertu herriko uraren misterioa.")+'</p><p class="bd-meta">7 erronka · 8–12 min inguru</p>'+resumeLabel()+'<button class="bd-btn bd-btn-main" onclick="HBBidea.startEpisode()">'+svg("play")+' '+(activeDraft()?.id===L.id?"Jarraitu abenturarekin":S.episodes?.[L.id]?"Berriro bizi":"Abentura hasi")+'</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>'}
 function startEpisode(n){
  applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}n=n||episodeNumber();const L=episodeLesson(n);const ids=episodeIds(),d=activeDraft();if(!L||(n>1&&!S.episodes?.[ids[n-2]])||(d?.v===1&&ids.includes(d.id)&&d.id!==L.id))return;
  const saved=restoreEpisodeDraft(L);if(saved){player=saved;const el=ensureEl();render();el.focus?.();return}
@@ -709,6 +713,7 @@ function top(){if(player.mode==="episode")return episodeTop();const {done,total,
 
 /* Ikasgaiaren sarrera: elkarrizketa + «giltzak» bisualki */
 function learnHtml(L){
+ if(L.shelter)return `<div class="bd-keys"><p class="bd-tip"><span>${esc(L.example)}${help()?`<small>${esc(L.exampleEs)}</small>`:""}</span></p></div>`;
  if(L.learn==="cases")return `<div class="bd-cases">${L.keys.map(k=>{const c=caseInfo(k);return `<div class="bd-case ${c.cls}">${svg(c.ico)}<span class="bd-case-tag">${c.tag}</span><b>${caseWord(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</div>`}).join("")}</div>`;
  if(L.learn==="words"){const ic={mendia:"mountain",basoa:"trees",erreka:"river",bidea:"path",zubia:"bridge"};return `<div class="bd-words">${L.keys.map(k=>`<div class="bd-word-card">${svg(ic[k]||"star")}<b>${esc(k)}</b>${help()&&DATA.gloss[k]?`<small>${esc(DATA.gloss[k])}</small>`:""}</div>`).join("")}</div>`}
  if(L.learn==="table"){const rows=[["baso","basoan","basora","basotik"],["eskola","eskolan","eskolara","eskolatik"],["parke","parkean","parkera","parketik"]];
