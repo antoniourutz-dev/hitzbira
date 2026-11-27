@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.7.0 · Multi-plataforma: mugikorra, tableta eta ordenagailua (lan-mahaia, 2 zutabeko Bidea eta laguntza-panela).**
+**2.8.0 · Ordenagailuko ikasketa-plataforma (alboko barra iraunkorra + ikastaro osoa), HitzBira marka garbia, Eguneko helburua berritua eta energia-barra dinamikoa.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 

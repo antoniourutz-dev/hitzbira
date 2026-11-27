@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "HitzBira · Gramatika",
+  "name": "HitzBira",
   "short_name": "HitzBira",
-  "description": "Euskararen gramatika: ikasi, praktikatu eta hobetu.",
+  "description": "Euskara ikasi, praktikatu eta hobetu zure erritmoan.",
   "lang": "eu",
   "start_url": "/",
   "scope": "/",

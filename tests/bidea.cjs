@@ -115,6 +115,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.check();
  p=w.HBBidea._player();
  check('second attempt success marks checked, awards 7 XP, keeps first-try honest',p.state.checked===true&&p.state.ok===true&&p.xp===7&&p.first===0);
+ check('progress bar advances immediately after answering Q1',els.get('bd-player').innerHTML.includes('aria-valuenow="1"')&&els.get('bd-player').innerHTML.includes('bd-bar-fill')&&!els.get('bd-player').innerHTML.includes('style="width:0%"')&&els.get('bd-player').innerHTML.includes('bd-step-count'));
  /* Next item: voluntary hint works and keeps first-try honest */
  w.HBBidea.next();
  w.HBBidea.showHint();
@@ -124,6 +125,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.check();
  p=w.HBBidea._player();
  check('hinted correct answer awards 7 XP without inflating first-try count',p.state.checked===true&&p.state.ok===true&&p.xp===14&&p.first===0);
+ check('combo >= 2 charges top progress bar and badges XP pill',els.get('bd-player').innerHTML.includes('bd-bar-fill is-charged')&&els.get('bd-player').innerHTML.includes('bd-xp is-combo'));
  w.HBBidea.close(true);
  /* Spaced review card surfaces in Gaur when a completed lesson is overdue */
  const st=w.HBBidea._state();
@@ -137,8 +139,10 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.startTest();
  check('placement test omits desktop cheat-sheet sidebar',!els.get('bd-player').innerHTML.includes('bd-desk-side'));
  w.HBBidea.close(true);
- check('Gaur includes desktop workbench dock and Bidea uses responsive grid wrapper',w.HBBidea.gaur().includes('bd-desk-dock')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
+ const gaurHtml=w.HBBidea.gaur();
+ check('Gaur renders redesigned Eguneko helburua with single-line ring counter and progress track',gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-goal-track')&&gaurHtml.includes('bd-stat-pills'));
+ check('Gaur includes full desktop course syllabus and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
- check('responsive CSS covers mobile tables, tablet (720px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:720px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
+ check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();
 console.log(n+' checks passed (bidea)');

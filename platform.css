@@ -311,9 +311,46 @@ html[data-theme="dark"] .hb-day-cell.today small{color:#c5b6ff}
 html[data-theme="dark"] .hb-day-cell.today .hb-day-dot{outline-color:#9b87ff}
 @media(prefers-reduced-motion:reduce){.hb-slot.filled,.lesson-panel,.hb-streak-pop{animation:none!important}}
 
-/* 2.7.0 · Responsive Mobile / Tablet / Desktop shell polish */
+/* 2.8.0 · Multi-platform shell: Mobile (<860px) · Tablet (860–1023px) · Desktop teaching platform (>=1024px) */
+.hb-sidebar,.hb-topbar-title{display:none}
 @media(max-width:859px){main{padding-bottom:calc(96px + env(safe-area-inset-bottom))}.hb-site-footer{padding-bottom:calc(104px + env(safe-area-inset-bottom))}}
 @media(min-width:600px) and (max-width:1023px){.practice-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-family-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.catalog-lesson-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(min-width:1024px){.hb-kit main:has(>.home-screen){max-width:1180px}.hb-kit .session-screen{max-width:880px}}
-
-
+@media(min-width:1024px){
+ body.hb-kit{padding-left:248px}
+ .hb-sidebar{position:fixed;inset:0 auto 0 0;width:248px;z-index:25;display:flex;flex-direction:column;gap:16px;padding:18px 14px 16px;background:var(--kit-paper,#fff);border-right:1px solid var(--kit-line,#e5dfe9);overflow-y:auto}
+ .hb-side-brand{display:flex;align-items:center;gap:11px;padding:4px 8px 10px;text-decoration:none;color:var(--kit-ink,#30234c);border-bottom:1px solid var(--kit-line,#e5dfe9)}
+ .hb-side-brand .logo{width:40px;height:40px;padding:5px;border-radius:13px;overflow:hidden;background:linear-gradient(145deg,#6f50e2,#4c2cb8);flex:none;display:grid;place-items:center}
+ .hb-side-brand .logo img{width:100%;height:100%;display:block;object-fit:contain}
+ .hb-side-brand .brand{font-size:23px;font-weight:800;letter-spacing:-.04em;line-height:1}
+ .hb-side-nav{display:grid;gap:4px}
+ .hb-side-nav button{display:flex;align-items:center;justify-content:flex-start;gap:11px;width:100%;min-height:46px;padding:10px 13px;border-radius:13px;border:1px solid transparent;background:transparent;color:var(--kit-muted,#5f526f);font-size:15px;font-weight:700;text-align:left;cursor:pointer;transition:background-color .15s ease,color .15s ease,border-color .15s ease}
+ .hb-side-nav button:hover{background:#f3effc;color:#4327a0;filter:none}
+ .hb-side-nav button.active{background:var(--kit-lav,#ede6fc);color:#4327a0;border-color:#d9cef7;font-weight:800}
+ .hb-side-nav .nav-icon{display:inline-grid;place-items:center;width:22px;height:22px;margin:0;flex:none}
+ .hb-side-nav .nav-icon svg,.hb-side-nav .ui-icon{width:21px;height:21px}
+ .hb-side-tools{display:grid;gap:5px;padding-top:14px;border-top:1px solid var(--kit-line,#e5dfe9)}
+ .hb-side-kicker{display:block;font-size:11px;font-weight:800;letter-spacing:.09em;color:var(--kit-muted,#625b73);padding:0 10px 4px}
+ .hb-side-tool-btn{display:grid;gap:1px;width:100%;text-align:left;padding:9px 12px;border-radius:12px;border:1px solid transparent;background:transparent;color:var(--kit-ink,#30234c);font:inherit;min-height:0;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+ .hb-side-tool-btn:hover{background:#f7f5fc;border-color:#e2dced;filter:none}
+ .hb-side-tool-btn span{font-size:13.5px;font-weight:750;line-height:1.25}
+ .hb-side-tool-btn small{font-size:11.5px;color:var(--kit-muted,#625b73);font-weight:500}
+ .hb-side-prefs{margin-top:auto;padding-top:12px;border-top:1px solid var(--kit-line,#e5dfe9);display:flex;gap:7px;flex-wrap:wrap}
+ .hb-side-prefs .bd-chip-btn{flex:1;justify-content:center;padding:8px 10px;font-size:12.5px}
+ body.hb-kit .hb-common-header .hb-brand-link,body.hb-kit .hb-common-header .hb-top-nav{display:none}
+ .hb-topbar-title{display:inline-flex;align-items:center;font-size:1.1rem;font-weight:800;letter-spacing:-.025em;color:var(--kit-ink,#30234c)}
+ body.hb-kit .hb-common-header>div{max-width:1180px;min-height:62px;padding:10px 28px}
+ body.hb-kit main,body.hb-kit main:has(>.home-screen){max-width:1180px;padding:24px 28px 56px}
+ body.hb-kit .hb-site-footer{max-width:1180px;padding:12px 28px 32px}
+ body.hb-kit .session-screen{max-width:860px}
+}
+html[data-theme="dark"] .hb-sidebar{background:#181529;border-color:#302a4d}
+html[data-theme="dark"] .hb-side-brand{color:#f3f1fc;border-color:#302a4d}
+html[data-theme="dark"] .hb-side-nav button{color:#b7b0ce}
+html[data-theme="dark"] .hb-side-nav button:hover{background:#252042;color:#f3f1fc}
+html[data-theme="dark"] .hb-side-nav button.active{background:#2d2552;color:#e8e1ff;border-color:#4b3f82}
+html[data-theme="dark"] .hb-side-tools,html[data-theme="dark"] .hb-side-prefs{border-color:#302a4d}
+html[data-theme="dark"] .hb-side-kicker{color:#9d95ba}
+html[data-theme="dark"] .hb-side-tool-btn{color:#f3f1fc}
+html[data-theme="dark"] .hb-side-tool-btn:hover{background:#241f3d;border-color:#3a335e}
+html[data-theme="dark"] .hb-side-tool-btn small{color:#a9a1c4}
+html[data-theme="dark"] .hb-topbar-title{color:#f3f1fc}
