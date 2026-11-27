@@ -152,7 +152,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('Bidea shows five narrative episode titles before any completion and preserves optional grammar',["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"].every(t=>route.includes(t))&&route.includes('bd-world-path')&&route.indexOf('Uraren misterioa')<route.indexOf('Ikasgai gehiago'));
  check('Gaur recommends the narrative before optional grammar, with games available from the start',home.indexOf('Non dago ura?')<home.indexOf('Ikasgai gehiago')&&home.includes('Hitzak lotu')&&route.includes('Loturen erronka'));
  w.HBBidea.startEpisode(3);check('later episodes cannot be opened out of sequence',w.HBBidea._player()===null);
- w.HBBidea.startWorldGame('words');check('starter word game works without any treasure unlocked',w.HBBidea._player().mode==='worldgame'&&w.HBBidea._player().queue[0].item.pairs.length===3);w.HBBidea.close(true);
+ w.HBBidea.startWorldGame('words');check('starter word game has four groups without any treasure unlocked',w.HBBidea._player().mode==='worldgame'&&w.HBBidea._player().queue.length===4&&w.HBBidea._player().queue[0].item.pairs.length===3);w.HBBidea.close(true);
  w.HBBidea.startWorldGame('links');check('starter connector game is accessible immediately',w.HBBidea._player().queue.length===2);w.HBBidea.close(true);
  const before=JSON.stringify(w.HBBidea._state().lessons),beforeXp=w.HBBidea._state().xp;
  w.HBBidea.startEpisode();
@@ -239,12 +239,20 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  for(let i=0;i<pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}
  check('matching game completes with feedback',w.HBBidea._player().state.checked&&w.HBBidea._player().state.ok);
  w.HBBidea.next();
+ for(let g=1;g<4;g++){const p=w.HBBidea._player().queue[g].item.pairs;for(let i=0;i<p.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}w.HBBidea.next()}
  check('game finishes without changing mission or XP',w.HBBidea._player().phase==='end'&&JSON.stringify(w.HBBidea._state().episodes)===savedEpisodes&&w.HBBidea._state().xp===beforeXp);
  w.HBBidea.close(true);w.HBBidea.startWorldGame('links');
  check('connector game offers five contextual items',w.HBBidea._player().queue.length===5);
  for(let i=0;i<5;i++){w.HBBidea.sel(w.HBBidea._player().queue[i].item.a[0]);w.HBBidea.check();w.HBBidea.next()}
  check('connector game ends without formal learning credit',w.HBBidea._player().phase==='end'&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
  w.HBBidea.close(true);
+ w.HBBidea.startWorldGame('verbs');
+ check('B1–B2 verb game has explicit recipient context',w.HBBidea._player().queue.some(e=>e.item.id==='HB-VERB-NORI-1'));
+ w.HBBidea.sel('du');w.HBBidea.check();w.HBBidea.next();
+ w.HBBidea.sel('dut');w.HBBidea.check();
+ check('dative auxiliary confusion has contextual explanation and memory',w.HBBidea._state().episodeErrorMemory.nornorinork.confused==='dut'&&els.get('bd-player').innerHTML.includes('Joni da hartzailea'));
+ w.HBBidea.sel('diot');w.HBBidea.check();w.HBBidea.next();w.HBBidea.sel('dio');w.HBBidea.check();w.HBBidea.next();
+ check('assisted verbal practice does not count as delayed recovery',w.HBBidea._state().episodeErrorMemory.nornorinork.recoveries===0);w.HBBidea.close(true);
  const bDone=JSON.stringify(w.HBBidea._state().episodes);
  w.HBBidea.startEpisode(5);w.HBBidea.begin();w.HBBidea.askQuit();
  const bDraft=JSON.stringify(w.HBBidea._state().episodeDraft);
@@ -295,6 +303,9 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('autonomous delayed recall schedules next interval without mastery claim',memory.non.recoveries===1&&memory.non.step===1&&memory.non.dueAt>Date.now()+2*86400000);
  w.HBBidea.askQuit();
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
+ const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
+ check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Maila-proba egin (aukerakoa)'));
+ check('direct route does not imply placement evidence',w.HBBidea._state().placed===false);
  check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
 })();
