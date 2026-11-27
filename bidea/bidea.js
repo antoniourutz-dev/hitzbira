@@ -432,14 +432,41 @@ function worldGameItems(kind){
  ];
  return rows.slice(0,Math.min(5,Math.max(2,n+1))).map(([q,ch,answer,ex],i)=>({id:"HB-WORLD-GAME-LINK-"+i,t:"mc",q,ch,a:[answer],ex}));
 }
+let vocabularyRepo=null,vocabularyOwner=null,vocabularyLevel=null,vocabularyTheme="all",vocabularyThemes=[];
+function vocabularyFilters(){
+ const owner=keyFor(KEY);if(vocabularyOwner!==owner){vocabularyOwner=owner;vocabularyLevel=null;vocabularyTheme="all";vocabularyThemes=[];vocabularyRepo?.cancel()}
+ return {level:vocabularyLevel||(S.level==="a1a2"?"A1":"B1"),theme:vocabularyTheme};
+}
+function setVocabularyLevel(value){vocabularyFilters();if(!root.HBVocabulary?.LEVELS.includes(value))return;vocabularyLevel=value;vocabularyTheme="all";vocabularyThemes=[];refresh()}
+function setVocabularyTheme(value){if(value!=="all"&&!vocabularyThemes.includes(value))return;vocabularyTheme=value;refresh()}
+function vocabularyControls(){const f=vocabularyFilters();return '<div class="bd-vocab-controls"><label>Hiztegiaren zailtasuna <select onchange="HBBidea.setVocabularyLevel(this.value)">'+["A1","A2","B1","B2","C1","C2"].map(l=>'<option'+(l===f.level?' selected':'')+'>'+l+'</option>').join('')+'</select></label><label>Gaia <select onchange="HBBidea.setVocabularyTheme(this.value)"><option value="all">Gai guztiak</option>'+vocabularyThemes.map(t=>'<option value="'+esc(t)+'"'+(t===f.theme?' selected':'')+'>'+esc(t.replace(/^lexiko_/,"").replace(/_/g," "))+'</option>').join('')+'</select></label></div>'}
+function vocabularyNotice(){
+ if(player?.kind!=="words")return "";
+ if(player.vocabularyMode!=="live")return '<p class="bd-note" role="status">'+esc(player.vocabularyReason==="guest"?"Abenturako tokiko hitzak. Bankuko hitzak erabiltzeko, hasi saioa.":player.vocabularyReason==="connection"?"Bankua ezin izan da kargatu. Abenturako tokiko hitzekin ari zara.":"Ez dago hautaketa honetarako hitz nahikorik erabilgarri. Abenturako tokiko hitzekin ari zara.")+'</p>';
+ const rows=cur().item.vocabulary||[];
+ return '<p class="bd-note">Lexikoa · '+esc(player.vocabularyLevel)+' · '+esc(rows[0]?.theme.replace(/^lexiko_/,"").replace(/_/g," ")||"")+'</p><details class="bd-vocab-sources"><summary>Hitzen jatorria</summary>'+rows.map(r=>'<p>'+esc(r.source)+' · '+esc(r.id)+' · v'+esc(r.version)+' · '+esc(r.rights)+'</p>').join('')+'</details>';
+}
+async function prepareVocabulary(){
+ syncState();const filters=vocabularyFilters(),owner=keyFor(KEY);
+ if(!root.HBData?.isRemote?.()||!root.HBVocabulary){openWorldGame("words",wordGameGroups(),{mode:"fallback",reason:"guest"});return}
+ vocabularyRepo=vocabularyRepo||root.HBVocabulary.createRepository(root.HBData);
+ const loading={mode:"worldgame",kind:"words",phase:"loading",owner};player=loading;const el=ensureEl();render();el.focus?.();
+ const result=await vocabularyRepo.prepare(filters);
+ if(player!==loading||owner!==keyFor(KEY)||result.mode==="cancelled")return;
+ vocabularyThemes=result.themes||[];
+ openWorldGame("words",result.mode==="live"?result.items:wordGameGroups(),{...result,level:filters.level});
+}
 function worldGamesHtml(){
  const count=episodeIds().filter(id=>S.episodes?.[id]).length;
- return '<section class="bd-card bd-world-games"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu abenturako hitzekin</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p><div class="bd-world-game-grid"><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>4 hitz multzo · lotu esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>Nor, nork eta nori?</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu abenturako hitzekin</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>Nor, nork eta nori?</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
- syncState();if(!["words","links","verbs"].includes(kind))return;const items=worldGameItems(kind);if(!items.length)return;
+ syncState();if(!["words","links","verbs"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
+}
+function openWorldGame(kind,items,vocabulary={}){
+ if(!items.length)return;
  const L={id:"HB-WORLD-GAME-"+kind,title:kind==="verbs"?"Aditzen erronka":kind==="words"?"Hitzak lotu":S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka",keys:[],items};
- player={mode:"worldgame",owner:keyFor(KEY),L,kind,phase:"play",queue:items.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
+ player={mode:"worldgame",owner:keyFor(KEY),L,kind,vocabularyMode:vocabulary.mode,vocabularyReason:vocabulary.reason,vocabularyLevel:vocabulary.level,phase:"play",queue:items.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()
 }
 function worldGameEnd(){return '<div class="bd-pwrap bd-endwrap">'+top()+'<main class="bd-end">'+bira("calm","bd-bira-lg")+'<span class="bd-kicker">JOLASTOKIA</span><h1>Jolasa amaituta!</h1><p>Abenturako hizkuntza berriz landu duzu.</p><p class="bd-note">Nahi duzunean itzul zaitezke.</p></main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.startWorldGame(\''+player.kind+'\')">Berriro jolastu</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button></footer></div>'}
@@ -544,7 +571,7 @@ function startReview(lessonId){syncState();const L=allLessons().find(x=>x.id===l
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function startAgendaReview(){const ag=root.HitzBiraAgenda?.agenda?.()||[],due=ag.find(r=>r.status==="due");if(due&&typeof root.startCurriculum==="function")root.startCurriculum(due.node,null,true,due.key)}
 function startTest(){syncState();player={mode:"test",phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,score:0,row:0,state:null,quit:false,xp:0,combo:0,lastPct:0,lastXp:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
-function close(silent){const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;if(!silent)refresh()}
+function close(silent){vocabularyRepo?.cancel();const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;if(!silent)refresh()}
 function askQuit(){if(!player)return;if(player.mode==="episode"||player.mode==="worldgame"){saveEpisodeDraft();close();return}if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
 function cur(){return player.queue[player.pos]}
 function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:[],tapped:null,mistap:false,checked:false,ok:false,tries:0,wrongSel:[],hintOn:false,hintUsed:false};
@@ -556,6 +583,7 @@ function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:
  return st}
 function progressPct(){const total=Math.max(1,player.queue.length),done=player.phase==="intro"?0:(player.phase==="end"||player.phase==="placed"||player.phase==="altxorra")?total:player.pos+((player.state&&player.state.checked)||player.busy?1:0);return {done,total,pct:Math.round(done/total*100)}}
 function render(){const el=document.getElementById("bd-player");if(!el||!player)return;if((player.mode==="episode"||player.mode==="worldgame")&&player.owner!==keyFor(KEY)){close();return}saveEpisodeDraft();const at=player.mode+player.phase+":"+player.pos,changed=el.dataset.at!==at,oldScroll=el.querySelector(".bd-pgrid,.bd-intro,.bd-end")?.scrollTop||0;if(changed){el.dataset.at=at;el.scrollTop=0}el.dataset.level=S.level||"a1a2";el.dataset.mode=player.mode;
+ if(player.phase==="loading"){el.innerHTML='<div class="bd-pwrap"><main class="bd-end"><p role="status">Hitzak prestatzen…</p><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Itxi</button></main></div>';return}
  const prevPct=player.lastPct||0,prog=progressPct();
  el.innerHTML=player.phase==="gogoratu"?episodeGogoratu():player.phase==="altxorra"?episodeTreasure():player.phase==="intro"?intro():player.phase==="end"?(player.mode==="episode"?episodeEnd():player.mode==="worldgame"?worldGameEnd():end()):player.phase==="placed"?placed():play();
  const bar=el.querySelector(".bd-bar-fill");
@@ -646,7 +674,7 @@ function play(){const it=cur().item,st=player.state,test=player.mode==="test",re
  const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
  const side=deskSide();
  return `<div class="bd-pwrap${side?" has-desk-side":""}">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
- <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked&&!st.neutral?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${body()}</main>
+ <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked&&!st.neutral?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${vocabularyNotice()}${body()}</main>
  ${test?"":nudgeHtml()+feedback()+auditBox()}</div>${side}</div>
  ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok||st.neutral?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button></div>`}</footer>`}</div>`}
 function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
@@ -655,8 +683,8 @@ function typed(v){player.state.typed=v;saveEpisodeDraft(true);const b=document.q
 function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))return;st.picked.push(k);sfx("tap");render()}
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
-function mL(k){const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
-function mR(k){const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
+function mL(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
+function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;root.HBData?.activity?.({kind:"vocabulary_match",resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:!!cur().miss,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
 function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&it.why)?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);
@@ -716,6 +744,6 @@ document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altK
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
 root.addEventListener?.("pagehide",()=>saveEpisodeDraft());
-root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startEpisode,finishEpisode,startWorldGame,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startEpisode,finishEpisode,startWorldGame,setVocabularyLevel,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

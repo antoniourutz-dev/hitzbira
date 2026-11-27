@@ -42,6 +42,25 @@ async function read(b,req,origin){
  if(!releases?.length)return response(503,{error:"Banku pilotua ez dago prest."},origin);
  return response(200,await admin("/rest/v1/hb_runtime_pilot_records?"+params(q)),origin);
 }
+/* Fixed read-only lexical projection. Publication, review and rights are separate gates.
+   No generic table/filter passthrough and no raw metadata leaves this gateway. */
+async function vocabulary(b,req,origin){
+ const u=await userFor(req);if(!u)return response(403,{error:"Kontua ez dago gaituta."},origin);
+ const level=b.level,theme=b.theme??"all";
+ if(!["A1","A2","B1","B2","C1","C2"].includes(level)||typeof theme!=="string"||!(/^(?:all|[a-z0-9_-]{1,100})$/).test(theme))return response(400,{error:"Hautaketa baliogabea."},origin);
+ const gates={status:"eq.published",review_status:"eq.approved",needs_review:"eq.false",level:"eq."+level};
+ const groups=await admin("/rest/v1/editorial_lexical_groups?"+params({...gates,select:"id,slug,current_content_hash,last_reviewed_hash",...(theme!=="all"?{slug:"eq."+theme}:{}),order:"id.asc",limit:"100"}));
+ const approved=new Map((groups||[]).filter(g=>g.current_content_hash&&g.current_content_hash===g.last_reviewed_hash).map(g=>[g.id,g]));
+ if(!approved.size)return response(200,{contract:"hb-vocabulary-v1",rows:[]},origin);
+ const entries=await admin("/rest/v1/editorial_lexical_entries?"+params({...gates,select:"id,group_id,term_eu,nuance_eu,level,version,current_content_hash,last_reviewed_hash,knowledge_metadata",group_id:"in.("+[...approved.keys()].join(",")+")","knowledge_metadata->hitzbira_vocab->>rights_status":"eq.approved","knowledge_metadata->hitzbira_vocab->>matching_review":"eq.approved",order:"id.asc",limit:"200"}));
+ const rows=[];
+ for(const e of entries||[]){
+  const g=approved.get(e.group_id),m=e.knowledge_metadata?.hitzbira_vocab;
+  if(!g||!m||m.rights_status!=="approved"||m.matching_review!=="approved"||m.reviewed_fingerprint!==e.current_content_hash||typeof m.rights_basis!=="string"||!m.rights_basis.trim()||m.rights_basis.length>300||typeof m.source_ref!=="string"||!(/^[a-zA-Z0-9][a-zA-Z0-9 ._:@/-]{0,199}$/).test(m.source_ref)||!e.current_content_hash||e.current_content_hash!==e.last_reviewed_hash||!Number.isInteger(e.version)||e.version<1||typeof e.term_eu!=="string"||!e.term_eu.trim()||e.term_eu.length>120||typeof e.nuance_eu!=="string"||!e.nuance_eu.trim()||e.nuance_eu.length>1200)continue;
+  rows.push({id:e.id,term:e.term_eu,meaning:e.nuance_eu,level:e.level,theme:g.slug,version:e.version,fingerprint:e.current_content_hash,source:m.source_ref,rights:m.rights_basis});
+ }
+ return response(200,{contract:"hb-vocabulary-v1",rows},origin);
+}
 async function learning(b,req,origin){
  const u=await userFor(req);if(!u)return response(403,{error:"Kontua ez dago gaituta."},origin);
  if(b.action==="learning_load"){
@@ -74,6 +93,7 @@ Deno.serve(async req=>{
   if(!b||typeof b!=="object")return response(400,{error:"Eskaera baliogabea."},origin);
   if(b.action==="register")return response(403,{error:"Kontuak administratzaileak sortzen ditu."},origin);
   if(b.action==="check"||b.action==="read")return await read(b,req,origin);
+  if(b.action==="vocabulary")return await vocabulary(b,req,origin);
   if(b.action==="learning_load"||b.action==="learning_push")return await learning(b,req,origin);
   return response(400,{error:"Ekintza ezezaguna."},origin);
  }catch{return response(503,{error:"Ezin izan da eskaera burutu."},origin)}

@@ -1,0 +1,74 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const api=require('../vocabulary.js');
+let checks=0;function check(name,condition){assert.ok(condition,name);checks++}
+const rows=Array.from({length:24},(_,i)=>({id:'entry-'+i,version:1,fingerprint:'hash-'+i,source:'TEST-SYNTHETIC',rights:'Synthetic test fixture',term:'Hitza '+i,meaning:'Esanahia '+i,level:'C1',theme:i<12?'lexiko_a':'lexiko_b'}));
+async function main(){
+ const items=api.select(rows,{level:'C1',rng:()=>.25});
+ check('bounded rounds with unique pairs',items.length===4&&new Set(items.flatMap(i=>i.vocabulary.map(r=>r.id))).size===12);
+ const next=api.select(rows,{level:'C1',previous:items.flatMap(i=>i.vocabulary.map(r=>r.id)),rng:()=>.25});
+ check('next game uses unseen vocabulary when enough exists',next.flatMap(i=>i.vocabulary).every(r=>!items.flatMap(i=>i.vocabulary).some(p=>p.id===r.id)));
+ check('level cannot be silently widened',api.select(rows,{level:'B1'}).length===0);
+ check('theme cannot be silently widened',api.select(rows,{level:'C1',theme:'lexiko_a'}).flatMap(i=>i.vocabulary).every(r=>r.theme==='lexiko_a'));
+ check('insufficient pairs do not create a game',api.select(rows.slice(0,2),{level:'C1'}).length===0);
+ check('duplicate meanings and terms excluded',api.select([rows[0],{...rows[1],meaning:rows[0].meaning},{...rows[2],term:rows[0].term}],{level:'C1'}).length===0);
+ check('missing provenance excluded',api.select(rows.slice(0,3).map(r=>({...r,source:''})),{level:'C1'}).length===0);
+ let owner='A',remote=true,reply={contract:'hb-vocabulary-v1',rows},resolve;
+ const data={keyFor:k=>k+'::'+owner,isRemote:()=>remote,vocabulary:async()=>reply};
+ const repo=api.createRepository(data);
+ check('repository produces live result from validated gateway contract',(await repo.prepare({level:'C1'})).mode==='live');
+ remote=false;check('guest uses explicit fallback',(await repo.prepare({level:'C1'})).reason==='guest');remote=true;
+ reply={contract:'hb-vocabulary-v1',rows:[]};check('empty bank explicit fallback',(await repo.prepare({level:'C1'})).reason==='unavailable');
+ reply={rows};check('unknown contract explicit fallback',(await repo.prepare({level:'C1'})).reason==='connection');
+ data.vocabulary=()=>new Promise(r=>{resolve=r});let pending=repo.prepare({level:'C1'});owner='B';resolve({contract:'hb-vocabulary-v1',rows});check('account switch discards response',(await pending).mode==='cancelled');
+ pending=repo.prepare({level:'C1'});repo.cancel();resolve({contract:'hb-vocabulary-v1',rows});check('closed game discards response',(await pending).mode==='cancelled');
+ data.vocabulary=async()=>{throw Error('network')};check('network error explicit fallback',(await repo.prepare({level:'C1'})).reason==='connection');
+
+ const gateway=fs.readFileSync(path.join(__dirname,'../supabase/functions/hitzbira-pilot-account/index.ts'),'utf8');
+ const uid='11111111-1111-4111-8111-111111111111',group={id:uid,slug:'lexiko_a',current_content_hash:'g',last_reviewed_hash:'g'};
+ const entry={id:'entry-1',group_id:uid,term_eu:'Synthetic',nuance_eu:'Synthetic definition',level:'C1',version:1,current_content_hash:'h',last_reviewed_hash:'h',knowledge_metadata:{hitzbira_vocab:{rights_status:'approved',matching_review:'approved',reviewed_fingerprint:'h',rights_basis:'Synthetic fixture only',source_ref:'TEST-ONLY'}}};
+ async function request(body={action:'vocabulary',level:'C1',theme:'all'},opts={}){
+  let handler;const calls=[];const res=(body,status=200)=>new Response(JSON.stringify(body),{status});
+  const user={id:uid,email:'student@hitzbira.app',role:'hitzbira_isolated',app_metadata:{hitzbira_pilot:true},email_confirmed_at:'2026-01-01'};
+  const fetch=async(url,options={})=>{const u=new URL(url);calls.push(u);
+   if(u.pathname==='/auth/v1/user')return res(user,opts.invalid?401:200);
+   if(u.pathname==='/auth/v1/admin/users/'+uid)return res(user);
+   if(u.pathname==='/rest/v1/hb_registered_accounts')return res([{user_id:uid,username:'student',email:user.email,enabled:true}]);
+   assert.equal(options.method,'GET');
+   assert.equal(u.searchParams.get('status'),'eq.published');assert.equal(u.searchParams.get('review_status'),'eq.approved');assert.equal(u.searchParams.get('needs_review'),'eq.false');assert.equal(u.searchParams.get('level'),'eq.C1');
+   assert.ok(!u.searchParams.get('select').includes('*'));
+   if(u.pathname==='/rest/v1/editorial_lexical_groups'){assert.equal(u.searchParams.get('limit'),'100');return res(opts.groups||[group])}
+   if(u.pathname==='/rest/v1/editorial_lexical_entries'){assert.equal(u.searchParams.get('limit'),'200');assert.equal(u.searchParams.get('knowledge_metadata->hitzbira_vocab->>rights_status'),'eq.approved');return res(opts.entries||[entry])}
+   throw Error('Unexpected read');
+  };
+  vm.runInNewContext(gateway,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private-test',SUPABASE_ANON_KEY:'public-test'})[k]},serve:f=>handler=f},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
+  const token='header.'+Buffer.from(JSON.stringify({sub:uid,role:user.role})).toString('base64url')+'.signature';
+  const r=await handler(new Request('https://example.test',{method:'POST',headers:{Origin:opts.origin||'https://hitzbira.vercel.app',Authorization:'Bearer '+token},body:JSON.stringify(body)}));
+  return {status:r.status,body:await r.json(),calls};
+ }
+ let r=await request();check('gateway returns only public projection',r.status===200&&r.body.rows.length===1&&!JSON.stringify(r.body).includes('knowledge_metadata')&&!JSON.stringify(r.body).includes('private-test'));
+ for(const change of [{knowledge_metadata:{}},{last_reviewed_hash:'stale'},{knowledge_metadata:{hitzbira_vocab:{...entry.knowledge_metadata.hitzbira_vocab,rights_status:'pending'}}},{knowledge_metadata:{hitzbira_vocab:{...entry.knowledge_metadata.hitzbira_vocab,matching_review:'pending'}}}]){
+  r=await request(undefined,{entries:[{...entry,...change}]});check('gateway excludes unapproved or stale row',r.body.rows.length===0);
+ }
+ r=await request(undefined,{groups:[{...group,last_reviewed_hash:'stale'}]});check('stale group prevents entry read',r.body.rows.length===0&&!r.calls.some(u=>u.pathname.endsWith('editorial_lexical_entries')));
+ r=await request(undefined,{invalid:true});check('invalid authentication prevents vocabulary reads',r.status===403&&!r.calls.some(u=>u.pathname.includes('editorial_')));
+ r=await request({action:'vocabulary',level:'C1',theme:'all&select=*'});check('query injection rejected',r.status===400&&!r.calls.some(u=>u.pathname.includes('editorial_')));
+ r=await request(undefined,{origin:'https://hitzbira-preview-unapproved.vercel.app'});check('preview origin remains closed without specific authorization',r.status===403&&r.calls.length===0);
+
+ const store=new Map(),els=new Map(),events=[],w={HBVocabulary:api,draw(){}};
+ const el=()=>({hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null});
+ const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
+ let isRemote=false;
+ w.HBData={keyFor:k=>k,isRemote:()=>isRemote,activity:e=>events.push(e),vocabulary:async()=>({contract:'hb-vocabulary-v1',rows})};
+ const context={window:w,globalThis:w,localStorage:{getItem:k=>store.get(k)||null,setItem:(k,v)=>store.set(k,v)},document:doc,location:{search:''},URLSearchParams};
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/data.js'),'utf8'),context);
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),context);
+ w.HBBidea.setLevel('b1b2',false);await w.HBBidea.startWorldGame('words');check('guest player labels local fallback',els.get('bd-player').innerHTML.includes('Abenturako tokiko hitzak'));
+ w.HBBidea.close(true);isRemote=true;w.HBBidea.setVocabularyLevel('C1');await w.HBBidea.startWorldGame('words');
+ check('dynamic game uses existing player and source panel',w.HBBidea._player().queue.length===4&&els.get('bd-player').innerHTML.includes('Hitzen jatorria'));
+ w.HBBidea.mL(0);w.HBBidea.mR(1);w.HBBidea.mL(0);w.HBBidea.mR(0);
+ check('first wrong recognition and assisted recovery both retained without mastery',events.length===2&&events[0].result==='mismatch'&&events[1].assisted&&events.every(e=>e.mode==='recognition'&&e.academicState==='not_observed'&&e.resource.version===1));
+ w.HBBidea.close(true);w.HBData.vocabulary=()=>new Promise(r=>resolve=r);pending=w.HBBidea.startWorldGame('words');check('loading can be closed',els.get('bd-player').innerHTML.includes('Hitzak prestatzen'));w.HBBidea.close(true);resolve({contract:'hb-vocabulary-v1',rows});await pending;check('late response never reopens player',w.HBBidea._player()===null);
+ console.log(checks+' checks passed (dynamic vocabulary; synthetic fixtures, no live claim)');
+}
+main().catch(e=>{console.error(e);process.exit(1)});

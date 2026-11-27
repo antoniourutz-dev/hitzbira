@@ -669,3 +669,8 @@ html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
 .bd-world-legacy{margin-top:12px;margin-bottom:0}
 @media(min-width:960px){.bd-mapa.bd-mapa-world:not(.bd-mapa-first){grid-template-areas:"path head" "path stats" "path meta"}}
 @media(max-width:540px){.bd-world-step-btn{gap:9px;padding:9px;min-height:60px}.bd-world-mission-head h2{font-size:1.3rem}.bd-mapa-world .bd-island{padding:14px}}
+/* Vocabulary filters share the existing Jolastokia card and player. */
+.bd-vocab-controls{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}
+.bd-vocab-controls label{display:flex;flex:1 1 180px;flex-direction:column;gap:6px;font-size:.88rem;font-weight:700}
+.bd-vocab-controls select{font:inherit;color:inherit;background:var(--bd-card,#fff);border:1px solid currentColor;border-radius:12px;padding:10px;max-width:100%;min-height:44px}
+.bd-vocab-sources{font-size:.78rem;overflow-wrap:anywhere;margin:12px 0}
