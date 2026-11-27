@@ -856,6 +856,15 @@ document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altK
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
 root.addEventListener?.("pagehide",()=>saveEpisodeDraft());
-root.HBBidea={...api,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+/* Read-only projection of the real, account-scoped engine state. Never infers an exact CEFR level. */
+function learningContext(){
+ syncState();
+ const route=DATA.islands.some(i=>i.id===S.level)?S.level:null,mission=route==="a1a2"&&inShelter()?2:1;
+ const n=route?episodeNumber():null,L=route?episodeLesson(n):null;
+ const errors=Object.fromEntries(Object.entries(S.episodeErrorMemory||{}).map(([k,v])=>[k,{errors:v.errors,lastErrorAt:v.lastErrorAt,lastRecoveryAt:v.lastRecoveryAt,dueAt:v.dueAt}]));
+ return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
+  focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors};
+}
+root.HBBidea={...api,learningContext,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

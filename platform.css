@@ -396,3 +396,13 @@ body[data-hb-access="guest"] .hb-side-tools,body[data-hb-access="guest"] .hb-str
 body.hb-kit nav button:focus-visible,.hb-side-nav button:focus-visible,.hb-top-nav button:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
 body[data-hb-access="guest"] nav{justify-content:center}
 body[data-hb-access="guest"] nav button{flex:1 1 0;max-width:180px;min-height:48px}
+/* Curriculum context shares the academy's existing palette and responsive grids. */
+.material-context{display:flex;gap:1.25rem;align-items:center;justify-content:space-between;padding:1.25rem;margin:1rem 0 1.5rem;border:1px solid var(--line,#dcd6ee);border-radius:20px;background:var(--surface,#fff)}
+.material-context p,.material-section p{margin:.5rem 0;max-width:70ch;line-height:1.6}
+.material-context small{display:block;line-height:1.5}
+.material-switch{display:flex;gap:.5rem;flex-wrap:wrap;min-width:180px}
+.material-switch button[aria-pressed=true]{background:#5b3cc4;color:#fff;border-color:#5b3cc4}
+.material-section{margin:1.5rem 0 2rem}
+.material-section .catalog-lesson-grid{margin-top:1rem}
+[data-theme=dark] .material-context{background:#211b35;border-color:#44365e}
+@media(max-width:680px){.material-context{align-items:stretch;flex-direction:column;padding:1rem}.material-switch{min-width:0}.material-switch button{flex:1;white-space:normal}.material-section{margin:1.25rem 0}.material-context .catalog-kicker{line-height:1.5}}
