@@ -53,3 +53,36 @@ html[data-theme=dark] .hb-kit .hb-top-nav button.active{color:#eee5ff}
 .hb-kit .home-screen .hb-world-card-body{padding:17px;gap:10px}
 .hb-kit .home-screen .hb-world-card h3{font-size:clamp(1.15rem,2vw,1.36rem);line-height:1.24}
 @media(max-width:540px){.hb-kit main:has(>.home-screen){padding-top:16px}.hb-kit .home-screen .hb-world-grid{gap:12px}.hb-kit .home-screen .hb-world-card-body{padding:16px}}
+.hb-kit .academy-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.hb-kit .academy-area{display:flex;flex-direction:column;min-width:0;background:var(--kit-surface,#fff);border:1px solid var(--cat-line,var(--line));border-radius:22px;overflow:hidden}
+.hb-kit .academy-area-top{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--cat-soft);padding:14px 20px;border-bottom:1px solid var(--cat-line)}
+.hb-kit .academy-art{width:100px;height:80px;display:block}
+.hb-kit .academy-art .island-art{width:100%;height:100%}
+.hb-kit .academy-area-copy{display:flex;flex-direction:column;gap:10px;padding:22px;flex:1}
+.hb-kit .academy-area h3{font-size:21px;letter-spacing:-.025em;line-height:1.25;margin:0;color:var(--ink)}
+.hb-kit .academy-area p{margin:0;font-size:14px;color:var(--muted)}
+.hb-kit .academy-activity{font-size:12px;color:var(--cat-ink,var(--muted));border-top:1px solid var(--line);padding-top:12px;margin-top:auto}
+.hb-kit .academy-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:8px}
+.hb-kit .academy-actions button{min-height:46px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13px;white-space:normal}
+.hb-kit .academy-start{display:grid;grid-template-columns:130px minmax(0,1fr);align-items:center;gap:24px;padding:26px 30px;background:var(--cat-soft);border:1px solid var(--cat-line);border-radius:24px}
+.hb-kit .academy-start h2{font-size:25px;margin:6px 0 10px;letter-spacing:-.035em}
+.hb-kit .academy-start p{margin:0;max-width:650px}
+.hb-kit .academy-guide .bira-art{width:120px;height:130px;object-fit:contain}
+.hb-kit .academy-route-head,.hb-kit .academy-practice-link{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:22px;border:1px solid var(--line);border-radius:20px;background:var(--kit-surface,#fff)}
+.hb-kit .academy-route-head h2,.hb-kit .academy-practice-link h2{margin:5px 0 8px}.hb-kit .academy-route-head p,.hb-kit .academy-practice-link p{margin:0;color:var(--muted)}
+.hb-kit .academy-lesson-goal{font-size:13px;line-height:1.5;color:var(--muted)}
+.hb-kit .catalog-hero{min-height:180px}.hb-kit .catalog-controls{margin:0}.hb-kit .catalog-section-head{align-items:center}.hb-kit .catalog-section-head h2{margin:5px 0}
+.hb-kit .practice-mode-grid{gap:14px}.hb-kit .practice-mode{min-height:210px}
+.hb-kit .lesson-step-nav{position:sticky;bottom:16px;z-index:1;background:var(--kit-surface,#fff);padding:12px;border:1px solid var(--line);border-radius:16px;box-shadow:0 6px 20px #20163712}
+.hb-kit .lesson-step-nav button{min-height:48px}.hb-kit .lesson-stepper button{min-height:48px}
+.hb-kit .verb-guided-start{background:var(--cat-soft,#e1f5ef);border:1px solid var(--line);border-radius:22px;padding:24px;margin-bottom:18px}
+.hb-kit .verb-guided-start h2{margin:6px 0 10px}.hb-kit .verb-guided-start p{max-width:680px}.hb-kit .verb-guided-start button{min-height:48px}
+html[data-theme=dark] .hb-kit .academy-area,html[data-theme=dark] .hb-kit .academy-route-head,html[data-theme=dark] .hb-kit .academy-practice-link,html[data-theme=dark] .hb-kit .lesson-step-nav{background:#282239}
+@media(max-width:1100px){.hb-kit .academy-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.hb-kit .academy-grid{grid-template-columns:1fr;gap:14px}.hb-kit .academy-area{display:grid;grid-template-columns:90px minmax(0,1fr)}.hb-kit .academy-area-top{flex-direction:column;justify-content:center;padding:10px 5px;border:0}.hb-kit .academy-art{width:80px;height:70px}.hb-kit .academy-area-top .catalog-kicker{font-size:10px}.hb-kit .academy-area-copy{padding:17px;gap:8px}.hb-kit .academy-area h3{font-size:18px}.hb-kit .academy-area-copy>small{display:none}.hb-kit .academy-start{grid-template-columns:65px minmax(0,1fr);gap:12px;padding:18px}.hb-kit .academy-guide .bira-art{width:65px;height:90px}.hb-kit .academy-start h2{font-size:21px}.hb-kit .academy-start p{font-size:14px}.hb-kit .academy-start .academy-actions{margin-left:-77px;padding-top:8px}.hb-kit .lesson-step-nav{bottom:84px}.hb-kit .academy-actions button{padding:10px 12px}.hb-kit .academy-route-head,.hb-kit .academy-practice-link{padding:18px}.hb-kit .catalog-section-head{gap:10px;flex-wrap:wrap}.hb-kit .practice-mode{min-height:190px}}
+.hb-kit .academy-search,.hb-kit .academy-workshop{border:1px solid var(--line);border-radius:16px;background:var(--kit-paper);padding:0 18px}
+.hb-kit .academy-search summary,.hb-kit .academy-workshop summary{cursor:pointer;min-height:52px;padding:14px 0;font-weight:700;font-size:14px}
+.hb-kit .academy-search[open],.hb-kit .academy-workshop[open]{padding-bottom:18px}
+@media(max-width:620px){.hb-kit .academy-root .catalog-hero{min-height:0;padding:18px}.hb-kit .academy-root .catalog-hero-art{display:none}.hb-kit .academy-root .catalog-hero h1{font-size:30px;margin:8px 0}.hb-kit .academy-start{grid-template-columns:48px minmax(0,1fr);padding:16px;gap:10px}.hb-kit .academy-guide .bira-art{width:48px;height:70px}.hb-kit .academy-start h2{font-size:19px;line-height:1.3}.hb-kit .academy-start .academy-actions{margin-left:-58px;gap:6px}.hb-kit .academy-start .academy-actions button{font-size:12px;padding:9px}.hb-kit .academy-start p{font-size:13px}.hb-kit .academy-route-head{padding:14px}.hb-kit .academy-route-head h2{font-size:19px}}
+.hb-kit .app-loading{display:flex;align-items:center;justify-content:center;gap:18px;min-height:40vh;padding:24px}.hb-kit .app-loading p{color:var(--muted);margin:6px 0}.hb-kit .app-loading img{object-fit:contain}
+.hb-kit .bd-level-switch .bd-lvl-pill{background:transparent;color:var(--bd-muted);min-height:44px;border:1px solid transparent}.hb-kit .bd-level-switch .bd-lvl-pill.is-on{background:var(--bd-acc);color:#fff;border-color:var(--bd-acc)}.hb-kit .bd-level-switch .bd-lvl-pill:not(.is-on):hover{background:var(--kit-lav);color:var(--ink)}
