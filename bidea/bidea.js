@@ -417,6 +417,53 @@ function startWorldGame(kind){
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()
 }
 function worldGameEnd(){return '<div class="bd-pwrap bd-endwrap">'+top()+'<main class="bd-end">'+bira("calm","bd-bira-lg")+'<span class="bd-kicker">JOLASTOKIA</span><h1>Jolasa amaituta!</h1><p>Abenturako hizkuntza berriz landu duzu.</p><p class="bd-note">Nahi duzunean itzul zaitezke.</p></main><footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.startWorldGame(\''+player.kind+'\')">Berriro jolastu</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button></footer></div>'}
+
+/* First contextual error-memory extension, integrated with Gogoratu.
+   Only known, closed contrasts; no inference about unrestricted writing. */
+const EP_REVIEW_DAY=86400000;
+const EP_REVIEW_INTERVALS=[1,3,7,14,30];
+const LOCATIVE_FORMS=[["basoan","basora","basotik"],["errekan","errekara","errekatik"],["mendian","mendira","menditik"],["eskolan","eskolara","eskolatik"],["parkean","parkera","parketik"],["herrian","herrira","herritik"],["plazan","plazara","plazatik"],["liburutegian","liburutegira","liburutegitik"]];
+const LOCATIVE_TAGS=["non","nora","nondik"];
+const LOCATIVE_ITEMS=new Set(["HB-EP-FOREST-01-5","HB-EP-FOREST-01-6","HB-EP-FOREST-02-6","HB-EP-FOREST-03-1","HB-EP-FOREST-03-2","HB-EP-FOREST-03-3","HB-EP-FOREST-03-5","HB-EP-FOREST-03-6","HB-EP-FOREST-04-6","HB-EP-FOREST-05-2","HB-EP-FOREST-05-3"]);
+const ERROR_RECALL=[
+ {id:"HB-RECALL-NON",code:"non",level:"a1a2",t:"mc",q:"Ane liburu bat irakurtzen ari da. Orain ____ dago.",ch:["liburutegira","liburutegitik","liburutegian"],a:["liburutegian"],ex:"Non dago? Lekua adierazteko: liburutegian."},
+ {id:"HB-RECALL-NORA",code:"nora",level:"a1a2",t:"mc",q:"Ane etxean dago. Orain ____ joango da.",ch:["liburutegitik","liburutegira","liburutegian"],a:["liburutegira"],ex:"Nora joango da? Helmuga adierazteko: liburutegira."},
+ {id:"HB-RECALL-NONDIK",code:"nondik",level:"a1a2",t:"mc",q:"Anek liburutegia utzi du. ____ atera da.",ch:["Liburutegitik","Liburutegian","Liburutegira"],a:["Liburutegitik"],ex:"Nondik atera da? Abiapuntua adierazteko: liburutegitik."},
+ {id:"HB-RECALL-CAUSE",code:"cause",level:"b1b2",t:"mc",q:"Ez dugu kontzertua aire zabalean egingo. ____, euria ari du.",ch:["Beraz","Izan ere"],a:["Izan ere"],ex:"Euria da kontzertua kanpoan ez egitearen arrazoia."},
+ {id:"HB-RECALL-RESULT",code:"result",level:"b1b2",t:"mc",q:"Euria ari du. ____, kontzertua barruan egingo dugu.",ch:["Izan ere","Beraz"],a:["Beraz"],ex:"Kontzertua barruan egitea euriaren ondorioa da."}
+].map(i=>({...i,src:"Jatorrizko berreskurapen ariketa / HB-ERROR-v1"}));
+function classifyEpisodeError(it,response){
+ const expected=norm(it.a?.[0]),actual=norm(response);
+ if(!actual||!expected||isAccepted(response,it.a))return null;
+ if(LOCATIVE_ITEMS.has(it.id)||it.id.startsWith("HB-RECALL-")&&it.level==="a1a2"){
+  const forms=LOCATIVE_FORMS.find(f=>f.includes(expected)&&f.includes(actual));if(!forms)return null;
+  const want=forms.indexOf(expected),got=forms.indexOf(actual);if(want===got)return null;
+  const meaning=["lekua","helmuga","abiapuntua"],question=["Non?","Nora?","Nondik?"];
+  return {code:LOCATIVE_TAGS[want],confused:LOCATIVE_TAGS[got],message:"«"+actual+"» formak "+meaning[got]+" adierazten du. Hemen "+meaning[want]+" behar dugu: "+question[want]+" Pentsatu berriro."}
+ }
+ if((it.id.startsWith("HB-EP-CAUSE-")||it.level==="b1b2"&&it.id.startsWith("HB-RECALL-"))&&it.t==="mc"){
+  const want=groupOf(expected,DATA.groups),got=groupOf(actual,DATA.groups);
+  if(["cause","result"].includes(want)&&["cause","result"].includes(got)&&want!==got)return {code:want,confused:got,message:got==="cause"?"Aukeratutako loturak arrazoia adierazten du. Hemen ondorioa behar dugu.":"Aukeratutako loturak ondorioa adierazten du. Hemen zergatia behar dugu."}
+ }
+ return null
+}
+function episodeErrorStore(){return S.episodeErrorMemory||(S.episodeErrorMemory={})}
+function rememberEpisodeError(st,diagnosis){
+ if(!diagnosis||st.errorRecorded||player.owner!==keyFor(KEY))return;
+ const memory=episodeErrorStore(),code=diagnosis.code,old=memory[code]||{errors:0,recoveries:0};
+ memory[code]={...old,errors:(old.errors||0)+1,confused:diagnosis.confused,lastErrorAt:Date.now(),dueAt:Date.now()+EP_REVIEW_DAY,step:0};
+ st.errorRecorded=true;st.diagnosis=diagnosis.message;save()
+}
+function dueEpisodeItems(){
+ const now=Date.now(),memory=S.episodeErrorMemory||{};
+ return ERROR_RECALL.filter(i=>i.level===S.level&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
+}
+function recordEpisodeRecovery(it,st,e,ok){
+ if(player.mode!=="episode"||player.segment!=="recall"||!it.code||!ERROR_RECALL.some(i=>i.id===it.id)||!ok||st.tries||st.hintUsed||st.errorRecorded||e.retry)return;
+ const m=S.episodeErrorMemory?.[it.code],now=Date.now();if(!m||m.dueAt>now)return;
+ const step=Math.min((m.step||0)+1,EP_REVIEW_INTERVALS.length-1);
+ m.step=step;m.recoveries=(m.recoveries||0)+1;m.lastRecoveryAt=now;m.dueAt=now+EP_REVIEW_INTERVALS[step]*EP_REVIEW_DAY;save()
+}
 function episodeNumber(){const ids=episodeIds(),draft=activeDraft();if(draft?.v===1&&ids.includes(draft.id))return ids.indexOf(draft.id)+1;const next=ids.findIndex(id=>!S.episodes?.[id]);return next<0?ids.length:next+1}
 function saveEpisodeDraft(){
  const p=player;if(p?.mode!=="episode"||p.phase==="end"||p.owner!==keyFor(KEY))return;
@@ -424,7 +471,7 @@ function saveEpisodeDraft(){
 }
 function restoreEpisodeDraft(L){
  const d=activeDraft();if(d?.v!==1||d.id!==L.id||!["gogoratu","intro","play","altxorra"].includes(d.phase)||!["recall","story"].includes(d.segment)||!Array.isArray(d.queue)||!Array.isArray(d.recall)||d.queue.length>24||d.recall.length>3)return null;
- const pool=new Map([...allLessons().flatMap(l=>l.items),...L.items].map(i=>[i.id,i]));
+ const pool=new Map([...allLessons().flatMap(l=>l.items),...L.items,...ERROR_RECALL].map(i=>[i.id,i]));
  const queue=d.queue.map(e=>({item:pool.get(e.id),retry:!!e.retry})),recall=d.recall.map(id=>pool.get(id));
  if(queue.some(e=>!e.item)||recall.some(i=>!i)||!Number.isInteger(d.pos)||d.pos<0||d.pos>queue.length||(d.phase==="play"&&(!d.state||d.pos>=queue.length)))return null;
  return {mode:"episode",owner:keyFor(KEY),i:-1,L,phase:d.phase,segment:d.segment,recall,queue,pos:d.pos,state:d.state,first:d.first||0,errors:new Set(Array.isArray(d.errors)?d.errors:[]),combo:d.combo||0,best:d.best||0,xp:d.xp||0,lastPct:0,lastXp:0,quit:false}
@@ -444,7 +491,7 @@ function episodeCard(){const n=episodeNumber(),L=episodeLesson(n);if(!L)return "
 function startEpisode(n){
  syncState();n=n||episodeNumber();const L=episodeLesson(n);const ids=episodeIds(),d=activeDraft();if(!L||(n>1&&!S.episodes?.[ids[n-2]])||(d?.v===1&&ids.includes(d.id)&&d.id!==L.id))return;
  const saved=restoreEpisodeDraft(L);if(saved){player=saved;const el=ensureEl();render();el.focus?.();return}
- const previous=dueReviews(S.lessons,lessons()).flatMap(x=>x.lesson.items.filter(it=>it.t==="mc")).slice(0,3);
+ const previous=[...dueEpisodeItems(),...dueReviews(S.lessons,lessons()).flatMap(x=>x.lesson.items.filter(it=>it.t==="mc"))].slice(0,3);
  player={mode:"episode",owner:keyFor(KEY),i:-1,L,phase:"gogoratu",segment:"recall",recall:previous,queue:previous.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  const el=ensureEl();render();el.focus?.()
 }
@@ -542,14 +589,14 @@ function body(){const it=cur().item,st=player.state,dis=st.checked?"disabled":""
  if(it.t==="write"){return `${mp}<p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p><label class="bd-sr" for="bd-wr">Zure testua</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="${it.check==="nornork"?"Gaur goizean…":"Lehenik, etxetik…"}" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${st.checked&&player.mode!=="episode"?writeChecks(st.typed,it.check):""}`}
  return ""}
 function writeChecks(t,kind){return `<ul class="bd-checks">${writeCheckList(t,kind).map(([l,ok])=>`<li class="${ok?"is-ok":""}">${svg(ok?"check":"x")}${esc(l)}</li>`).join("")}</ul>`}
-function ready(){const it=cur().item,st=player.state;if(it.t==="gap")return !!st.typed.trim();if(it.t==="write")return st.typed.trim().length>=10;if(it.t==="build")return st.picked.length>0;if(it.t==="fix")return st.tapped!==null&&!!st.sel;if(it.t==="match")return st.matched.length===it.pairs.length;return !!st.sel}
+function ready(){const it=cur().item,st=player.state;if(it.t==="gap")return !!st.typed.trim();if(it.t==="write")return st.typed.trim().length>=(player.mode==="episode"&&player.L.forest?3:10);if(it.t==="build")return st.picked.length>0;if(it.t==="fix")return st.tapped!==null&&!!st.sel;if(it.t==="match")return st.matched.length===it.pairs.length;return !!st.sel}
 function auditBox(){if(!S.auditor)return "";const it=cur().item,a=AUD[it.id]||{};return `<aside class="bd-audit"><div class="bd-audit-h"><span class="bd-kicker">IKUSKARITZA</span><code>${esc(it.src)}</code>${it.rv?`<span class="bd-flag">Berrikusteko markatua</span>`:""}</div>
  <p><b>Onartuak:</b> ${it.a.map(esc).join(" · ")}</p>${it.ex?`<p><b>Azalpena:</b> ${esc(it.ex)}</p>`:""}
  <div class="bd-row"><button class="bd-btn bd-btn-small${a.v==="ok"?" is-on":""}" onclick="HBBidea.audit('ok')">${svg("check")} Ontzat</button><button class="bd-btn bd-btn-small bd-btn-warn${a.v==="fix"?" is-on":""}" onclick="HBBidea.audit('fix')">Zuzentzeko</button></div>
  <label class="bd-sr" for="bd-anote">Oharra</label><textarea id="bd-anote" rows="2" placeholder="Oharra (aukerakoa)…" onchange="HBBidea.auditNote(this.value)">${esc(a.note||"")}</textarea></aside>`}
 function nudgeHtml(){const it=cur().item,st=player.state;if(st.checked||!st.hintOn||player.mode==="test")return "";
  const retryTry=st.tries>0;
- return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
+ return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(st.diagnosis||hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
 function deskSide(){if(!player||player.mode==="test"||player.mode==="worldgame"||!player.L)return "";const L=player.L;
  return `<aside class="bd-desk-side" aria-label="Ikasteko laguntza">
   <details class="bd-card bd-desk-cheat"><summary>Laguntza-txartela</summary><div class="bd-desk-cheat-body">${learnHtml(L)}<p class="bd-tip">${svg("bolt")}<span>${esc(L.tip)}${help()?`<small>${esc(L.tipEs)}</small>`:""}</span></p></div></details>
@@ -562,7 +609,7 @@ function feedback(){const it=cur().item,st=player.state;if(!st.checked)return ""
  const sentence=it.t==="write"?`<p class="bd-model"><span>Eredu bat:</span> ${esc(it.model)}</p>`:it.t==="match"?`<p class="bd-full">${it.pairs.map(p=>`<span>${esc(p[0])} <b>${esc(p[1])}</b></span>`).join(" · ")}</p>`:parts?`<p class="bd-full">${esc(parts[0])}<mark>${esc(parts[1])}</mark>${esc(parts[2])}</p>`:(st.ok?"":`<p class="bd-full"><mark>${esc(it.a[0])}</mark></p>`);
  const title=it.t==="write"?"Bikain! Zure testua idatzita.":st.msg;
  return `<section class="bd-fb ${st.ok?"is-ok":"is-bad"}" role="status" aria-live="assertive">${bira(st.ok?(Math.random()<.5?"celebrate":"calm"):"retry","bd-bira-sm")}<div><strong>${esc(title)}</strong>${sentence}
- ${(player.mode==="worldgame"||player.mode==="episode"&&player.segment==="story")?`<p class="bd-why">${esc(it.ex)}</p>`:p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
+ ${(player.mode==="worldgame"||player.mode==="episode"&&(player.segment==="story"||it.code))?`<p class="bd-why">${esc(it.ex)}</p>`:p?`<p class="bd-why">${esc(p.why)}</p>${flow(p,g==="lako"?"":key,true)}`:it.t==="write"?"":`<p class="bd-why">${esc(it.ex)}</p>`}
  ${help()&&gl?`<small class="bd-es">ES · ${esc(key)} = ${esc(gl)}</small>`:""}
  ${p&&it.ex&&player.mode!=="worldgame"&&!(player.mode==="episode"&&player.segment==="story")?`<details class="bd-more-ex"><summary>Azalpen osoa</summary><p>${esc(it.ex)}</p></details>`:it.t==="write"?`<p class="bd-why">${esc(it.ex)}</p>`:""}</div></section>`}
 function play(){const it=cur().item,st=player.state,test=player.mode==="test",rev=player.mode==="review";const label=test?"MAILA-PROBA":player.mode==="worldgame"?"JOLASTOKIA · "+TYPE[it.t]:player.mode==="episode"?(player.segment==="recall"?"1 · GOGORATU":"3 · ERRONKA")+" · "+TYPE[it.t]:(S.level==="b1b2"&&TYPE_B[it.t])||TYPE[it.t];
@@ -581,7 +628,9 @@ function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==n
 function mL(k){const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
 function mR(k){const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
 function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
- if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)))){st.checked=true;st.neutral=true;st.ok=false;render();return}
+ const diagnosis=player.mode==="episode"?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
+ if(diagnosis)rememberEpisodeError(st,diagnosis);
+ if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis))){st.checked=true;st.neutral=true;st.ok=false;render();return}
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=player.mode==="worldgame"||!e.miss;else ok=isAccepted(st.sel,it.a);
  /* Lehen hutsean: pista erakutsi eta bigarren aukera eman, erantzuna zuzenean erakutsi aurretik. */
  if(!ok&&st.tries===0&&!e.retry&&it.t!=="match"&&it.t!=="write"){
@@ -590,6 +639,7 @@ function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.ite
   sfx("bad");render();return;
  }
  st.checked=true;st.ok=ok;
+ recordEpisodeRecovery(it,st,e,ok);
  if(player.mode==="worldgame"){st.msg=ok?"Ongi!":"Berrikusi loturak.";render();return}
  if(ok){player.combo++;player.best=Math.max(player.best,player.combo);const gain=e.retry?5:(st.tries>0||st.hintUsed)?7:10;player.xp+=gain;if(!e.retry&&st.tries===0&&!st.hintUsed&&!player.errors.has(it.id))player.first++;st.msg=(st.tries>0?"Ederki! Bigarren saiakeran":pick(PRAISE))+` +${gain} XP`;sfx("ok")}
  else{player.combo=0;player.errors.add(it.id);if(!e.retry)player.queue.push({item:it,retry:true});st.msg=pick(OOPS);sfx("bad")}
