@@ -648,3 +648,24 @@ html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
 .bd-game-tile:hover,.bd-game-tile:focus-visible{border-color:var(--bd-acc);background:var(--bd-lav)}
 #bd-player[data-mode=worldgame] .bd-pgrid{grid-template-columns:minmax(0,1fr)}
 #bd-player[data-mode=worldgame] .bd-match button{overflow-wrap:anywhere;white-space:normal}
+
+/* World is the primary Bidea route; grammar remains available as a secondary resource. */
+.bd-mapa.bd-mapa-world{grid-template-areas:"head" "path" "stats" "meta"}
+.bd-world-mission-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bd-world-mission-head h2{font-size:1.55rem;margin:4px 0;color:var(--bd-ink)}
+.bd-world-path{list-style:none;padding:0;margin:12px 0 16px;display:grid;gap:8px}
+.bd-world-step-btn{display:flex;align-items:center;gap:12px;text-align:left;width:100%;min-height:62px;padding:10px 12px;border:1px solid var(--bd-line);border-radius:14px;background:var(--bd-paper);color:var(--bd-ink);font:inherit;cursor:pointer}
+.bd-world-step-btn:disabled{cursor:default;background:var(--bd-canvas);color:var(--bd-muted);opacity:1}
+.bd-world-step-num{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:11px;background:var(--bd-line);color:var(--bd-muted);font-weight:850}
+.bd-world-step-copy{display:grid;gap:3px;flex:1;min-width:0}
+.bd-world-step-copy small{font-size:.76rem;color:var(--bd-muted)}
+.bd-world-step-btn>.bd-ico{flex:none;color:var(--bd-muted)}
+.bd-world-step.is-ready .bd-world-step-btn{border-color:var(--bd-acc);background:var(--bd-lav)}
+.bd-world-step.is-ready .bd-world-step-num{background:var(--bd-acc);color:#fff}
+.bd-world-step.is-ready .bd-world-step-btn>.bd-ico{color:var(--bd-acc)}
+.bd-world-step.is-done .bd-world-step-num{background:var(--bd-ok-bg);color:var(--bd-ok)}
+.bd-world-step-btn:not(:disabled):focus-visible{outline:3px solid var(--bd-acc);outline-offset:2px}
+.bd-mapa-world .bd-island>.bd-collection,.bd-mapa-world .bd-island>.bd-world-games{box-shadow:none;margin:12px 0 0}
+.bd-world-legacy{margin-top:12px;margin-bottom:0}
+@media(min-width:960px){.bd-mapa.bd-mapa-world:not(.bd-mapa-first){grid-template-areas:"path head" "path stats" "path meta"}}
+@media(max-width:540px){.bd-world-step-btn{gap:9px;padding:9px;min-height:60px}.bd-world-mission-head h2{font-size:1.3rem}.bd-mapa-world .bd-island{padding:14px}}
