@@ -4,6 +4,14 @@ Base: `feature/hitzbira-2.10-learning`, `3cf79911404cfd8f30b56328e4673cb9cc63021
 Method consulted: [HitzBira method v1.1](https://docs.google.com/document/d/1g42sF5p3QWGcYf177giFVxRuY12qsp8RtY9Ji14E7vA/edit).
 Original protocols 00/01/04/08 were unavailable; the owner confirmed there are no originals available in this session. This increment does not claim their full review or academic acceptance.
 
+## Student journey policy, 2.10.5
+
+Official CEFR labels are internal metadata. The learner chooses adventures, never a vocabulary level. This policy supersedes the exploratory difficulty picker used in the earlier smoke tests below. Welcome, home, map, adventure switching, starting-point results and vocabulary play no longer display A1–C2 labels. The optional starting-point activity recommends a route; it does not certify proficiency.
+
+Each current mission declares its own internal vocabulary stage in `bidea/data.js`: `basorako-bidea` requests A1, and `uraren-misterioa` requests B1. These are the initial stages of the existing broader route groupings; they do not relabel all material or claim a full assessment of the learner. The shared selector receives the mission's assigned difficulty automatically. Switching adventure clears the previous mission's topic choices and cancels pending preparation while preserving separate progress and drafts.
+
+The approved C1 release remains on the backend but is not offered through a learner-controlled selector or silently assigned to a beginner/intermediate mission. Until suitable bank entries are available for a mission's assigned stage, its explicitly labelled local adventure vocabulary is used. New adventures require their own pedagogical difficulty assignment. Evidence-based progression and a general adaptive proficiency model remain future work, not behavior claimed by this mapping.
+
 ## Initial inspection, before owner confirmation, 2026-11-27
 
 Only bounded SELECTs against Lexikoa content and metadata; no learner records queried, no database mutations, DDL, grants, policy or deployment changes.

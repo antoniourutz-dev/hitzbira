@@ -304,7 +304,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.askQuit();
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
- check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Maila-proba egin (aukerakoa)'));
+ check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));
  check('direct route does not imply placement evidence',w.HBBidea._state().placed===false);
  check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));

@@ -339,8 +339,8 @@ const placement=[
  {id:"P6",src:"MAILA#6",t:"mc",lv:3,q:"Euria egingo duela esan dute; ____, mendi-irteera atzeratu dugu.",ch:["hortaz","aitzitik","adibidez"],a:["hortaz"]}];
 
 const islands=[
- {id:"a1a2",level:"A1–A2",title:"Lehen urratsak",es:"Primeros pasos",blurb:"Leku-kasuak (non, nora, nondik) eta eguneroko ekintzak (NOR / NOR-NORK).",chapters:a1Chapters},
- {id:"b1b2",level:"B1–B2",title:"Lotura uhartea",es:"La isla de los conectores",blurb:"Zergatia, ondorioa eta kontrastea: ideiak ondo lotuta euskaraz.",chapters}];
+ {id:"a1a2",level:"A1–A2",adventure:{id:"basorako-bidea",title:"Basorako bidea",vocabularyLevel:"A1"},title:"Lehen urratsak",es:"Primeros pasos",blurb:"Leku-kasuak (non, nora, nondik) eta eguneroko ekintzak (NOR / NOR-NORK).",chapters:a1Chapters},
+ {id:"b1b2",level:"B1–B2",adventure:{id:"uraren-misterioa",title:"Uraren misterioa",vocabularyLevel:"B1"},title:"Lotura uhartea",es:"La isla de los conectores",blurb:"Zergatia, ondorioa eta kontrastea: ideiak ondo lotuta euskaraz.",chapters}];
 const cast={ane:{name:"Ane",c:"#f06a1d"},iker:{name:"Iker",c:"#2563eb"},lur:{name:"Lur",c:"#0f9f6e"},txinpart:{name:"Txinpart",c:"#c0262d"},bira:{name:"Bira",c:"#5b3cc4"}};
 
 window.HB_BIDEA={version:"0.3.0",islands,island:islands[1],chapters,gloss,groups,patterns,placement,cast};
