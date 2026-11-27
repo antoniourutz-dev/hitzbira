@@ -57,6 +57,8 @@ function paint(){
   }
  }
  if(!btn||!pop)return;
+ if(btn.parentElement)btn.parentElement.hidden=!authorized;
+ if(!authorized){pop.hidden=true;return}
  const s=authorized?streak:localStreak();
  const countEl=document.getElementById("hb-streak-count"),sumEl=document.getElementById("hb-streak-summary"),bestEl=document.getElementById("hb-streak-best"),daysEl=document.getElementById("hb-streak-days"),footEl=document.getElementById("hb-streak-foot");
  if(!s){countEl.textContent="·";btn.classList.remove("lit","warm");sumEl.textContent="Bolada sinkronizatzen…";return}
@@ -104,6 +106,24 @@ function save(k,value,details={}){
 /* Bidea pilot uses the existing authenticated journey stream, not a new table or permission.
    The scalar snapshot deliberately replaces arrays/drafts rather than applying union semantics.
    The existing outbox and server acknowledgment govern synchronization. Sequential devices only. */
+function localGuestBidea(){
+ const raw=readLocal("hitzbira-bidea-v1");if(!obj(raw))return null;
+ const episodes=Object.fromEntries(Object.entries(raw.episodes||{}).filter(([id,v])=>/^HB-EP-FOREST-0[1-5]$/.test(id)&&obj(v)));
+ const forestDraft=raw.forestDraft?.v===1&&/^HB-EP-FOREST-0[1-5]$/.test(raw.forestDraft.id)?raw.forestDraft:null;
+ const days=Object.fromEntries(Object.entries(raw.episodeStudyDays||{}).filter(([k,v])=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&v===true));
+ const memory=Object.fromEntries(Object.entries(raw.episodeErrorMemory||{}).filter(([k,v])=>["non","nora","nondik","nor"].includes(k)&&obj(v)));
+ if(!Object.keys(episodes).length&&!forestDraft&&!Object.keys(days).length&&!Object.keys(memory).length)return null;
+ return {level:"a1a2",placed:false,lessons:{},days:{},xp:0,episodes,episodeErrorMemory:memory,episodeStudyDays:days,...(forestDraft?{forestDraft}:{}),help:raw.help==="eu"?"eu":"es",sound:raw.sound!==false}
+}
+async function importGuestBidea(){
+ if(!authorized||loadBidea())return false;
+ const own=readLocal(keyFor("hitzbira-bidea-v1"));
+ const ownProgress=obj(own)&&(own.level||Object.keys(own.episodes||{}).length||own.forestDraft||own.episodeDraft)?own:null;
+ const guest=localGuestBidea(),candidate=ownProgress||(guest&&confirm("Gailu honetan egindako abentura eta aurrerapena zure kontura ekarri? Ziurtatu zureak direla. Tokiko kopia mantenduko da.")?guest:null);
+ if(!candidate)return false;
+ saveBidea(candidate);await flush();if(pending().length)throw Error("Bideko aurrerapena gordetzeke dago. Saiatu berriro Internetekin.");
+ return true;
+}
 function loadBidea(){
  if(!authorized)return null;
  const j=readLocal(keyFor("hitzbira-journey-v1"));if(typeof j?.bideaPilotV1!=="string")return null;
@@ -142,6 +162,7 @@ async function hydrate(){
  for(const k of streams){const marker="hb-seed-1::"+session.uid+"::"+k;if(localStorage.getItem(marker))continue;const value=readLocal(keyFor(k))??(importGuest?readLocal(k):undefined);if(value!==undefined){persistEvent(k,{t:"seed",v:value},{kind:"legacy_baseline",appliedIfEmpty:!present.has(k)});localStorage.setItem(marker,"1")}}
  await flush();if(pending().length)throw Error("Gordetzeke dauden aldaketak daude. Saiatu berriro Internetekin.");
  state=await pull();for(const row of state){if(streams.includes(row.stream)){localStorage.setItem(keyFor(row.stream),JSON.stringify(row.payload));prev.set(row.stream,copy(row.payload))}}
+ if(await importGuestBidea()){state=await pull();for(const row of state){if(streams.includes(row.stream)){localStorage.setItem(keyFor(row.stream),JSON.stringify(row.payload));prev.set(row.stream,copy(row.payload))}}}
  hydrated=true;paint();
 }
 
@@ -165,7 +186,7 @@ function aux(s=-1,m=-1){let n=count(s,m);return cached("aux:"+s+":"+m,async()=>{
 function synthetic(){return cached("synthetic",async()=>{let rows;if(authorized){try{rows=await query("synthetic",META.synthetic)}catch(e){if(e.status===401||e.status===403)throw e}}return validate(rows||await staticBlock("synthetic"),META.synthetic,d=>typeof d.form==="string"&&typeof d.lemma==="string")})}
 function grammar(n){if(!["decl","bank05","bank06","bank07","bank08"].includes(n))throw Error("Banku ezezaguna");return cached("grammar:"+n,async()=>{if(authorized){try{const rows=await query("grammar_bank",1,{record_id:"eq."+n});return rows[0].payload}catch(e){if(e.status===401||e.status===403)throw e}}const r=await fetch("/legacy/"+n+".js");if(!r.ok)throw Error("Bankua ezin izan da kargatu.");const m=(await r.text()).match(/^\s*const\s+(?:BANK|DATA)\s*=\s*([\s\S]*);\s*$/);if(!m)throw Error("Datu-formatua ez da zuzena.");return JSON.parse(m[1])})}
 async function vocabulary({level,theme="all"}={}){if(!authorized)throw authError("Hasi saioa.",401);const owner=session.uid;const result=await gateway({action:"vocabulary",level,theme},await currentToken(),AbortSignal.timeout(8000));if(!authorized||session?.uid!==owner)throw authError("Saioa aldatu da.",401);return result}
-window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak};
+window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak};
 const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop");
 function setStreakOpen(open){if(!streakBtn||!streakPop)return;streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
 if(streakBtn&&streakPop){
@@ -176,7 +197,7 @@ if(streakBtn&&streakPop){
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(Error("Aplikazioa ezin izan da kargatu."));document.head.appendChild(script)})}
 function showLogin(){modal.hidden=false;msg.textContent="";form.elements.identifier.focus()}
 function hideLogin(){modal.hidden=true;form.reset();msg.textContent="";login.focus()}
-async function start(){if(starting)return;starting=true;status.textContent=authorized?"Kaixo, "+session.username:"Gonbidatua";login.hidden=authorized;out.hidden=!authorized;paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
+async function start(){if(starting)return;starting=true;document.body.dataset.hbAccess=authorized?"account":"guest";status.textContent=authorized?"Kaixo, "+session.username:"Gonbidatua";login.hidden=authorized;out.hidden=!authorized;paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
 function busy(on){submit.disabled=on;form.setAttribute("aria-busy",String(on));submit.textContent=on?"Saioa egiaztatzen…":"Sartu"}
 login.onclick=showLogin;close.onclick=hideLogin;
 out.onclick=async()=>{if(!confirm("Saioa itxi? Sinkronizatu gabeko jarduna gailu honetan mantenduko da."))return;await Promise.race([flush(),new Promise(resolve=>setTimeout(resolve,2500))]);const old=session;clearSession();try{if(old?.access_token)await fetch(BASE+"/auth/v1/logout?scope=local",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+old.access_token},cache:"no-store",signal:AbortSignal.timeout(2500)})}catch{}location.reload()};
