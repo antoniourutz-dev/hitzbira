@@ -75,7 +75,7 @@ function syncState(){const k=keyFor(KEY);if(loadedKey===k)return;loadedKey=k;let
  AUD=load(AKEY,{});
  try{const p=new URLSearchParams(location.search);if(p.has("ikuskatu")||p.has("auditor")){const next=(p.get("ikuskatu")||p.get("auditor"))!=="0";if(S.auditor!==next){S.auditor=next;dirty=true}}}catch{}
  if(dirty)store(KEY,S)}
-const save=()=>{syncState();store(KEY,S);if(root.HBData?.isRemote?.()&&root.HBData?.saveBidea){try{root.HBData.saveBidea(S)}catch(e){console.warn("Bidea: sinkronizazioaren zain",e.message)}}};
+const save=(localOnly=false)=>{syncState();store(KEY,S);if(!localOnly&&root.HBData?.isRemote?.()&&root.HBData?.saveBidea){try{root.HBData.saveBidea(S)}catch(e){console.warn("Bidea: sinkronizazioaren zain",e.message)}}};
 function reset(){if(root.HBData?.isRemote?.())return;try{localStorage.removeItem(keyFor(KEY));localStorage.removeItem(keyFor(AKEY))}catch{}loadedKey=null;player=null;syncState();applyLevel()}
 syncState();
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -404,9 +404,9 @@ function wordGameGroups(){
 }
 const VERB_TASKS=[
  {id:"HB-VERB-NOR-1",code:"nor",level:"a1a2",t:"mc",q:"Ane basora joan ____. (Ane bakarrik.)",ch:["da","du","dio"],a:["da"],ex:"Ane da joan dena; ez dago objekturik edo hartzailerik.",why:{du:"«Du» objektua eta egilea lotzeko erabiltzen da. Hemen Ane da joan dena.",dio:"«Dio» hartzailea ere adierazteko erabiltzen da. Hemen Ane da joan dena."}},
- {id:"HB-VERB-NORK-1",code:"nornork",level:"b1b2",t:"mc",q:"Argik giltza aurkitu ____. (Argik giltza bakarra aurkitu du.)",ch:["da","du","dio"],a:["du"],ex:"Argik aurkitu du; giltza da aurkitutako objektua.",why:{da:"«Da» ez dator bat hemen ageri diren egilearekin eta objektuarekin. Argik giltza aurkitu du.",dio:"«Dio» adizkiak hartzailea ere adierazten du; hemen ez da hartzailerik aipatzen."}},
- {id:"HB-VERB-NORI-1",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Joni mapa eman ____. (Joni da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Nik eman dut, mapa da objektua eta Joni da hartzailea: diot.",why:{dut:"«Dut» adizkiak objektua eta egilea adierazten ditu. Esaldi honetan Joni da hartzailea; hartzailearekiko komunztadura ere behar dugu.",dizut:"«Dizut» adizkiaren hartzailea zu zara; hemen Joni da hartzailea."}},
- {id:"HB-VERB-NORI-2",code:"nornorinork",level:"b1b2",t:"mc",q:"Argik Lurri gutuna eman ____. (Lur da hartzailea.)",ch:["du","dio","diot"],a:["dio"],ex:"Argik eman du; gutuna da objektua eta Lur da hartzailea: dio.",why:{du:"Lurri hartzailea ageri da; harekiko komunztadura ere behar dugu.",diot:"«Diot» adizkiak ni adierazten du egile gisa; hemen Argik eman du."}}
+ {id:"HB-VERB-NORK-1",code:"nornork",level:"b1b2",t:"mc",q:"Argik giltza aurkitu ____.",ch:["da","du","dio"],a:["du"],ex:"Argik aurkitu du; giltza da aurkitutako objektua.",why:{da:"«Da» ez dator bat hemen ageri diren egilearekin eta objektuarekin. Argik giltza aurkitu du.",dio:"«Dio» adizkiak hartzailea ere adierazten du; hemen ez da hartzailerik aipatzen."}},
+ {id:"HB-VERB-NORI-1",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Joni mapa eman ____. (Joni da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Ni naiz egilea, mapa da objektua eta Joni da hartzailea: diot.",why:{dut:"«Dut» adizkiak objektua eta egilea adierazten ditu. Esaldi honetan Joni da hartzailea; hartzailearekiko komunztadura ere behar dugu.",dizut:"«Dizut» adizkiaren hartzailea zu zara; hemen Joni da hartzailea."}},
+ {id:"HB-VERB-NORI-2",code:"nornorinork",level:"b1b2",t:"mc",q:"Argik Lurri gutuna eman ____. (Lur da hartzailea.)",ch:["du","dio","diot"],a:["dio"],ex:"Argi da egilea, gutuna da objektua eta Lur da hartzailea: dio.",why:{du:"Lurri hartzailea ageri da; harekiko komunztadura ere behar dugu.",diot:"«Diot» adizkiak ni adierazten du egile gisa; hemen Argik eman du."}}
 ].map(x=>({...x,src:"Jatorrizko testuinguru mugatua / HB-VERB-PILOT-v1"}));
 function worldGameItems(kind){
  if(kind==="words")return wordGameGroups();
@@ -458,7 +458,7 @@ const ERROR_RECALL=[
  {id:"HB-RECALL-CAUSE",code:"cause",level:"b1b2",t:"mc",q:"Ez dugu kontzertua aire zabalean egingo. ____, euria ari du.",ch:["Beraz","Izan ere"],a:["Izan ere"],ex:"Euria da kontzertua kanpoan ez egitearen arrazoia."},
  {id:"HB-RECALL-RESULT",code:"result",level:"b1b2",t:"mc",q:"Euria ari du. ____, kontzertua barruan egingo dugu.",ch:["Izan ere","Beraz"],a:["Beraz"],ex:"Kontzertua barruan egitea euriaren ondorioa da."}
 ,{id:"HB-RECALL-NOR-VERB",code:"nor",level:"a1a2",t:"mc",q:"Iker etxera itzuli ____.",ch:["du","da","dio"],a:["da"],ex:"Iker da itzuli dena.",why:{du:"Hemen ez dago objekturik: Iker da itzuli dena.",dio:"Hemen ez dago hartzailerik: Iker da itzuli dena."}},
- {id:"HB-RECALL-NORNORK",code:"nornork",level:"b1b2",t:"mc",q:"Kaik papera hartu ____.",ch:["da","dio","du"],a:["du"],ex:"Kaik hartu du; papera da objektua.",why:{da:"Kaik da egilea eta papera objektua; biak adizkian jasotzen dira.",dio:"Ez da hartzailerik aipatzen."}},
+ {id:"HB-RECALL-NORNORK",code:"nornork",level:"b1b2",t:"mc",q:"Kaik papera hartu ____.",ch:["da","dio","du"],a:["du"],ex:"Kaik hartu du; papera da objektua.",why:{da:"Kai da egilea eta papera da objektua; biak adizkian jasotzen dira.",dio:"Ez da hartzailerik aipatzen."}},
  {id:"HB-RECALL-NORINORK",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Aneri giltza eman ____. (Ane da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Nik eman diot Aneri giltza.",why:{dut:"Ane da hartzailea: harekiko komunztadura ere behar dugu.",dizut:"Hartzailea Ane da, ez zu."}}
 ].map(i=>({...i,src:"Jatorrizko berreskurapen ariketa / HB-ERROR-v1"}));
 function classifyEpisodeError(it,response){
@@ -495,9 +495,9 @@ function recordEpisodeRecovery(it,st,e,ok){
  m.step=step;m.recoveries=(m.recoveries||0)+1;m.lastRecoveryAt=now;m.dueAt=now+EP_REVIEW_INTERVALS[step]*EP_REVIEW_DAY;save()
 }
 function episodeNumber(){const ids=episodeIds(),draft=activeDraft();if(draft?.v===1&&ids.includes(draft.id))return ids.indexOf(draft.id)+1;const next=ids.findIndex(id=>!S.episodes?.[id]);return next<0?ids.length:next+1}
-function saveEpisodeDraft(){
+function saveEpisodeDraft(localOnly=false){
  const p=player;if(p?.mode!=="episode"||p.phase==="end"||p.owner!==keyFor(KEY))return;
- syncState();S[p.L.forest?"forestDraft":"episodeDraft"]={v:1,id:p.L.id,phase:p.phase,segment:p.segment,recall:p.recall.map(i=>i.id),queue:p.queue.map(e=>({id:e.item.id,retry:!!e.retry})),pos:p.pos,state:p.state,first:p.first,errors:[...p.errors],combo:p.combo,best:p.best,xp:p.xp};save()
+ syncState();S[p.L.forest?"forestDraft":"episodeDraft"]={v:1,id:p.L.id,phase:p.phase,segment:p.segment,recall:p.recall.map(i=>i.id),queue:p.queue.map(e=>({id:e.item.id,retry:!!e.retry})),pos:p.pos,state:p.state,first:p.first,errors:[...p.errors],combo:p.combo,best:p.best,xp:p.xp};save(localOnly)
 }
 function restoreEpisodeDraft(L){
  const d=activeDraft();if(d?.v!==1||d.id!==L.id||!["gogoratu","intro","play","altxorra"].includes(d.phase)||!["recall","story"].includes(d.segment)||!Array.isArray(d.queue)||!Array.isArray(d.recall)||d.queue.length>24||d.recall.length>3)return null;
@@ -545,7 +545,7 @@ function startReview(lessonId){syncState();const L=allLessons().find(x=>x.id===l
 function startAgendaReview(){const ag=root.HitzBiraAgenda?.agenda?.()||[],due=ag.find(r=>r.status==="due");if(due&&typeof root.startCurriculum==="function")root.startCurriculum(due.node,null,true,due.key)}
 function startTest(){syncState();player={mode:"test",phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,score:0,row:0,state:null,quit:false,xp:0,combo:0,lastPct:0,lastXp:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function close(silent){const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;if(!silent)refresh()}
-function askQuit(){if(!player)return;if(player.mode==="episode"||player.mode==="worldgame"){close();return}if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
+function askQuit(){if(!player)return;if(player.mode==="episode"||player.mode==="worldgame"){saveEpisodeDraft();close();return}if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
 function cur(){return player.queue[player.pos]}
 function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:[],tapped:null,mistap:false,checked:false,ok:false,tries:0,wrongSel:[],hintOn:false,hintUsed:false};
  if(it.t==="chips")st.opts=chipsFor(it,DATA.groups);
@@ -651,7 +651,7 @@ function play(){const it=cur().item,st=player.state,test=player.mode==="test",re
  ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok||st.neutral?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button></div>`}</footer>`}</div>`}
 function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
 function sel(o){const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}render()}
-function typed(v){player.state.typed=v;saveEpisodeDraft();const b=document.querySelector(".bd-pfoot .bd-btn-main");if(b)b.disabled=!ready()}
+function typed(v){player.state.typed=v;saveEpisodeDraft(true);const b=document.querySelector(".bd-pfoot .bd-btn-main");if(b)b.disabled=!ready()}
 function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))return;st.picked.push(k);sfx("tap");render()}
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
@@ -715,6 +715,7 @@ document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altK
  }
  if(e.key==="Enter"&&tag!=="TEXTAREA"){const b=document.querySelector("#bd-player .bd-pfoot .bd-btn-main:not([disabled])");if(b&&tag!=="BUTTON"){e.preventDefault();b.click()}}});
 applyLevel();
+root.addEventListener?.("pagehide",()=>saveEpisodeDraft());
 root.HBBidea={...api,gaur,bidea,mapa,ni,focused,isAuditor,start,startEpisode,finishEpisode,startWorldGame,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);
