@@ -147,10 +147,12 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('Gaur includes full desktop course syllabus with chapter progress bars and Bidea uses responsive grid wrapper',gaurHtml.includes('bd-course-section')&&gaurHtml.includes('bd-level-switch')&&gaurHtml.includes('bd-ch-prog')&&w.HBBidea.bidea().includes('bd-mapa-meta'));
  w.HBBidea.setLevel('b1b2',false);
  check('first World episode is discoverable from Gaur',w.HBBidea.gaur().includes('Non dago ura?')&&w.HBBidea.gaur().includes('HBBidea.startEpisode()'));
+ check('treasure collection starts undiscovered and does not reveal locked cards',w.HBBidea.gaur().includes('Nire altxorrak')&&w.HBBidea.gaur().includes('0/3 aurkituta')&&!w.HBBidea.gaur().includes('Auzolana'));
  const before=JSON.stringify(w.HBBidea._state().lessons),beforeXp=w.HBBidea._state().xp;
  w.HBBidea.startEpisode();
  check('episode starts with Gogoratu without inventing previous evidence',w.HBBidea._player().phase==='gogoratu'&&w.HBBidea._player().recall.length===0);
  w.HBBidea.begin();
+ check('episode renders original location artwork and existing mascot',els.get('bd-player').innerHTML.includes('bd-episode-landscape')&&els.get('bd-player').innerHTML.includes('Herriko iturria')&&els.get('bd-player').innerHTML.includes('bd-landscape-bira'));
  check('episode opens Argi scene and uses seven activities',w.HBBidea._player().phase==='intro'&&w.HBBidea._player().queue.length===7&&els.get('bd-player').innerHTML.includes('2 · ESZENA'));
  check('episode keys match the water mystery, not the bus example',els.get('bd-player').innerHTML.includes('iturburuko hodia hautsi da.')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.')&&els.get('bd-player').innerHTML.includes('width:20%'));
  check('episode tracker includes five stages and current step',els.get('bd-player').innerHTML.includes('bd-episode-stages')&&els.get('bd-player').innerHTML.includes('aria-current="step"')&&els.get('bd-player').innerHTML.includes('Hurrengoa'));
@@ -175,6 +177,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('Hurrengoa closes episode without claiming mastery or XP',w.HBBidea._player().phase==='end'&&els.get('bd-player').innerHTML.includes('5 · HURRENGOA')&&w.HBBidea._state().episodes['HB-EP-CAUSE-01'].treasure==='auzolana'&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
  check('first ending links to actual second episode',els.get('bd-player').innerHTML.includes('HBBidea.startEpisode(2)'));
  w.HBBidea.close(true);
+ check('first earned treasure is visible in Gaur and Bidea',w.HBBidea.gaur().includes('1/3 aurkituta')&&w.HBBidea.gaur().includes('Auzolana')&&w.HBBidea.bidea().includes('Auzolana'));
  check('Gaur recommends second episode after visiting first',w.HBBidea.gaur().includes('Giltza zaharra'));
  w.HBBidea.startEpisode();
  check('second episode uses same five-stage player',w.HBBidea._player().L.id==='HB-EP-CAUSE-02'&&w.HBBidea._player().phase==='gogoratu');
@@ -197,7 +200,19 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('second treasure is linked to the story',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Giltza'));
  w.HBBidea.finishEpisode();
  check('second episode completed and draft cleared without academic claim',w.HBBidea._state().episodes['HB-EP-CAUSE-02'].treasure==='giltza'&&!w.HBBidea._state().episodeDraft&&JSON.stringify(w.HBBidea._state().lessons)===before);
+ check('second ending links to third episode',els.get('bd-player').innerHTML.includes('HBBidea.startEpisode(3)'));
  w.HBBidea.close(true);
+ check('Gaur recommends third episode and shows two distinct treasures',w.HBBidea.gaur().includes('Errotaren sekretua')&&w.HBBidea.gaur().includes('2/3 aurkituta'));
+ w.HBBidea.startEpisode();w.HBBidea.begin();
+ check('third episode has distinct illustrated location and contextual examples',w.HBBidea._player().L.id==='HB-EP-CAUSE-03'&&els.get('bd-player').innerHTML.includes('Errotaren barrua')&&els.get('bd-player').innerHTML.includes('Hodia buxatuta dago.'));
+ w.HBBidea.begin();
+ for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
+ w.HBBidea.typed('Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.');w.HBBidea.check();w.HBBidea.next();
+ check('third treasure does not require autonomous production credit',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Errota'));
+ w.HBBidea.finishEpisode();w.HBBidea.close(true);
+ check('all three collectible cards are visible with no duplicate rewards',w.HBBidea.gaur().includes('3/3 aurkituta')&&w.HBBidea.bidea().includes('Errota')&&Object.keys(w.HBBidea._state().episodes).length===3);
+ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
+ check('treasure collection survives fresh runtime',w.HBBidea.gaur().includes('3/3 aurkituta')&&w.HBBidea.bidea().includes('Auzolana'));
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  check('player separates scrollable content from fixed action area in CSS',bcss.includes('height:100dvh')&&bcss.includes('max-height:var(--bd-visible-height,100dvh)')&&bcss.includes('flex:1 1 0;min-height:0;overflow-y:auto')&&bcss.includes('flex:0 0 auto;z-index:3;margin:0')&&bcss.includes('env(safe-area-inset-bottom,0px)'));
  check('responsive CSS covers mobile tables, tablet (760px), and desktop workspace (960px/1024px)',bcss.includes('.bd-table{min-width:0}')&&bcss.includes('@media (min-width:760px)')&&bcss.includes('@media (min-width:960px)')&&bcss.includes('@media (min-width:1024px)'));
