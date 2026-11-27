@@ -1,0 +1,3 @@
+# HITZBIRA · Visual polish 1 · 2.10.9
+
+Scope: Gaur and Bidea (guest and account), Jolastokia cards, mission path, treasure collection, player feedback and persistent action area. Existing Bira art, icon system, route, storage keys, episode content, gateway and academic semantics unchanged. Removed duplicated greeting and legacy-first recommendation from the main home heading; existing secondary grammar remains accessible. Mission progress represents completion only, not linguistic proficiency. Current episode and selected mission have explicit state. Responsive CSS includes reduced motion and dark-mode game colors. Tests include guest and account rendering and existing regression suite. Visual device review remains pending; CSS assertions are not screenshot evidence.

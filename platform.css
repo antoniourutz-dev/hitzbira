@@ -391,3 +391,8 @@ html[data-theme="dark"] .hb-topbar-title{color:#c9c1e0}
 
 /* Guest access: only the introductory adventure navigation is available. */
 body[data-hb-access="guest"] .hb-side-tools,body[data-hb-access="guest"] .hb-streak-wrap{display:none!important}
+
+/* Keep mobile navigation and the main shell consistent with the established illustrated icon system. */
+body.hb-kit nav button:focus-visible,.hb-side-nav button:focus-visible,.hb-top-nav button:focus-visible{outline:3px solid #8b5cf6;outline-offset:2px}
+body[data-hb-access="guest"] nav{justify-content:center}
+body[data-hb-access="guest"] nav button{flex:1 1 0;max-width:180px;min-height:48px}

@@ -676,3 +676,71 @@ html[data-theme=dark] .bd-desk-keys kbd{background:#18142b;border-color:#3c3460}
 .bd-vocab-controls label{display:flex;flex:1 1 180px;flex-direction:column;gap:6px;font-size:.88rem;font-weight:700}
 .bd-vocab-controls select{font:inherit;color:inherit;background:var(--bd-card,#fff);border:1px solid currentColor;border-radius:12px;padding:10px;max-width:100%;min-height:44px}
 .bd-vocab-sources{font-size:.78rem;overflow-wrap:anywhere;margin:12px 0}
+
+/* 2.10.9 — coherent adventure surfaces; existing player and account contracts retained. */
+.bd-gaur-polished,.bd-mapa-polished{gap:18px}
+.bd-gaur-polished .bd-desk-greet{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:2px 0}
+.bd-gaur-polished .bd-desk-greet h1{font-size:clamp(1.45rem,4vw,1.85rem);line-height:1.2;letter-spacing:-.035em;margin:0}
+.bd-gaur-polished .bd-desk-greet p{margin:3px 0 0;color:var(--bd-muted);font-size:.88rem}
+.bd-gaur-polished .bd-gaur-top{align-items:start}
+.bd-gaur-polished .bd-gaur-top>.bd-col{height:auto;min-width:0;display:grid;align-content:start;gap:14px}
+.bd-gaur-polished .bd-today{min-height:240px;align-items:center;gap:12px;display:grid;grid-template-columns:minmax(0,1fr) minmax(76px,29%);padding:24px}
+.bd-gaur-polished .bd-today-body{min-width:0;position:relative;z-index:1}
+.bd-gaur-polished .bd-today-art{display:grid;place-items:center;min-width:0;z-index:1}
+.bd-gaur-polished .bd-bira-hero{width:min(100%,148px);height:auto;filter:drop-shadow(0 12px 16px #152c3240)}
+.bd-gaur-polished .bd-today .bd-btn{margin-top:12px}
+.bd-hero-meta{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.bd-hero-meta .bd-chip{font-size:.75rem;padding:5px 9px;white-space:normal}
+.bd-gaur-polished .bd-today .bd-note{font-size:.84rem;color:#fff;font-weight:650;margin:10px 0 0}
+.bd-route-overview,.bd-account-card{display:grid;gap:10px}
+.bd-route-overview h2,.bd-account-card h2,.bd-missions h2{font-size:1.2rem;letter-spacing:-.02em;margin:0;color:var(--bd-ink)}
+.bd-route-overview .bd-btn,.bd-account-card .bd-btn{width:100%;justify-content:space-between}
+.bd-account-head{display:flex;justify-content:space-between;align-items:center;color:var(--bd-muted)}
+.bd-account-card p{margin:0;line-height:1.5;font-size:.9rem}
+.bd-mission-progress{display:grid;gap:8px;margin:10px 0}
+.bd-mission-progress-copy{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.82rem;color:var(--bd-muted)}
+.bd-mission-progress-copy strong{font-variant-numeric:tabular-nums;color:var(--bd-ink);white-space:nowrap}
+.bd-mission-meter{height:8px;border-radius:99px;background:var(--bd-line);overflow:hidden}
+.bd-mission-meter span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--bd-acc),var(--bd-acc-2))}
+.bd-mapa-polished .bd-island{min-width:0}
+.bd-mapa-polished .bd-missions{margin:18px 0 0;box-shadow:none;border:0;border-top:1px solid var(--bd-line);border-radius:0;padding:16px 0 0}
+.bd-missions .bd-world-game-grid{margin-top:12px}
+.bd-mission-tile.is-active{border:2px solid var(--bd-acc);background:color-mix(in srgb,var(--bd-lav) 65%,var(--bd-paper))}
+.bd-mission-tile:disabled{cursor:default;opacity:.8;background:var(--bd-canvas);border-color:var(--bd-line)}
+.bd-world-step{position:relative}
+.bd-world-step:not(:last-child)::after{content:"";position:absolute;left:30px;top:100%;height:8px;width:2px;background:var(--bd-line);pointer-events:none}
+.bd-world-step.is-current .bd-world-step-btn{border:2px solid var(--bd-acc);box-shadow:0 3px 14px color-mix(in srgb,var(--bd-acc) 15%,transparent)}
+.bd-world-step.is-current .bd-world-step-copy strong{color:var(--bd-ink)}
+.bd-world-step.is-done:not(.is-current) .bd-world-step-btn:not(:disabled){border-color:var(--bd-line)}
+.bd-world-step-btn{min-height:68px}
+.bd-world-step-btn:not(:disabled):hover,.bd-game-tile:not(:disabled):hover{border-color:var(--bd-acc);box-shadow:0 3px 12px color-mix(in srgb,var(--bd-acc) 9%,transparent)}
+.bd-world-games .bd-world-game-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.bd-world-games .bd-game-tile{min-height:124px;position:relative;display:flex;align-items:flex-start;flex-direction:column;gap:8px;padding:13px;justify-content:flex-start}
+.bd-world-games .bd-game-tile strong{font-size:.93rem;line-height:1.3}
+.bd-world-games .bd-game-tile small{font-size:.76rem;line-height:1.35}
+.bd-world-games .bd-game-tile>.bd-ico:last-child{position:absolute;right:10px;top:13px;width:16px}
+.bd-game-words>.bd-ico:first-child{color:#764bb2;background:#ede3fc}
+.bd-game-links>.bd-ico:first-child{color:#23629d;background:#e3effd}
+.bd-game-verbs>.bd-ico:first-child{color:#a15a1b;background:#fcebd7}
+html[data-theme=dark] .bd-game-words>.bd-ico:first-child{color:#d9c7ff;background:#37285c}
+html[data-theme=dark] .bd-game-links>.bd-ico:first-child{color:#b9d8ff;background:#1e3855}
+html[data-theme=dark] .bd-game-verbs>.bd-ico:first-child{color:#ffd49d;background:#48301d}
+.bd-mapa-meta .bd-world-games .bd-world-game-grid{grid-template-columns:1fr}
+.bd-mapa-meta .bd-world-games .bd-game-tile{min-height:64px;flex-direction:row;align-items:center;padding-right:32px}
+.bd-mapa-meta .bd-world-games .bd-game-tile>.bd-ico:last-child{top:50%;transform:translateY(-50%)}
+.bd-mapa-polished .bd-more-adventures{grid-column:1/-1;grid-row:auto}
+.bd-collection details>summary:focus-visible,.bd-btn:focus-visible,.bd-game-tile:focus-visible,.bd-lvl-pill:focus-visible{outline:3px solid var(--bd-acc);outline-offset:3px}
+.bd-collection .bd-treasure-card.is-unknown{opacity:.85}
+#bd-player .bd-player-context{flex:0 0 100%;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--bd-muted);font-size:.77rem;line-height:1.3}
+#bd-player .bd-player-context strong{color:var(--bd-ink);text-align:right;overflow-wrap:anywhere}
+#bd-player .bd-ptop{background:var(--bd-canvas)}
+#bd-player .bd-pfoot{display:grid;gap:8px}
+#bd-player .bd-fb.is-ok{border-left:4px solid var(--bd-ok)}
+#bd-player .bd-fb.is-bad{border-left:4px solid var(--bd-bad)}
+#bd-player .bd-fb.is-neutral{background:var(--bd-paper);border:1px solid var(--bd-line);border-left:4px solid var(--bd-muted)}
+#bd-player .bd-intro .bd-episode-landscape{margin:10px 0 16px}
+@media(min-width:960px){.bd-mapa-polished:not(.bd-mapa-first){grid-template-areas:"path head" "path stats" "path meta";grid-template-rows:auto auto 1fr}.bd-mapa-polished .bd-mapa-meta{min-width:0}}
+@media(max-width:759px){.bd-gaur-polished .bd-today{min-height:0;padding:20px;grid-template-columns:minmax(0,1fr) 76px}.bd-gaur-polished .bd-today h2{font-size:clamp(1.45rem,5vw,1.8rem)}.bd-gaur-polished .bd-level-switch{display:flex;width:100%}.bd-gaur-polished .bd-lvl-pill{flex:1;min-height:44px}.bd-gaur-polished .bd-world-games .bd-world-game-grid{grid-template-columns:1fr}.bd-gaur-polished .bd-world-games .bd-game-tile{min-height:64px;flex-direction:row;align-items:center;padding-right:32px}.bd-gaur-polished .bd-world-games .bd-game-tile>.bd-ico:last-child{top:50%;transform:translateY(-50%)}}
+@media(max-width:370px){.bd-gaur-polished .bd-today{grid-template-columns:minmax(0,1fr) 56px;padding:16px}.bd-gaur-polished .bd-today .bd-btn{padding:11px 10px;font-size:.9rem}.bd-world-step:not(:last-child)::after{left:27px}}
+@media(max-height:500px){#bd-player .bd-player-context{display:none}}
+@media(prefers-reduced-motion:reduce){.bd-gaur-polished *, .bd-mapa-polished *,#bd-player *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
