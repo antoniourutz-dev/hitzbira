@@ -40,10 +40,10 @@ async function main(){
    assert.equal(u.searchParams.get('status'),'eq.published');assert.equal(u.searchParams.get('review_status'),'eq.approved');assert.equal(u.searchParams.get('needs_review'),'eq.false');assert.equal(u.searchParams.get('level'),'eq.C1');
    assert.ok(!u.searchParams.get('select').includes('*'));
    if(u.pathname==='/rest/v1/editorial_lexical_groups'){assert.equal(u.searchParams.get('limit'),'100');return res(opts.groups||[group])}
-   if(u.pathname==='/rest/v1/editorial_lexical_entries'){assert.equal(u.searchParams.get('limit'),'200');if(!opts.preview)assert.equal(u.searchParams.get('knowledge_metadata->hitzbira_vocab->>rights_status'),'eq.approved');return res(opts.entries||[entry])}
+   if(u.pathname==='/rest/v1/editorial_lexical_entries'){assert.equal(u.searchParams.get('limit'),'200');if(!opts.preview&&!opts.production)assert.equal(u.searchParams.get('knowledge_metadata->hitzbira_vocab->>rights_status'),'eq.approved');return res(opts.entries||[entry])}
    throw Error('Unexpected read');
   };
-  vm.runInNewContext(opts.preview?require('./helpers/gateway.cjs')(true):gateway,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private-test',SUPABASE_ANON_KEY:'public-test'})[k]},serve:f=>handler=f},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
+  vm.runInNewContext(opts.production?require('./helpers/gateway.cjs')('production'):opts.preview?require('./helpers/gateway.cjs')(true):gateway,{Deno:{env:{get:k=>({SUPABASE_URL:'https://example.test',SUPABASE_SERVICE_ROLE_KEY:'private-test',SUPABASE_ANON_KEY:'public-test'})[k]},serve:f=>handler=f},fetch,Response,URLSearchParams,TextDecoder,Uint8Array,atob,Date});
   const token='header.'+Buffer.from(JSON.stringify({sub:uid,role:user.role})).toString('base64url')+'.signature';
   const r=await handler(new Request('https://example.test',{method:'POST',headers:{Origin:opts.origin||(opts.preview?'https://hitzbira-git-feature-hitzbira-171a80-antoniourutz-devs-projects.vercel.app':'https://hitzbira.vercel.app'),Authorization:'Bearer '+token},body:JSON.stringify(body)}));
   return {status:r.status,body:await r.json(),calls};
@@ -69,6 +69,13 @@ async function main(){
  r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,knowledge_metadata:{hitzbira_vocab:{rights_status:'revoked'}}}]});check('explicit revocation overrides owner release',r.body.rows.length===0);
  r=await request(undefined,{...releaseOptions,entries:[{...grantedEntry,id:'unapproved-id'}]});check('unlisted resource cannot use release approval',r.body.rows.length===0);
  r=await request(undefined,{...releaseOptions,invalid:true});check('release never bypasses account authentication',r.status===403);
+ const productionOptions={production:true,groups:[grantedGroup],entries:[grantedEntry]};
+ r=await request(undefined,productionOptions);check('production gateway serves only exact owner-approved lexical versions',r.status===200&&r.body.rows.length===1);
+ r=await request(undefined,{...productionOptions,origin:'https://hitzbira.vercel.app.example.test'});check('production gateway rejects lookalike origin',r.status===403&&r.calls.length===0);
+ r=await request(undefined,{...productionOptions,origin:'https://hitzbira-git-feature-guest-ac-cbff4f-antoniourutz-devs-projects.vercel.app'});check('production gateway rejects preview origin',r.status===403&&r.calls.length===0);
+ r=await request(undefined,{...productionOptions,invalid:true});check('production release requires authentication',r.status===403);
+ r=await request(undefined,{...productionOptions,entries:[{...grantedEntry,version:grant.version+1}]});check('production release rejects changed version',r.body.rows.length===0);
+ r=await request(undefined,{...productionOptions,entries:[{...grantedEntry,knowledge_metadata:{hitzbira_vocab:{rights_status:'revoked'}}}]});check('production release honors revocation',r.body.rows.length===0);
  const releaseRows=Array.from(releaseContext.release.rows);check('release contains references only and no definitions',releaseRows.length===32&&releaseRows.every(r=>!r.term&&!r.meaning&&r.fingerprint.length===64));
 
  const store=new Map(),els=new Map(),events=[],requests=[],w={HBVocabulary:api,draw(){}};
