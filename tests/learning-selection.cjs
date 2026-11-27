@@ -39,6 +39,7 @@ test('account switch clears another learners voluntary catalogue view',()=>{run(
 test('last opened extra material does not become a main recommendation',()=>{run(`journey.lessons=['HB06-bal-05']`);assert.equal(run('practiceLearningLink()'),'')});
 test('guest scope change and practice entry are denied',()=>{run(`window.HBData.guestLimited=()=>true;window.HBBidea.loginForMore=()=>{};materialScope='route';setMaterialScope('extra');startGoal();startMini()`);assert.equal(run('materialScope'),'route');assert.equal(run('queue.length'),0)});
 test('student material headers never expose CEFR labels',()=>{for(const route of [null,'a1a2','b1b2']){run("window.HBBidea.learningContext=()=>({route:"+JSON.stringify(route)+"});materialScope='route';");assert.ok(!/\b(?:A1|A2|B1|B2|C1|C2)\b/.test(run('materialHeader()')))}});
+test('practice queue prioritizes observed difficulties and preserves size',()=>{run("window.HBData.guestLimited=()=>false;window.HBBidea.learningContext=()=>({route:'b1b2',errors:{nor:{errors:1,lastErrorAt:20}}});materialScope='route';learningGoal={area:'all',size:3,mode:'choose'};");assert.equal(run('goalQueue()[0].id'),'HB07-err-1');assert.equal(run('goalQueue().length'),3)});
 const graphWindow={};new Function('window',read('core.js'))(graphWindow);
 test('existing graph prerequisites participate in selection',()=>{const s=policy.select(cards,{context:{route:'a1a2'},curriculum:graphWindow.HitzBiraCurriculum});assert.ok(has(s.prerequisites,'GB-ize-01'));assert.ok(!has(s.pool,'HB08-jos-01'))});
 const store=new Map();let owner='guest',remote=false;

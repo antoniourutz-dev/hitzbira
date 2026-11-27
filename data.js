@@ -109,7 +109,7 @@ function localGuestBidea(){
  const episodes=Object.fromEntries(Object.entries(raw.episodes||{}).filter(([id,v])=>/^HB-EP-(?:FOREST|SHELTER)-0[1-5]$/.test(id)&&obj(v)));
  const forestDraft=raw.forestDraft?.v===1&&/^HB-EP-(?:FOREST|SHELTER)-0[1-5]$/.test(raw.forestDraft.id)?raw.forestDraft:null;
  const days=Object.fromEntries(Object.entries(raw.episodeStudyDays||{}).filter(([k,v])=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&v===true));
- const memory=Object.fromEntries(Object.entries(raw.episodeErrorMemory||{}).filter(([k,v])=>["non","nora","nondik","nor"].includes(k)&&obj(v)));
+ const memory=Object.fromEntries(Object.entries(raw.episodeErrorMemory||{}).filter(([k,v])=>["non","nora","nondik","nor","nornork"].includes(k)&&obj(v)));
  if(!Object.keys(episodes).length&&!forestDraft&&!Object.keys(days).length&&!Object.keys(memory).length)return null;
  return {level:"a1a2",forestMission:raw.forestMission===2?2:1,placed:false,lessons:{},days:{},xp:0,episodes,episodeErrorMemory:memory,episodeStudyDays:days,...(forestDraft?{forestDraft}:{}),help:raw.help==="eu"?"eu":"es",sound:raw.sound!==false}
 }

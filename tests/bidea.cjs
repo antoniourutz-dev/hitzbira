@@ -323,6 +323,10 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('guest map puts mission path before games and retains guest card',w.HBBidea.bidea().indexOf('bd-world-path')<w.HBBidea.bidea().indexOf('aria-label="Jolastokia"')&&w.HBBidea.bidea().includes('bd-account-card'));
  w.HBData.guestLimited=()=>false;
  check('registered home preserves adventure progress and secondary content',w.HBBidea.gaur().includes('bd-route-overview')&&!w.HBBidea.gaur().includes('Ikasgai gehiago')&&w.HBBidea.supplementaryPracticeHtml().includes('Abenturako praktika gehiago'));
+ const mem=w.HBBidea._state().episodeErrorMemory;const oldNork=mem.nornork?.errors||0;
+ check('known grammar mismatch uses the same error memory',w.HBBidea.observePractice('HB07-err-2','da')&&w.HBBidea.learningContext().errors.nornork.errors===oldNork+1);
+ check('unsupported grammar response is not diagnosed',!w.HBBidea.observePractice('HB07-err-2','dut'));
+ w.HBData.guestLimited=()=>true;check('guest cannot access supplementary practice',w.HBBidea.supplementaryPracticeHtml()===''&&!w.HBBidea.observePractice('HB07-err-1','du'));w.HBData.guestLimited=()=>false;
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

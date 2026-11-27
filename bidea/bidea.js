@@ -222,7 +222,7 @@ function gaur(){applyLevel();if(guestLimited()&&S.level)return `<div class="bd-g
  </div>
  <div class="bd-gaur-top">
   <div class="bd-col">
-   ${episodeCard()||todayCard()}${reviewCard()}${worldGamesHtml()}${tools()}
+   ${episodeCard()||todayCard()}${typeof root.routeSupportHtml==="function"?root.routeSupportHtml():""}${reviewCard()}${worldGamesHtml()}${tools()}
   </div>
   <div class="bd-col bd-side">
    ${root.HBData?.isRemote?.()&&root.HBData?.streakSummary?achievementCard():statsCard(x,sk)}
@@ -595,9 +595,12 @@ const ERROR_RECALL=[
 ,{id:"HB-RECALL-NOR-VERB",code:"nor",level:"a1a2",t:"mc",q:"Iker etxera itzuli ____.",ch:["du","da","dio"],a:["da"],ex:"Iker da itzuli dena.",why:{du:"Hemen ez dago objekturik: Iker da itzuli dena.",dio:"Hemen ez dago hartzailerik: Iker da itzuli dena."}},
  {id:"HB-RECALL-NORNORK",code:"nornork",level:"b1b2",t:"mc",q:"Kaik papera hartu ____.",ch:["da","dio","du"],a:["du"],ex:"Kaik hartu du; papera da objektua.",why:{da:"Kai da egilea eta papera da objektua; biak adizkian jasotzen dira.",dio:"Ez da hartzailerik aipatzen."}},
  {id:"HB-RECALL-NORINORK",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Aneri giltza eman ____. (Ane da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Nik eman diot Aneri giltza.",why:{dut:"Ane da hartzailea: harekiko komunztadura ere behar dugu.",dizut:"Hartzailea Ane da, ez zu."}}
+,{id:"HB-RECALL-NOR-VERB-2",code:"nor",level:"a1a2",t:"mc",q:"Miren geltokira iritsi ____.",ch:["da","du","dio"],a:["da"],ex:"Miren da iritsi dena.",why:{du:"Ez da objekturik aipatzen.",dio:"Ez da hartzailerik aipatzen."}},
+ {id:"HB-RECALL-NORNORK-2",code:"nornork",level:"a1a2",t:"mc",q:"Jonek poltsa hartu ____.",ch:["da","du","dio"],a:["du"],ex:"Jonek hartu du poltsa.",why:{da:"Jon da egilea; poltsa da objektua.",dio:"Ez da hartzailerik aipatzen."}}
 ].map(i=>({...i,src:"Jatorrizko berreskurapen ariketa / HB-ERROR-v1"}));
 function classifyEpisodeError(it,response){
  const expected=norm(it.a?.[0]),actual=norm(response);
+ const shelterNor=["HB-EP-SHELTER-01-1","HB-EP-SHELTER-01-5","HB-EP-SHELTER-02-2","HB-EP-SHELTER-05-1"],shelterNork=["HB-EP-SHELTER-01-2","HB-EP-SHELTER-02-3","HB-EP-SHELTER-05-5"];if(shelterNor.includes(it.id)&&["du","duzu","dute"].includes(actual))return {code:"nor",confused:actual,message:"Begiratu nor joan edo etorri den: ez da objekturik aipatzen."};if(shelterNork.includes(it.id)&&["naiz","da","dira"].includes(actual))return {code:"nornork",confused:actual,message:"Egilea eta objektua ditugu; begiratu biak."};
  if(it.code&&it.why?.[actual])return {code:it.code,confused:actual,message:it.why[actual]};
  if(!actual||!expected||isAccepted(response,it.a))return null;
  if(LOCATIVE_ITEMS.has(it.id)||it.id.startsWith("HB-RECALL-")&&it.level==="a1a2"){
@@ -613,18 +616,18 @@ function classifyEpisodeError(it,response){
  return null
 }
 function episodeErrorStore(){return S.episodeErrorMemory||(S.episodeErrorMemory={})}
+function storeDifficulty(code,confused){const memory=episodeErrorStore(),old=memory[code]||{errors:0,recoveries:0},now=Date.now();memory[code]={...old,errors:(old.errors||0)+1,confused,lastErrorAt:now,dueAt:now+EP_REVIEW_DAY,step:0};save()}
+function observePractice(id,answer){syncState();if(guestLimited()||!S.level)return false;const allowed={"HB07-err-1":{code:"nor",wrong:["du","dio"]},"HB07-err-2":{code:"nornork",wrong:["da","zaio"]},"HB07-err-3":{code:"nornorinork",wrong:["da","zaio"]}},rule=allowed[id],actual=norm(answer);if(!rule||!rule.wrong.includes(actual)||(rule.code==="nornorinork"&&S.level==="a1a2"))return false;storeDifficulty(rule.code,actual);return true}
 function rememberEpisodeError(st,diagnosis){
  if(!diagnosis||st.errorRecorded||player.owner!==keyFor(KEY))return;
- const memory=episodeErrorStore(),code=diagnosis.code,old=memory[code]||{errors:0,recoveries:0};
- memory[code]={...old,errors:(old.errors||0)+1,confused:diagnosis.confused,lastErrorAt:Date.now(),dueAt:Date.now()+EP_REVIEW_DAY,step:0};
- st.errorRecorded=true;st.diagnosis=diagnosis.message;save()
+ st.errorRecorded=true;st.diagnosis=diagnosis.message;storeDifficulty(diagnosis.code,diagnosis.confused)
 }
 function dueEpisodeItems(){
  const now=Date.now(),memory=S.episodeErrorMemory||{};
- return ERROR_RECALL.filter(i=>i.level===S.level&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
+ const eligible=ERROR_RECALL.filter(i=>(S.level==="b1b2"||i.level==="a1a2"||i.code==="nornork")&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now);const groups=new Map();for(const i of eligible){if(!groups.has(i.code))groups.set(i.code,[]);groups.get(i.code).push(i)}return [...groups.values()].map(items=>items[(memory[items[0].code].step||0)%items.length]).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
 }
 function recordEpisodeRecovery(it,st,e,ok){
- if(player.mode!=="episode"||player.segment!=="recall"||!it.code||!ERROR_RECALL.some(i=>i.id===it.id)||!ok||st.tries||st.hintUsed||st.errorRecorded||e.retry)return;
+ if(player.owner!==keyFor(KEY)||player.mode!=="episode"||player.segment!=="recall"||!it.code||!ERROR_RECALL.some(i=>i.id===it.id)||!ok||st.tries||st.hintUsed||st.errorRecorded||e.retry)return;
  const m=S.episodeErrorMemory?.[it.code],now=Date.now();if(!m||m.dueAt>now)return;
  const step=Math.min((m.step||0)+1,EP_REVIEW_INTERVALS.length-1);
  m.step=step;m.recoveries=(m.recoveries||0)+1;m.lastRecoveryAt=now;m.dueAt=now+EP_REVIEW_INTERVALS[step]*EP_REVIEW_DAY;save()
@@ -865,6 +868,6 @@ function learningContext(){
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
   focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors};
 }
-root.HBBidea={...api,learningContext,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,learningContext,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);
