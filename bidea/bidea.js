@@ -444,7 +444,7 @@ function vocabularyNotice(){
  if(player?.kind!=="words")return "";
  if(player.vocabularyMode!=="live")return '<p class="bd-note" role="status">'+esc(player.vocabularyReason==="guest"?"Abenturako tokiko hitzak. Bankuko hitzak erabiltzeko, hasi saioa.":player.vocabularyReason==="connection"?"Bankua ezin izan da kargatu. Abenturako tokiko hitzekin ari zara.":"Ez dago hautaketa honetarako hitz nahikorik erabilgarri. Abenturako tokiko hitzekin ari zara.")+'</p>';
  const rows=cur().item.vocabulary||[];
- return '<p class="bd-note">Lexikoa · '+esc(player.vocabularyLevel)+' · '+esc(rows[0]?.theme.replace(/^lexiko_/,"").replace(/_/g," ")||"")+'</p><details class="bd-vocab-sources"><summary>Hitzen jatorria</summary>'+rows.map(r=>'<p>'+esc(r.source)+' · '+esc(r.id)+' · v'+esc(r.version)+' · '+esc(r.rights)+'</p>').join('')+'</details>';
+ return '<p class="bd-note">Lexikoa · '+esc(player.vocabularyLevel)+' · '+esc(root.HBVocabulary.themeLabel(rows))+'</p><details class="bd-vocab-sources"><summary>Hitzen jatorria</summary>'+rows.map(r=>'<p>'+esc(r.source)+' · '+esc(r.id)+' · v'+esc(r.version)+' · '+esc(r.rights)+'</p>').join('')+'</details>';
 }
 async function prepareVocabulary(){
  syncState();const filters=vocabularyFilters(),owner=keyFor(KEY);
@@ -579,7 +579,7 @@ function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:
  if(it.t==="mc")st.opts=player&&player.mode==="test"?shuffle(it.ch):it.ch;
  if(it.t==="build"){const t=tilesFor(it.a[0]);if(it.x)t.push(it.x);st.tiles=shuffle(t.map((w,k)=>({w,k})));}
  if(it.t==="fix"){st.tokens=fixTokens(it);st.opts=fixOptions(it,DATA.groups)}
- if(it.t==="match"){st.right=shuffle(it.pairs.map((p,k)=>k));st.left=null;st.matched=[];st.flash=null}
+ if(it.t==="match"){st.right=shuffle(it.pairs.map((p,k)=>k));st.left=null;st.matched=[];st.flash=null;st.vocabularyAttempts={}}
  return st}
 function progressPct(){const total=Math.max(1,player.queue.length),done=player.phase==="intro"?0:(player.phase==="end"||player.phase==="placed"||player.phase==="altxorra")?total:player.pos+((player.state&&player.state.checked)||player.busy?1:0);return {done,total,pct:Math.round(done/total*100)}}
 function render(){const el=document.getElementById("bd-player");if(!el||!player)return;if((player.mode==="episode"||player.mode==="worldgame")&&player.owner!==keyFor(KEY)){close();return}saveEpisodeDraft();const at=player.mode+player.phase+":"+player.pos,changed=el.dataset.at!==at,oldScroll=el.querySelector(".bd-pgrid,.bd-intro,.bd-end")?.scrollTop||0;if(changed){el.dataset.at=at;el.scrollTop=0}el.dataset.level=S.level||"a1a2";el.dataset.mode=player.mode;
@@ -684,7 +684,7 @@ function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))retu
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
 function mL(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
-function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;root.HBData?.activity?.({kind:"vocabulary_match",resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:!!cur().miss,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
+function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;const attempt=st.vocabularyAttempts[st.left]=(st.vocabularyAttempts[st.left]||0)+1;root.HBData?.activity?.({kind:"vocabulary_match",telemetryVersion:2,attempt,resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:attempt>1,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
 function check(){if(!player||player.phase!=="play")return;const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&it.why)?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);

@@ -6,6 +6,8 @@ const rows=Array.from({length:24},(_,i)=>({id:'entry-'+i,version:1,fingerprint:'
 async function main(){
  const items=api.select(rows,{level:'C1',rng:()=>.25});
  check('bounded rounds with unique pairs',items.length===4&&new Set(items.flatMap(i=>i.vocabulary.map(r=>r.id))).size===12);
+ check('mixed themes have an honest label',api.themeLabel([rows[0],rows[12]])==='Gaiak nahastuta');
+ check('single theme is named precisely',api.themeLabel([rows[0],rows[1]])==='a');
  const next=api.select(rows,{level:'C1',previous:items.flatMap(i=>i.vocabulary.map(r=>r.id)),rng:()=>.25});
  check('next game uses unseen vocabulary when enough exists',next.flatMap(i=>i.vocabulary).every(r=>!items.flatMap(i=>i.vocabulary).some(p=>p.id===r.id)));
  check('level cannot be silently widened',api.select(rows,{level:'B1'}).length===0);
@@ -80,6 +82,7 @@ async function main(){
  check('dynamic game uses existing player and source panel',w.HBBidea._player().queue.length===4&&els.get('bd-player').innerHTML.includes('Hitzen jatorria'));
  w.HBBidea.mL(0);w.HBBidea.mR(1);w.HBBidea.mL(0);w.HBBidea.mR(0);
  check('first wrong recognition and assisted recovery both retained without mastery',events.length===2&&events[0].result==='mismatch'&&events[1].assisted&&events.every(e=>e.mode==='recognition'&&e.academicState==='not_observed'&&e.resource.version===1));
+ w.HBBidea.mL(1);w.HBBidea.mR(1);check('a different word retains its first-attempt status after a peer error',events[2].attempt===1&&events[2].assisted===false&&events[1].attempt===2&&events[2].telemetryVersion===2);
  w.HBBidea.close(true);w.HBData.vocabulary=()=>new Promise(r=>resolve=r);pending=w.HBBidea.startWorldGame('words');check('loading can be closed',els.get('bd-player').innerHTML.includes('Hitzak prestatzen'));w.HBBidea.close(true);resolve({contract:'hb-vocabulary-v1',rows});await pending;check('late response never reopens player',w.HBBidea._player()===null);
  console.log(checks+' checks passed (dynamic vocabulary; synthetic fixtures, no live claim)');
 }

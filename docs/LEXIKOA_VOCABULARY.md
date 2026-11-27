@@ -55,8 +55,16 @@ The player shows loading/cancel, the active source, and an explicit local-advent
 
 Each dynamic pair attempt uses the existing activity journal with resource ID/version/hash, level/theme, selected ID, result and assistance. Recognition stays `academicState: not_observed`: no mastery, grammatical diagnosis, XP, episode completion or spaced-retrieval credit. Initial wrong attempts remain separate from subsequent assisted recognition. Telemetry is client-reported practice, not authoritative assessment. This increment does not implement corpus-wide learner adaptation or universal error understanding.
 
+Telemetry v2 (2.10.3) numbers attempts separately per word within each round. A previous mismatch on one word does not mark another word's first recognition as assisted. Existing v1 observations remain unchanged and conservative; they never counted toward mastery. Rounds that mix topics show `Gaiak nahastuta` instead of naming only the first word's topic.
+
 ## Verification and activation limits
 
 `node tests/run.cjs` is the same command as CI. The new vocabulary suite covers selection, duplicates, insufficient content, account isolation, cancellation, network fallback, fixed projections, stale approval hashes, rights/matching gates, authentication, query injection, unchanged origin restrictions, actual player integration and trace events. Fixtures are synthetic; tests do not prove real content approval or live connectivity.
 
 Actual dynamic verification requires a signed-in pilot account at the exact branch preview origin. No wildcard CORS, privilege changes, production gateway replacement, credential retrieval or production publication is part of this increment. Do not label this integration live until authenticated end-to-end reads and trace persistence are observed. Other difficulty levels retain an explicit fallback until their own reviewed content is available; C1 approval never changes an A1/B1 learner's difficulty implicitly.
+
+## Authenticated smoke evidence, 2026-11-27
+
+After the owner manually signed in at the authorized preview origin, C1 preparation displayed real terms from Lexikoa, including `ikuspegia`, `erronka` and `hobekuntzak bideratu`. The source panel showed their canonical IDs and version 1. A deliberate mismatch followed by correction and two other matches completed a round; a second round and a new game displayed different terms. The nine real topic options appeared after the first preparation.
+
+The UI reported `Supabasen gordeta`. A bounded SELECT against only the signed-in test account's recent vocabulary events independently confirmed the mismatch and three matches, with source IDs and `academicState: not_observed`. No credentials, account identifier or private learner content are recorded here. These checks demonstrate live reads and trace persistence for this preview C1 scope; they do not establish other levels, simultaneous-device behavior, adaptive recommendations or language mastery.
