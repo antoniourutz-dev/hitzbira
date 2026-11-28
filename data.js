@@ -47,19 +47,24 @@ function touchLocalDay(details){
 }
 function clearLocalStreak(){try{localStorage.removeItem(LOCAL_STREAK_KEY)}catch{}paint()}
 function paint(){
- const n=document.getElementById("hb-sync-status"),btn=document.getElementById("hb-streak-btn"),pop=document.getElementById("hb-streak-pop");
- if(n){
-  if(!authorized){n.hidden=true}
+ const n=document.getElementById("hb-sync-status"),dot=document.getElementById("hb-sync-dot"),btn=document.getElementById("hb-streak-btn"),pop=document.getElementById("hb-streak-pop");
+ if(n||dot){
+  if(!authorized){if(n)n.hidden=true;if(dot)dot.className="hb-sync-dot"}
   else{
-   n.hidden=false;let count=0;try{count=pending().length}catch{storageError="Gailuko biltegia ez dago erabilgarri."}
-   n.textContent=storageError?"⚠ "+storageError:count?"↻ "+count+" aldaketa gordetzeko"+(syncError?" · konexioaren zain":""):syncError?"⚠ "+syncError:hydrated?"✓ Supabasen gordeta":"Egiaztatzen…";
-   n.className="hb-sync-status "+(storageError||syncError?"hb-sync-warning":count?"hb-sync-pending":"hb-sync-ok");
+   let count=0;try{count=pending().length}catch{storageError="Gailuko biltegia ez dago erabilgarri."}
+   const warn=!!(storageError||syncError),tone=warn?"hb-sync-warning":count?"hb-sync-pending":"hb-sync-ok";
+   if(n){
+    n.hidden=false;
+    n.textContent=storageError?"⚠ "+storageError:count?"↻ Gordetzen…"+(syncError?" · konexioaren zain":""):syncError?"⚠ "+syncError:hydrated?"✓ Aurrerapena gordeta":"Kargatzen…";
+    n.className="hb-sync-status "+tone;
+   }
+   if(dot){dot.className="hb-sync-dot "+tone}
   }
  }
  if(!btn||!pop)return;
  const s=authorized?streak:localStreak();
  const countEl=document.getElementById("hb-streak-count"),sumEl=document.getElementById("hb-streak-summary"),bestEl=document.getElementById("hb-streak-best"),daysEl=document.getElementById("hb-streak-days"),footEl=document.getElementById("hb-streak-foot");
- if(!s){countEl.textContent="·";btn.classList.remove("lit","warm");sumEl.textContent="Bolada sinkronizatzen…";return}
+ if(!s){countEl.textContent="·";btn.classList.remove("lit","warm");sumEl.textContent="Bolada kargatzen…";return}
  const days=new Set(s.days||[]),today=s.today||localToday(),litToday=days.has(today),cur=Number(s.current)||0,best=Number(s.best)||0,total=Number(s.total)||0;
  countEl.textContent=String(cur);
  btn.classList.toggle("lit",litToday);
@@ -78,7 +83,7 @@ function paint(){
  }
  sumEl.textContent=cur?cur+" egun jarraian":total?"Piztu gaurko sua berriro":"Piztu gaurko sua";
  bestEl.textContent=total?"Zure marka: "+best+" egun · "+total+" egun guztira":"Egun bakoitzeko ariketa bat nahikoa da.";
- footEl.textContent=authorized?"Zure bolada kontuan sinkronizatuta dago. Atseden hartzen baduzu, bihar berriro piztu dezakezu.":"Gailu honetan gordeta. Kontuarekin saioa hasita, beste gailuetan ere mantenduko da.";
+ footEl.textContent=authorized?"Zure bolada zure kontuan gordeta dago. Atseden hartzen baduzu, bihar berriro piztu dezakezu.":"Gailu honetan gordeta. Kontuarekin saioa hasita, beste gailuetan ere mantenduko da.";
 }
 function persistEvent(stream,p,details={}){
  if(!authorized||!session)return;
@@ -186,18 +191,57 @@ function aux(s=-1,m=-1){let n=count(s,m);return cached("aux:"+s+":"+m,async()=>{
 function synthetic(){return cached("synthetic",async()=>{let rows;if(authorized){try{rows=await query("synthetic",META.synthetic)}catch(e){if(e.status===401||e.status===403)throw e}}return validate(rows||await staticBlock("synthetic"),META.synthetic,d=>typeof d.form==="string"&&typeof d.lemma==="string")})}
 function grammar(n){if(!["decl","bank05","bank06","bank07","bank08"].includes(n))throw Error("Banku ezezaguna");return cached("grammar:"+n,async()=>{if(authorized){try{const rows=await query("grammar_bank",1,{record_id:"eq."+n});return rows[0].payload}catch(e){if(e.status===401||e.status===403)throw e}}const r=await fetch("/legacy/"+n+".js");if(!r.ok)throw Error("Bankua ezin izan da kargatu.");const m=(await r.text()).match(/^\s*const\s+(?:BANK|DATA)\s*=\s*([\s\S]*);\s*$/);if(!m)throw Error("Datu-formatua ez da zuzena.");return JSON.parse(m[1])})}
 async function vocabulary({level,theme="all"}={}){if(!authorized)throw authError("Hasi saioa.",401);const owner=session.uid;const result=await gateway({action:"vocabulary",level,theme},await currentToken(),AbortSignal.timeout(8000));if(!authorized||session?.uid!==owner)throw authError("Saioa aldatu da.",401);return result}
-window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak};
-const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop");
-function setStreakOpen(open){if(!streakBtn||!streakPop)return;streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
-if(streakBtn&&streakPop){
- streakBtn.addEventListener("click",e=>{e.stopPropagation();setStreakOpen(streakPop.hidden)});
- document.addEventListener("click",e=>{if(!streakPop.hidden&&!streakPop.contains(e.target)&&!streakBtn.contains(e.target))setStreakOpen(false)});
- document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!streakPop.hidden){setStreakOpen(false);streakBtn.focus()}});
+const AVATAR_KEY="hitzbira-avatar-v1";
+const AVATARS=[
+ {id:"bira",name:"Bira",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#EDE6FC"/><path d="M16 9H24C30.5 9 33.5 12.6 33.5 18.6V23.4C33.5 29.2 30.6 31.8 25 32H18.5L13.5 35.4L14.2 31.3C9.8 30.2 7.5 27.6 7.5 23.2V18.6C7.5 12.6 10.6 9 16 9Z" fill="#FFE28A" stroke="#34204F" stroke-width="2.1" stroke-linejoin="round"/><path d="M11.8 15.6Q13.6 12 18 11.7" fill="none" stroke="#FFF6D6" stroke-width="2.1" stroke-linecap="round"/><circle cx="13.8" cy="23.4" r="1.9" fill="#F6A078"/><circle cx="26.8" cy="23.4" r="1.9" fill="#F6A078"/><ellipse cx="16.8" cy="19.9" rx="1.4" ry="1.8" fill="#34204F"/><ellipse cx="23.8" cy="19.9" rx="1.4" ry="1.8" fill="#34204F"/><path d="M18 23.4Q20.3 26 22.6 23.3" fill="none" stroke="#34204F" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+ {id:"txinpart",name:"Txinpart",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#FFF0E3"/><path d="M10.5 17L9 8.8L16.2 12.6Z" fill="#FF7A59" stroke="#34204F" stroke-width="2" stroke-linejoin="round"/><path d="M29.5 17L31 8.8L23.8 12.6Z" fill="#FF7A59" stroke="#34204F" stroke-width="2" stroke-linejoin="round"/><ellipse cx="20" cy="22.5" rx="11.5" ry="9.8" fill="#FF8C5A" stroke="#34204F" stroke-width="2.1"/><path d="M12 24.5C14.5 22 17.5 24 20 24C22.5 24 25.5 22 28 24.5C27.5 29.2 24.2 31.8 20 31.8C15.8 31.8 12.5 29.2 12 24.5Z" fill="#FFF4DF"/><circle cx="15.4" cy="21" r="1.6" fill="#34204F"/><circle cx="24.6" cy="21" r="1.6" fill="#34204F"/><path d="M18.6 24.4L20 25.6L21.4 24.4" fill="#34204F" stroke="#34204F" stroke-width="1.2" stroke-linejoin="round"/><path d="M17.5 27.2Q20 29 22.5 27.2" fill="none" stroke="#34204F" stroke-width="1.7" stroke-linecap="round"/><circle cx="12.8" cy="24.2" r="1.5" fill="#FFB4A2"/><circle cx="27.2" cy="24.2" r="1.5" fill="#FFB4A2"/></svg>'},
+ {id:"lur",name:"Lur",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#E3F6EE"/><path d="M20 12.5C20 8.5 23.2 6.4 26.8 7C26.5 10.6 23.8 13 20 12.5Z" fill="#34D399" stroke="#34204F" stroke-width="1.9" stroke-linejoin="round"/><path d="M20 12.5C19.5 9.2 16.5 7.5 13.8 8.4C14.4 11.4 16.8 13 20 12.5Z" fill="#10B981" stroke="#34204F" stroke-width="1.9" stroke-linejoin="round"/><rect x="8.5" y="12.5" width="23" height="20" rx="10" fill="#22C58B" stroke="#34204F" stroke-width="2.1"/><ellipse cx="20" cy="24.8" rx="8.2" ry="6.2" fill="#E6FBF2"/><circle cx="15.8" cy="21.4" r="1.6" fill="#34204F"/><circle cx="24.2" cy="21.4" r="1.6" fill="#34204F"/><circle cx="13" cy="24.4" r="1.6" fill="#F9A88C"/><circle cx="27" cy="24.4" r="1.6" fill="#F9A88C"/><path d="M18 25Q20 27.2 22 25" fill="none" stroke="#34204F" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+ {id:"argi",name:"Argi",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#ECE9FF"/><circle cx="20" cy="22" r="11.2" fill="#8B6CF6" stroke="#34204F" stroke-width="2.1"/><path d="M13 16Q15.5 12.6 20 12.5" fill="none" stroke="#CBB8FF" stroke-width="2" stroke-linecap="round"/><path d="M20 6.8L21.5 10.2L25.2 10.6L22.4 13L23.2 16.6L20 14.7L16.8 16.6L17.6 13L14.8 10.6L18.5 10.2Z" fill="#FFCA3A" stroke="#34204F" stroke-width="1.6" stroke-linejoin="round"/><circle cx="15.8" cy="22.4" r="1.6" fill="#34204F"/><circle cx="24.2" cy="22.4" r="1.6" fill="#34204F"/><circle cx="16.3" cy="21.8" r=".55" fill="#FFF"/><circle cx="24.7" cy="21.8" r=".55" fill="#FFF"/><circle cx="13" cy="25.2" r="1.6" fill="#F5A3B8"/><circle cx="27" cy="25.2" r="1.6" fill="#F5A3B8"/><path d="M17.8 25.8Q20 28 22.2 25.8" fill="none" stroke="#34204F" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+ {id:"kai",name:"Kai",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#E5F2FF"/><circle cx="20" cy="21.5" r="11.2" fill="#4DA3FF" stroke="#34204F" stroke-width="2.1"/><path d="M10.5 17.2C13 11.5 27 11.5 29.5 17.2Z" fill="#FFCA3A" stroke="#34204F" stroke-width="2" stroke-linejoin="round"/><rect x="11.6" y="18.2" width="7.2" height="5.6" rx="2.6" fill="#FFF" stroke="#34204F" stroke-width="1.8"/><rect x="21.2" y="18.2" width="7.2" height="5.6" rx="2.6" fill="#FFF" stroke="#34204F" stroke-width="1.8"/><path d="M18.8 20.8H21.2" stroke="#34204F" stroke-width="1.8"/><circle cx="15.4" cy="21" r="1.3" fill="#34204F"/><circle cx="24.6" cy="21" r="1.3" fill="#34204F"/><path d="M17.4 26.8Q20 29.2 22.6 26.8" fill="none" stroke="#34204F" stroke-width="1.8" stroke-linecap="round"/></svg>'},
+ {id:"basajaun",name:"Basajaun",svg:'<svg viewBox="0 0 40 40" class="hb-av-svg" aria-hidden="true"><rect width="40" height="40" rx="14" fill="#FBF0DC"/><circle cx="11.5" cy="13.5" r="4.2" fill="#C48252" stroke="#34204F" stroke-width="2"/><circle cx="28.5" cy="13.5" r="4.2" fill="#C48252" stroke="#34204F" stroke-width="2"/><circle cx="11.5" cy="13.5" r="1.8" fill="#F3C8A2"/><circle cx="28.5" cy="13.5" r="1.8" fill="#F3C8A2"/><ellipse cx="20" cy="22.5" rx="11.2" ry="10.2" fill="#D49260" stroke="#34204F" stroke-width="2.1"/><ellipse cx="20" cy="25.8" rx="5.8" ry="4.4" fill="#FFF2DF"/><circle cx="15.6" cy="20.4" r="1.6" fill="#34204F"/><circle cx="24.4" cy="20.4" r="1.6" fill="#34204F"/><ellipse cx="20" cy="24.2" rx="1.9" ry="1.3" fill="#34204F"/><path d="M17.8 26.8Q20 28.6 22.2 26.8" fill="none" stroke="#34204F" stroke-width="1.7" stroke-linecap="round"/><circle cx="12.6" cy="23.6" r="1.6" fill="#F6A08A"/><circle cx="27.4" cy="23.6" r="1.6" fill="#F6A08A"/></svg>'}
+];
+function defaultAvatarId(name){let h=0;const s=String(name||"bira").toLowerCase();for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return AVATARS[h%AVATARS.length].id}
+function currentAvatar(){const saved=readLocal(keyFor(AVATAR_KEY));const hit=AVATARS.find(a=>a.id===saved);return hit||AVATARS.find(a=>a.id===defaultAvatarId(session?.username))||AVATARS[0]}
+function prettyName(name){const s=String(name||"").trim();return s?s.charAt(0).toUpperCase()+s.slice(1):"Gonbidatua"}
+function paintAccount(){
+ const wrap=document.getElementById("hb-account-wrap"),slot=document.getElementById("hb-avatar-slot"),popAv=document.getElementById("hb-pop-avatar"),popName=document.getElementById("hb-pop-name"),grid=document.getElementById("hb-avatar-grid");
+ const name=authorized?prettyName(session?.username):"Gonbidatua";
+ if(status)status.textContent=name;
+ if(popName)popName.textContent=name;
+ if(wrap)wrap.hidden=!authorized;
+ if(login)login.hidden=authorized;
+ if(!authorized)return;
+ const av=currentAvatar();
+ if(slot)slot.innerHTML=av.svg;
+ if(popAv)popAv.innerHTML=av.svg;
+ if(acctBtn)acctBtn.setAttribute("aria-label","Zure kontua: "+name+" ("+av.name+")");
+ if(grid){
+  grid.replaceChildren();
+  for(const item of AVATARS){
+   const b=document.createElement("button");
+   b.type="button";
+   b.className="hb-av-choice"+(item.id===av.id?" is-on":"");
+   b.setAttribute("aria-pressed",String(item.id===av.id));
+   b.innerHTML=item.svg+"<span>"+item.name+"</span>";
+   b.addEventListener("click",()=>{try{localStorage.setItem(keyFor(AVATAR_KEY),JSON.stringify(item.id))}catch{}paintAccount()});
+   grid.append(b);
+  }
+ }
+}
+window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak,avatars:AVATARS,currentAvatar};
+const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop"),acctBtn=document.getElementById("hb-account-btn"),acctPop=document.getElementById("hb-account-pop");
+function setStreakOpen(open){if(!streakBtn||!streakPop)return;if(open)setAcctOpen(false);streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
+function setAcctOpen(open){if(!acctBtn||!acctPop)return;if(open&&streakPop&&!streakPop.hidden){streakPop.hidden=true;streakBtn?.setAttribute("aria-expanded","false")}acctPop.hidden=!open;acctBtn.setAttribute("aria-expanded",String(open))}
+if(streakBtn&&streakPop)streakBtn.addEventListener("click",e=>{e.stopPropagation();setStreakOpen(streakPop.hidden)});
+if(acctBtn&&acctPop)acctBtn.addEventListener("click",e=>{e.stopPropagation();setAcctOpen(acctPop.hidden)});
+if((streakBtn&&streakPop)||(acctBtn&&acctPop)){
+ document.addEventListener("click",e=>{if(streakPop&&!streakPop.hidden&&!streakPop.contains(e.target)&&!streakBtn.contains(e.target))setStreakOpen(false);if(acctPop&&!acctPop.hidden&&!acctPop.contains(e.target)&&!acctBtn.contains(e.target))setAcctOpen(false)});
+ document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(acctPop&&!acctPop.hidden){setAcctOpen(false);acctBtn.focus()}else if(streakPop&&!streakPop.hidden){setStreakOpen(false);streakBtn.focus()}});
 }
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(Error("Aplikazioa ezin izan da kargatu."));document.head.appendChild(script)})}
 function showLogin(){modal.hidden=false;msg.textContent="";msg.classList.toggle("connection-ok",false);form.elements.identifier.focus()}
 function hideLogin(){modal.hidden=true;form.reset();msg.textContent="";login.focus()}
-async function start(){if(starting)return;starting=true;if(document.body)document.body.dataset.hbAccess=authorized?"account":"guest";status.textContent=authorized?"Kaixo, "+session.username:"Gonbidatua";login.hidden=authorized;out.hidden=!authorized;paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
+async function start(){if(starting)return;starting=true;if(document.body)document.body.dataset.hbAccess=authorized?"account":"guest";paintAccount();paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
 function busy(on){submit.disabled=on;form.setAttribute("aria-busy",String(on));submit.textContent=on?"Saioa egiaztatzen…":"Sartu"}
 login.onclick=showLogin;close.onclick=hideLogin;
 const connectionButton=document.getElementById("hb-check-connection");

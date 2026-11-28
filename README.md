@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.10.0 · HitzBira ikono ilustratu propioak (Bira estiloan): nabigazio nagusia eta tresnak kolorez, sakoneraz eta mikro-animazioekin.**
+**2.15.1 · Hogei eszena bereizi, zuzentzaile testuinguruduna eta Gogoratu; sei kontu-avatar eta profil-menua bateratuta.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
