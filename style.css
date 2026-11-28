@@ -211,7 +211,7 @@ nav button {display:flex;flex-direction:column;align-items:center;justify-conten
 .learning-screen .answer.good{background:#e1f3e8;border-color:#73a989;color:var(--success)}
 .learning-screen .answer.bad{background:#fce8e9;border-color:#cc8790;color:var(--error)}
 .learning-screen .answer:disabled{opacity:1}
-.option-letter{display:grid;place-items:center;flex-shrink:0;background:#f1eef6;color:#514663;font-size:13px;border-radius:9px;width:30px;height:30px;font-weight:800}
+.option-letter{display:grid;place-items:center;flex-shrink:0;background:#f1eef6;color:#514663;font-size:13px;line-height:1;border-radius:9px;width:30px;height:30px;font-weight:800}
 .answer.good .option-letter{background:#c6e8d3;color:var(--success)}
 .answer.bad .option-letter{background:#f6cdd2;color:var(--error)}
 .learning-screen .feedback{padding:17px;line-height:1.55;border:1px solid currentColor}

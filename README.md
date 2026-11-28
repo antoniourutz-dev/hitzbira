@@ -1,6 +1,6 @@
 # HitzBira
 
-**2.15.1 · Hogei eszena bereizi, zuzentzaile testuinguruduna eta Gogoratu; sei kontu-avatar eta profil-menua bateratuta.**
+**2.16.2 · Egonkortasuna: ikasgaien zuzenketa, sarbidea, irisgarritasuna eta Hogei eszena bereizi, zuzentzaile testuinguruduna, sei kontu-avatar eta erreproduzitzaileko botoi/aukera-teklen doitasun bisuala.**
 
 Euskaraz ikasteko aplikazio estatikoa: gramatika-fitxak, deklinabidea, aditz-laborategia, praktika, Bira eta curriculumeko ibilbide pilotuak.
 
