@@ -23,7 +23,7 @@
 h1[tabindex="-1"]:focus{outline:none}
 @media(min-width:860px){.hb-top-nav{display:flex}nav{display:none!important}main{padding-bottom:48px}.focus-choices>:last-child:nth-child(odd){grid-column:1/-1}}
 
-.hb-login-card{position:relative}.hb-login-card #hb-login-close{position:absolute;right:14px;top:14px;width:40px;height:40px;font-size:22px;padding:4px}.hb-account-bar .hb-account-meta{display:grid;gap:2px;text-align:right}.hb-account-bar #hb-show-login{background:#5b3cc4;color:white}.hb-sync-status{font-size:11px;font-weight:600}.hb-sync-ok{color:#087f70}.hb-sync-pending{color:#966000}.hb-sync-warning{color:#9b2854}
+.hb-login-card{position:relative}.hb-login-card #hb-login-close{position:absolute;right:14px;top:14px;display:grid;place-items:center;width:40px;height:40px;min-height:40px;padding:0;font-size:22px;line-height:1;border-radius:12px}.hb-account-bar .hb-account-meta{display:grid;gap:2px;text-align:right}.hb-account-bar #hb-show-login{background:#5b3cc4;color:white}.hb-sync-status{font-size:11px;font-weight:600}.hb-sync-ok{color:#087f70}.hb-sync-pending{color:#966000}.hb-sync-warning{color:#9b2854}
 @media(max-width:540px){#hb-login{padding:16px}.hb-login-card{padding:23px}.hb-account-bar .hb-account-meta{display:none}.hb-brand-link{gap:8px}.hb-account-bar{gap:6px}.hb-account-bar button{padding:6px 10px;font-size:12px}}
 
 /* WORLD: same island illustrations, narrative cards, age-neutral visual hierarchy. */
