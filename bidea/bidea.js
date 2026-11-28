@@ -518,6 +518,9 @@ const VERB_TASKS=[
  {id:"HB-VERB-NORK-1",code:"nornork",level:"b1b2",t:"mc",q:"Argik giltza aurkitu ____.",ch:["da","du","dio"],a:["du"],ex:"Argik aurkitu du; giltza da aurkitutako objektua.",why:{da:"«Da» ez dator bat hemen ageri diren egilearekin eta objektuarekin. Argik giltza aurkitu du.",dio:"«Dio» adizkiak hartzailea ere adierazten du; hemen ez da hartzailerik aipatzen."}},
  {id:"HB-VERB-NORI-1",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Joni mapa eman ____. (Joni da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Ni naiz egilea, mapa da objektua eta Joni da hartzailea: diot.",why:{dut:"«Dut» adizkiak objektua eta egilea adierazten ditu. Esaldi honetan Joni da hartzailea; hartzailearekiko komunztadura ere behar dugu.",dizut:"«Dizut» adizkiaren hartzailea zu zara; hemen Joni da hartzailea."}},
  {id:"HB-VERB-NORI-2",code:"nornorinork",level:"b1b2",t:"mc",q:"Argik Lurri gutuna eman ____. (Lur da hartzailea.)",ch:["du","dio","diot"],a:["dio"],ex:"Argi da egilea, gutuna da objektua eta Lur da hartzailea: dio.",why:{du:"Lurri hartzailea ageri da; harekiko komunztadura ere behar dugu.",diot:"«Diot» adizkiak ni adierazten du egile gisa; hemen Argik eman du."}}
+,{id:"HB-VERB-FOUND-2",code:"nor",level:"a1a2",stage:"foundation",t:"mc",q:"Ni etxera joan ____.",ch:["naiz","dut","da"],a:["naiz"],ex:"Ni naiz joan dena.",why:{dut:"Joan aditzak hemen NOR laguntzailea behar du.",da:"Ni naiz joan dena, ez hura."}},
+ {id:"HB-VERB-EVERY-1",code:"nornork",level:"a1a2",stage:"everyday",t:"mc",q:"Nik ura edan ____.",ch:["naiz","dut","du"],a:["dut"],ex:"Nik edan dut ura.",why:{naiz:"Ura da objektua; nik adierazten du egilea.",du:"Nik lehen pertsona adierazten du."}},
+ {id:"HB-VERB-EVERY-2",code:"nornork",level:"a1a2",stage:"everyday",t:"mc",q:"Guk bi botila bete ____.",ch:["dugu","gara","ditugu"],a:["ditugu"],ex:"Bi botila dira objektua; horregatik, ditugu.",why:{dugu:"Objektua plurala da: bi botila.",gara:"Guk bete dugu zerbait; objektua ere badago."}}
 ].map(x=>({...x,src:"Jatorrizko testuinguru mugatua / HB-VERB-PILOT-v1"}));
 /* Original editorial trial: the same communicative topic with genuinely different
    demands. Fixed choices are recognition, never evidence of autonomous production. */
@@ -528,7 +531,7 @@ const CONTEXT_GAMES={
  ["Ane eta Iker iturrian daude. Botila hutsik dago.","Non daude?",["Iturrian","Etxean","Basoan"],"Iturrian","Iturrian daude biak.","Bilatu lekua."]
  ],
  everyday:[
- ["Ane iturrira joan da, baina ez dago urik. Dendara joan da botila bat erostera.","Zer egin du Anek?",["Dendan ura erosi du.","Iturrian botila bete du.","Etxera itzuli da."],"Dendan ura erosi du.","Iturrira joan da lehenik, gero dendara.","Begiratu bigarren ekintza."],
+ ["Ane iturrira joan da, baina ez dago urik. Dendara joan da botila bat erostera.","Zer egin du Anek?",["Dendara joan da botila bat erostera.","Iturrian botila bete du.","Etxera itzuli da."],"Dendara joan da botila bat erostera.","Iturrira joan da lehenik, gero dendara.","Begiratu bigarren ekintza."],
  ["Ikerrek bi botila bete ditu. Anek bat eskatu dio eta Ikerrek eman dio.","Zer egin du Ikerrek Anerentzat?",["Botila bat eman dio.","Bi botila eskatu dizkio.","Botila bat erosi dio."],"Botila bat eman dio.","Ane da hartzailea; Ikerrek eman dio.","Nork eman dio nori?"],
  ["Iturria itxita dago. Kartelak dio bihar irekiko dutela.","Noiz hartu ahal izango dute ura iturrian, kartelaren arabera?",["Bihar","Gaur","Atzo"],"Bihar","Kartelak biharko informazioa ematen du.","Bilatu denbora adierazten duen hitza."]
  ],
@@ -549,13 +552,13 @@ function currentProfile(){
 }
 function contextGameItems(){
  const stage=currentProfile().stage;
- return (CONTEXT_GAMES[stage]||CONTEXT_GAMES.foundation).map(([context,q,ch,answer,ex,hint],i)=>({id:"HB-CONTEXT-"+stage+"-"+(i+1),t:"mc",context,q,ch,a:[answer],ex,hint,src:"Jatorrizko fikziozko praktika / HB-CONTEXT-v1"}));
+ return (CONTEXT_GAMES[stage]||CONTEXT_GAMES.foundation).map(([context,q,ch,answer,ex,hint],i)=>({id:"HB-CONTEXT-"+stage+"-"+(i+1),t:"mc",context,q,ch:shuffle(ch),a:[answer],ex,hint,src:"Jatorrizko fikziozko praktika / HB-CONTEXT-v1"}));
 }
 
 function worldGameItems(kind){
  if(kind==="context")return contextGameItems();
  if(kind==="words")return wordGameGroups();
- if(kind==="verbs")return VERB_TASKS.filter(x=>x.level===S.level);
+ if(kind==="verbs"){const stage=currentProfile().stage;return VERB_TASKS.filter(x=>x.level===S.level&&(!x.stage||x.stage===stage))}
  if(S.level==="a1a2"){
  const words=[["Basoa","Zuhaitz asko dauden lekua."],["Erreka","Ibai txikia."],["Mendia","Lur garaia."]];for(const t of FOREST_TREASURES)if(S.episodes?.[FOREST_IDS[FOREST_TREASURES.indexOf(t)]]?.treasure===t.id&&!words.some(p=>p[0]===t.title))words.push([t.title,t.desc]);
  if(kind==="words")return [{id:"HB-FOREST-GAME-WORDS",t:"match",q:"Lotu hitzak eta esanahiak.",pairs:words,a:["loturak"],ex:"Basoa, erreka eta mendia."}];
