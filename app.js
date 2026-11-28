@@ -232,7 +232,7 @@ function renderPrompt(text,fill="",state=""){const raw=String(text||"");if(!/_{3
 function updateLiveSlot(val){const s=document.getElementById("hb-live-slot");if(!s)return;const t=String(val||"").trim();s.textContent=t||"\u00a0\u00a0\u00a0\u00a0";s.classList.toggle("filled",!!t)}
 function setLessonStep(n){lessonStep=Math.max(0,Math.min(3,n));draw();scrollTo(0,0)}
 function lessonBack(){detail="";lessonStep=0;lessonReveal=false;lessonChoice=null;draw();scrollTo(0,0)}
-function lessonPick(i){if(lessonChoice!==null)return;lessonChoice=i;draw();document.getElementById("lesson-check")?.scrollIntoView({block:"nearest"})}
+function lessonPick(i){if(lessonChoice!==null)return;const c=C(detail),opts=c&&lessonOptions(c);if(!c||!opts||!Number.isInteger(i)||i<0||i>=opts.length)return;if(!lessonOptionMemo.observed){lessonOptionMemo.observed=true;window.HBBidea?.observeGuided?.(c.id,opts[i]===c.answer?"match":"mismatch");if(opts[i]!==c.answer)window.HBBidea?.observePractice?.(c.id,opts[i])}lessonChoice=i;draw();document.getElementById("lesson-check")?.scrollIntoView({block:"nearest"})}
 let lessonOptionMemo=null;
 function lessonOptions(c){
  const key=JSON.stringify([window.HBData.keyFor("hitzbira-journey-v1"),c.id,c.answer,c.wrong]);

@@ -16,6 +16,40 @@ const needs={
 };
 const errorLinks={non:{family:"decl",case:"NON"},nora:{family:"decl",case:"NORA"},nondik:{family:"decl",case:"NONDIK"},nor:{id:"HB07-err-1"},nornork:{id:"HB07-err-2"},nornorinork:{id:"HB07-err-3"},cause:{id:"HB06-kau-01"},result:{id:"HB07-ond-3"}};
 const touched=(id,input)=>Number(input.attempts?.[id]?.n)>0;
+// Bounded links to the existing curriculum, not a replacement curriculum.
+// A linked item observes one aspect of a node, never the complete claim.
+const GUIDED_TARGETS=Object.freeze({"HB07-err-1":"V-0","HB07-err-2":"V-0","HB07-err-3":"V-1","HB06-kau-01":"KAU-1","HB07-ond-3":"OND-1","GB-osa-01":"OSA-1","HB07-kon-1":"KON-2","HB06-bal-01":"BAL-1"});
+const VERB_NODES=Object.freeze({"HB-VERB-NOR-1":"V-0","HB-VERB-NORK-1":"V-0","HB-VERB-NORI-1":"V-1","HB-VERB-NORI-2":"V-1","HB-VERB-FOUND-2":"V-0","HB-VERB-FOUND-3":"V-0","HB-VERB-EVERY-1":"V-0","HB-VERB-EVERY-2":"V-0","HB-VERB-EVERY-3":"V-0","HB-VERB-CONNECTED-1":"V-1","HB-VERB-REASONING-1":"V-1"});
+const ERROR_NODES=Object.freeze({non:"DEK-1",nora:"DEK-1",nondik:"DEK-1",nor:"V-0",nornork:"V-0",nornorinork:"V-1",cause:"KAU-1",result:"OND-1",subordination:"OSA-1",concession:"KON-2",condition:"BAL-1"});
+function mappedNode(id,graph){
+ if(typeof id!=="string")return null;
+ const found=graph?.nodes?.find(n=>graph.route(n.id)?.refs.includes(id));
+ const code=found?.id||GUIDED_TARGETS[id]||(/^[A-Za-z0-9-]+$/.test(id)&&/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(id)?"DEK-1":null);
+ return code&&graph?.get(code)?code:null;
+}
+function evidenceProjection({context={},attempts={},curriculum}={}){
+ const rows=[],unmapped={practice:0,games:0};
+ const add=(node,entry)=>{if(!node||!curriculum?.get(node))return false;rows.push({...entry,node,nodeVersion:curriculum.get(node).vid,mastery:null});return true};
+ for(const [id,r] of Object.entries(attempts)){
+  if(!r||!(Number(r.n)>0)||!["match","incorrect","unverified"].includes(r.lastResult))continue;
+  if(!add(mappedNode(id,curriculum),{id,source:"practice",mode:r.lastMode==="write"?"bounded_written":r.lastMode==="identify"?"identification":"recognition",result:r.lastResult==="incorrect"?"mismatch":r.lastResult==="match"&&r.lastAssisted?"supported":r.lastResult,assisted:r.lastAssisted===true,contentVersion:null}))unmapped.practice++;
+ }
+ for(const [id,r] of Object.entries(context.guidedEvidence||{})){
+  if(r?.v!==1||r.contentVersion!=="2.17.1"||!["match","mismatch"].includes(r.result)||!Number.isFinite(r.at))continue;
+  add(mappedNode(id,curriculum),{id,source:"ikasi",mode:"guided_recognition",result:r.result==="match"?"supported":"mismatch",assisted:true,at:r.at,contentVersion:r.contentVersion});
+ }
+ for(const [id,r] of Object.entries(context.recognitionEvidence||{})){
+  if(!r||!["match","mismatch","supported","unverified"].includes(r.result)||!Number.isFinite(r.at))continue;
+  const node=r.skill==="verbs"&&r.mode==="recognition"?VERB_NODES[id]:null;
+  if(!add(node,{id,source:"game",mode:r.mode,result:r.result,assisted:r.assisted===true,at:r.at,contentVersion:null}))unmapped.games++;
+ }
+ for(const [code,r] of Object.entries(context.errors||{})){
+  if(!r||!(Number(r.errors)>0))continue;
+  add(ERROR_NODES[code],{id:code,source:"difficulty",mode:"diagnostic_contrast",result:"mismatch",at:r.lastErrorAt,contentVersion:null});
+  if(Number(r.lastRecoveryAt)>0)add(ERROR_NODES[code],{id:code,source:"recovery",mode:"delayed_recognition",result:"match",at:r.lastRecoveryAt,contentVersion:null});
+ }
+ return {policy:"HB-EVIDENCE/1",rows,unmapped,mastery:null,autonomousProduction:null};
+}
 /* Editorial target, not assessed proficiency: only existing narrative stages. */
 function profile(context={}){
  const route=["a1a2","b1b2"].includes(context.route)?context.route:null;
@@ -58,7 +92,9 @@ function select(cards,input={}){
  for(const id of target)if(exists(id)&&!available(id))for(const p of required(id))if(exists(p)&&(!touched(p,input)||pending(p)))prerequisites.add(p);
  for(const id of prerequisites)if(!available(id))prerequisites.delete(id);
  for(const id of target)if(exists(id)&&pending(id))review.add(id);
- const orientation=placementFocus(context,input.attempts,now),reviewCases=[...orientation.cases];
+ const orientation=placementFocus(context,input.attempts,now),reviewCases=[...orientation.cases],evidence=evidenceProjection({...input,context});
+ // Guided errors suggest distinct practice, not a prerequisite pass or academic error.
+ for(const r of evidence.rows)if(r.source==="ikasi"&&r.result==="mismatch"&&target.has(r.id)&&exists(r.id)&&!touched(r.id,input))review.add(r.id);
  for(const [code,m] of Object.entries(errors)){
   const link=errorLinks[code];
   if(!link||!(Number(m.errors)>0)||!(Number(m.lastErrorAt)>Number(m.lastRecoveryAt||0)||Number(m.dueAt)<=now))continue;
@@ -76,7 +112,7 @@ function select(cards,input={}){
  const pool=cards.filter(c=>current.some(x=>x.id===c.id)||review.has(c.id)||prerequisites.has(c.id));
  return {route,band,adaptation,provisional:!route,source:route?(context.placed?"placement":"adventure"):"no_evidence",episode:context.episode||null,
   pool,primary:preferred.slice(0,4),review:cards.filter(c=>review.has(c.id)),prerequisites:cards.filter(c=>prerequisites.has(c.id)&&!review.has(c.id)),
-  orientation, next:ordered.filter(c=>!preferred.slice(0,4).some(x=>x.id===c.id)&&!opened.has(c.id)&&!touched(c.id,input)).slice(0,6),reviewCases:[...new Set(reviewCases)],
+  orientation,evidence, next:ordered.filter(c=>!preferred.slice(0,4).some(x=>x.id===c.id)&&!opened.has(c.id)&&!touched(c.id,input)).slice(0,6),reviewCases:[...new Set(reviewCases)],
   families:["decl",...new Set(pool.map(c=>c.family))],
   blocked:cards.filter(c=>target.has(c.id)&&!available(c.id)),
   complementary:cards.filter(c=>!pool.some(x=>x.id===c.id)),
@@ -93,7 +129,7 @@ function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));
  return items.filter(c=>c.family==="decl"?(/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(c.id)||selection.band==="b1b2"):ids.has(c.id));
 }
-const api=Object.freeze({version:"HB-ROUTE-MATERIAL/5",profile,select,practiceFilter,practicePriority,placementFocus});
+const api=Object.freeze({version:"HB-ROUTE-MATERIAL/6",profile,select,practiceFilter,practicePriority,placementFocus,mappedNode,evidenceProjection});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 else root.HBLearningSelection=api;
 })(typeof window!=="undefined"?window:globalThis);

@@ -779,6 +779,12 @@ function classifyEpisodeError(it,response){
 }
 function episodeErrorStore(){return S.episodeErrorMemory||(S.episodeErrorMemory={})}
 function storeDifficulty(code,confused,evidence){const memory=episodeErrorStore(),old=memory[code]||{errors:0,recoveries:0},now=Date.now();memory[code]={...old,errors:(old.errors||0)+1,confused,lastErrorAt:now,dueAt:now+EP_REVIEW_DAY,step:0,...(evidence?{writingEvidence:evidence}:{})};save()}
+function observeGuided(id,result){
+ syncState();if(guestLimited()||!S.level||!["match","mismatch"].includes(result)||!root.HBLearningSelection?.mappedNode(id,root.HitzBiraCurriculum))return false;
+ const memory=S.guidedEvidence||(S.guidedEvidence={});
+ memory[id]={v:1,contentVersion:"2.17.1",result,at:Date.now()};
+ const keys=Object.keys(memory).sort((a,b)=>memory[b].at-memory[a].at);for(const k of keys.slice(160))delete memory[k];save();return true;
+}
 function observePractice(id,answer){syncState();if(guestLimited()||!S.level)return false;const allowed={"HB07-err-1":{code:"nor",wrong:["du","dio"]},"HB07-err-2":{code:"nornork",wrong:["da","zaio"]},"HB07-err-3":{code:"nornorinork",wrong:["da","zaio"]}},rule=allowed[id],actual=norm(answer);if(!rule||!rule.wrong.includes(actual)||(rule.code==="nornorinork"&&S.level==="a1a2"))return false;storeDifficulty(rule.code,actual);return true}
 function rememberEpisodeError(st,diagnosis){
  if(!diagnosis||st.errorRecorded||player.owner!==keyFor(KEY))return;
@@ -1226,8 +1232,8 @@ function learningContext(){
  const n=route?episodeNumber():null,L=route?episodeLesson(n):null;
  const errors=Object.fromEntries(Object.entries(S.episodeErrorMemory||{}).map(([k,v])=>[k,{errors:v.errors,lastErrorAt:v.lastErrorAt,lastRecoveryAt:v.lastRecoveryAt,dueAt:v.dueAt}]));
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
-  focus:route==="b1b2"?["kau","ond"]:mission>=2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{},placement:S.placementV2?.v===2?{v:2,at:S.placementV2.at,answers:Object.fromEntries(placementSummary(S.placementV2.answers).items.filter(x=>x.result!=="unseen").map(x=>[x.id,x.result]))}:null};
+  focus:route==="b1b2"?["kau","ond"]:mission>=2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{},guidedEvidence:JSON.parse(JSON.stringify(S.guidedEvidence||{})),placement:S.placementV2?.v===2?{v:2,at:S.placementV2.at,answers:Object.fromEntries(placementSummary(S.placementV2.answers).items.filter(x=>x.result!=="unseen").map(x=>[x.id,x.result]))}:null};
 }
-root.HBBidea={...api,reviewSentence,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,skipRosco,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,reviewSentence,learningContext,dueRecallHtml,startDueRecall,observePractice,observeGuided,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,skipRosco,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);
