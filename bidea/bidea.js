@@ -557,7 +557,7 @@ const CONTEXT_EXTRA={
  ["Unai azokara joan da. Bi sagar erosi ditu; bat etxean utzi du eta bestea lagunari eman dio.","Zenbat sagar eman dizkio lagunari?",["Bat","Bi","Bat ere ez"],"Bat","Sagar bat etxean utzi du eta bestea lagunari eman dio.","Jarraitu bi sagarren bidea."]
  ],
  connected:[
- ["Liburutegiko ordutegia luzatu dute, ikasleek arratsaldean ikasteko leku gehiago behar zutelako. Goizeko ordutegia ez da aldatu.","Zer dela eta luzatu dute ordutegia?",["Arratsaldeko ikasteko lekuen beharragatik.","Goizeko bisitari gutxiengatik.","Liburu berriengatik."],"Arratsaldeko ikasteko lekuen beharragatik.","Ikasleen beharra da erabakiaren arrazoia.","Bilatu -lako duen zatia."],
+ ["Liburutegiko ordutegia luzatu dute, ikasleek arratsaldean ikasteko leku gehiago behar zutelako. Goizeko ordutegia ez da aldatu.","Zer dela eta luzatu dute ordutegia?",["Arratsaldean ikasteko leku gehiago behar zituztelako.","Goizeko bisitari gutxiengatik.","Liburu berriengatik."],"Arratsaldean ikasteko leku gehiago behar zituztelako.","Ikasleen beharra da erabakiaren arrazoia.","Bilatu -lako duen zatia."],
  ["Auzoko denda itxi dute; ondorioz, zenbait herritarrek urrunago joan behar dute erosketak egitera. Beste batzuek etxera ekartzeko zerbitzua erabiltzen dute.","Zein da dendaren itxieraren ondorioetako bat?",["Zenbait herritarrek urrunago joan behar izatea.","Denda berri bat ireki izana.","Herritar guztiek zerbitzu bera erabiltzea."],"Zenbait herritarrek urrunago joan behar izatea.","Testuak zenbait herritar aipatzen ditu, ez guztiak.","Begiratu «ondorioz» ondoren zer datorren."]
  ],
  reasoning:[

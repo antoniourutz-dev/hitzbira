@@ -25,7 +25,8 @@ function profile(context={}){
  const difficult=rows.filter(([,r])=>r.stage===stage&&r.result!=="match"&&["mismatch","supported"].includes(r.result));
  const previous=order[Math.max(0,order.indexOf(stage)-1)],lastDifficulty=Math.max(0,...difficult.map(([,r])=>r.at));
  const repaired=rows.filter(([,r])=>r.stage===previous&&r.result==="match"&&r.assisted===false&&r.at>lastDifficulty&&r.firstMatch===true).length;
- const repair=difficult.length>=2&&previous!==stage&&repaired<2;
+ const unseen=5-rows.filter(([,r])=>r.stage===previous).length;
+ const repair=difficult.length>=2&&previous!==stage&&repaired<2&&repaired+unseen>=2;
  return {route,stage,vocabularyLevel:levels[stage],readingStage:repair?previous:stage,readingRepair:repair,source:route?"editorial_route":"provisional",skillAssessment:null};
 }
 function select(cards,input={}){

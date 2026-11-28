@@ -348,7 +348,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.close(true);
  const profile=require('../learning-selection.js').profile(w.HBBidea.learningContext());
  check('two distinct assisted reading answers trigger scoped support, not a level change',profile.stage==='reasoning'&&profile.readingStage==='connected'&&profile.vocabularyLevel==='B2'&&profile.skillAssessment===null);
- check('recognition retains assisted result without falsely crediting autonomy',Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').length===2&&Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.stage==='reasoning').every(r=>r.result==='supported'&&!r.firstMatch));
+ check('recognition retains assisted result without falsely crediting autonomy',Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').length===2&&Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').every(r=>r.result==='supported'&&!r.firstMatch));
  w.HBBidea.startWorldGame('context');check('support game actually changes its text pool',w.HBBidea._player().queue.every(e=>e.item.stage==='connected'));w.HBBidea.close(true);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
