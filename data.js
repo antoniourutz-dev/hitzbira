@@ -78,7 +78,7 @@ function paint(){
   const cell=document.createElement("div");
   cell.className="hb-day-cell"+(on?" lit":"")+(i===0?" today":"");
   cell.title=iso+(on?" · landua":" · atseden");
-  cell.innerHTML='<span class="hb-day-dot" aria-label="'+iso+(on?" · landua":" · atseden")+'">'+(on?MINI_FLAME:'<i></i>')+'</span><small>'+dow+'</small>';
+  cell.innerHTML='<span class="hb-day-dot" role="img" aria-label="'+iso+(on?" · landua":" · atseden")+'">'+(on?MINI_FLAME:'<i></i>')+'</span><small>'+dow+'</small>';
   daysEl.append(cell);
  }
  sumEl.textContent=cur?cur+" egun jarraian":total?"Piztu gaurko sua berriro":"Piztu gaurko sua";
@@ -209,7 +209,7 @@ function paintAccount(){
  if(status)status.textContent=name;
  if(popName)popName.textContent=name;
  if(wrap)wrap.hidden=!authorized;
- if(login)login.hidden=authorized;
+ if(login)login.hidden=authorized||document.body?.dataset.hbLoading==="true";
  if(!authorized)return;
  const av=currentAvatar();
  if(slot)slot.innerHTML=av.svg;
@@ -228,7 +228,7 @@ function paintAccount(){
   }
  }
 }
-window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak,avatars:AVATARS,currentAvatar};
+window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak,avatars:AVATARS,currentAvatar,uiReady};
 const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop"),acctBtn=document.getElementById("hb-account-btn"),acctPop=document.getElementById("hb-account-pop");
 function setStreakOpen(open){if(!streakBtn||!streakPop)return;if(open)setAcctOpen(false);streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
 function setAcctOpen(open){if(!acctBtn||!acctPop)return;if(open&&streakPop&&!streakPop.hidden){streakPop.hidden=true;streakBtn?.setAttribute("aria-expanded","false")}acctPop.hidden=!open;acctBtn.setAttribute("aria-expanded",String(open))}
@@ -239,9 +239,14 @@ if((streakBtn&&streakPop)||(acctBtn&&acctPop)){
  document.addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(acctPop&&!acctPop.hidden){setAcctOpen(false);acctBtn.focus()}else if(streakPop&&!streakPop.hidden){setStreakOpen(false);streakBtn.focus()}});
 }
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(Error("Aplikazioa ezin izan da kargatu."));document.head.appendChild(script)})}
-function showLogin(){modal.hidden=false;msg.textContent="";msg.classList.toggle("connection-ok",false);form.elements.identifier.focus()}
-function hideLogin(){modal.hidden=true;form.reset();msg.textContent="";login.focus()}
-async function start(){if(starting)return;starting=true;if(document.body)document.body.dataset.hbAccess=authorized?"account":"guest";paintAccount();paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false}}
+let loginReturn=null;
+function syncShell(){const loading=document.body?.dataset.hbLoading==="true",opened=modal&&!modal.hidden;for(const node of document.querySelectorAll?.("body > #hb-sidebar, body > header, body > main, body > footer, body > nav, body > .hb-skip-link")||[]){node.inert=!!(opened||loading&&node.id!=="app")}}
+function uiReady(){if(document.body){document.body.dataset.hbLoading="false";document.getElementById("app")?.setAttribute("aria-busy","false")}syncShell();paintAccount()}
+function showLogin(){if(!modal.hidden)return;loginReturn=document.activeElement;modal.hidden=false;msg.textContent="";msg.classList.toggle("connection-ok",false);syncShell();form.elements.identifier.focus()}
+function hideLogin(){if(submit.disabled)return;modal.hidden=true;form.reset();msg.textContent="";syncShell();const target=loginReturn?.isConnected&&!loginReturn.hidden?loginReturn:login;target?.focus();loginReturn=null}
+function loginKey(e){if(!modal||modal.hidden)return;if(e.key==="Escape"){e.preventDefault();hideLogin();return}if(e.key!=="Tab")return;const nodes=Array.from(modal.querySelectorAll?.("button:not([disabled]), input:not([disabled]), a[href], [tabindex]:not([tabindex=\"-1\"])")||[]).filter(x=>!x.hidden);if(!nodes.length)return;const first=nodes[0],last=nodes[nodes.length-1],active=document.activeElement;if(!nodes.includes(active)||(e.shiftKey&&active===first)||(!e.shiftKey&&active===last)){e.preventDefault();(e.shiftKey?last:first).focus()}}
+modal.addEventListener("keydown",loginKey);syncShell();
+async function start(){if(starting)return;starting=true;if(document.body)document.body.dataset.hbAccess=authorized?"account":"guest";paintAccount();paint();try{for(const src of ["/audit.js","/feedback.js","/aditzak/engine.js","/core.js","/world.js","/world-design.js","/story.js","/app.js"])await loadScript(src)}catch(e){document.getElementById("app").textContent=e.message;starting=false;uiReady()}}
 function busy(on){submit.disabled=on;form.setAttribute("aria-busy",String(on));submit.textContent=on?"Saioa egiaztatzen…":"Sartu"}
 login.onclick=showLogin;close.onclick=hideLogin;
 const connectionButton=document.getElementById("hb-check-connection");

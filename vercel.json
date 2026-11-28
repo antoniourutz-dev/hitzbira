@@ -26,5 +26,12 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/bidea",
+      "destination": "/?atala=bidea",
+      "permanent": false
+    }
   ]
 }

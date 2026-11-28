@@ -462,3 +462,18 @@ body.hb-kit .material-context p,body.hb-kit .material-section p,body.hb-kit .aca
 body.hb-kit .material-switch button{min-height:44px;border-radius:12px}
 body.hb-kit .academy-practice-link{border-radius:20px}
 @media(max-width:680px){body.hb-kit .material-section .catalog-lesson-grid{gap:10px}body.hb-kit .material-section{padding-block:4px 10px}}
+
+/* Egonkortasuna: stable shell during account hydration and keyboard access. */
+body[data-hb-loading="true"] #hb-show-login,body[data-hb-loading="true"] .hb-side-tools,body[data-hb-loading="true"] .hb-side-prefs,body[data-hb-loading="true"] .hb-account-bar{visibility:hidden;pointer-events:none}
+body[data-hb-loading="true"] #hb-sidebar,body[data-hb-loading="true"] > nav{pointer-events:none}
+.hb-skip-link{position:fixed;top:10px;left:12px;z-index:10000;transform:translateY(-180%);padding:12px 16px;border-radius:12px;background:#5b3cc4;color:#fff;text-decoration:none;font-weight:750}
+.hb-skip-link:focus{transform:none;outline:3px solid #f1cf69}
+.hb-login-brand h2{font-size:32px;line-height:1.1;margin:8px 0;color:#211c38;font-weight:800}
+html[data-theme="dark"] .hb-login-brand h2{color:#f3f1fc}
+body.hb-kit #hb-login-close,body.hb-kit #hb-theme-toggle{min-width:44px;min-height:44px}
+body.hb-kit #hb-show-login{min-height:44px}
+body.hb-kit .hb-site-footer summary{display:inline-flex;align-items:center;min-height:44px}
+.hb-day-cell small{color:#655d76}
+html[data-theme="dark"] .hb-day-cell small{color:#c4bad7}
+html[data-theme="dark"] .hb-day-cell.today small{color:#c5b6ff}
+@media(max-width:859px){body.hb-kit .hb-site-footer{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}}
