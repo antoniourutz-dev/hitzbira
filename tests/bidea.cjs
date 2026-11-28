@@ -341,6 +341,15 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('known grammar mismatch uses the same error memory',w.HBBidea.observePractice('HB07-err-2','da')&&w.HBBidea.learningContext().errors.nornork.errors===oldNork+1);
  check('unsupported grammar response is not diagnosed',!w.HBBidea.observePractice('HB07-err-2','dut'));
  w.HBData.guestLimited=()=>true;check('guest cannot access supplementary practice',w.HBBidea.supplementaryPracticeHtml()===''&&!w.HBBidea.observePractice('HB07-err-1','du'));w.HBData.guestLimited=()=>false;
+ // Actual interactions: two distinct reading mismatches trigger temporary easier reading only.
+ w.HBBidea.chooseAdventure('uraren-misterioa');delete w.HBBidea._state().episodeDraft;
+ w.HBBidea.startWorldGame('context');
+ for(let i=0;i<2;i++){const p=w.HBBidea._player(),it=p.queue[p.pos].item;w.HBBidea.sel(it.ch.find(x=>x!==it.a[0]));w.HBBidea.check();w.HBBidea.sel(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
+ w.HBBidea.close(true);
+ const profile=require('../learning-selection.js').profile(w.HBBidea.learningContext());
+ check('two distinct assisted reading answers trigger scoped support, not a level change',profile.stage==='reasoning'&&profile.readingStage==='connected'&&profile.vocabularyLevel==='B2'&&profile.skillAssessment===null);
+ check('recognition retains assisted result without falsely crediting autonomy',Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').length===2&&Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.stage==='reasoning').every(r=>r.result==='supported'&&!r.firstMatch));
+ w.HBBidea.startWorldGame('context');check('support game actually changes its text pool',w.HBBidea._player().queue.every(e=>e.item.stage==='connected'));w.HBBidea.close(true);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

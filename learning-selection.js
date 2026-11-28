@@ -21,7 +21,12 @@ function profile(context={}){
  const route=["a1a2","b1b2"].includes(context.route)?context.route:null;
  const stage=route==="b1b2"?(Number(context.episode?.number)>=4?"reasoning":"connected"):route==="a1a2"&&context.mission===2?"everyday":"foundation";
  const levels={foundation:"A1",everyday:"A2",connected:"B1",reasoning:"B2"};
- return {route,stage,vocabularyLevel:levels[stage],source:route?"editorial_route":"provisional",skillAssessment:null};
+ const evidence=context.recognitionEvidence||{},order=["foundation","everyday","connected","reasoning"],rows=Object.entries(evidence).filter(([id,r])=>r&&/^HB-CONTEXT-(foundation|everyday|connected|reasoning)-[1-5]$/.test(id)&&id.startsWith("HB-CONTEXT-"+r.stage+"-")&&r.skill==="reading"&&r.mode==="recognition"&&Number.isFinite(r.at));
+ const difficult=rows.filter(([,r])=>r.stage===stage&&r.result!=="match"&&["mismatch","supported"].includes(r.result));
+ const previous=order[Math.max(0,order.indexOf(stage)-1)],lastDifficulty=Math.max(0,...difficult.map(([,r])=>r.at));
+ const repaired=rows.filter(([,r])=>r.stage===previous&&r.result==="match"&&r.assisted===false&&r.at>lastDifficulty&&r.firstMatch===true).length;
+ const repair=difficult.length>=2&&previous!==stage&&repaired<2;
+ return {route,stage,vocabularyLevel:levels[stage],readingStage:repair?previous:stage,readingRepair:repair,source:route?"editorial_route":"provisional",skillAssessment:null};
 }
 function select(cards,input={}){
  const context=input.context||{},route=["a1a2","b1b2"].includes(context.route)?context.route:null;
@@ -67,7 +72,7 @@ function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));
  return items.filter(c=>c.family==="decl"?(/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(c.id)||selection.band==="b1b2"):ids.has(c.id));
 }
-const api=Object.freeze({version:"HB-ROUTE-MATERIAL/2",profile,select,practiceFilter});
+const api=Object.freeze({version:"HB-ROUTE-MATERIAL/3",profile,select,practiceFilter});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 else root.HBLearningSelection=api;
 })(typeof window!=="undefined"?window:globalThis);

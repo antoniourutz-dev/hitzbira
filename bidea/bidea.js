@@ -546,13 +546,33 @@ const CONTEXT_GAMES={
  ["Txostenak bi aukera aipatu ditu: sare zaharra berritzea edo matxurak gertatu ahala konpontzea. Bigarrena merkeagoa da berehala; lehenak, aldiz, etorkizuneko etenak murriztu ditzake.","Zein da testuarekiko laburpen fidela?",["Hasierako kostua eta epe luzeko arriskua alderatu behar dira.","Sare berriak eten guztiak saihestuko ditu.","Bigarren aukera epe luzera merkeena dela frogatu dute."],"Hasierako kostua eta epe luzeko arriskua alderatu behar dira.","Testuak aukera eta ondorio posibleak bereizten ditu; ez du bermerik ematen.","Ez bihurtu aukera bat ziurtasun."]
  ]
 };
+/* Reading and verb recognition share the existing account checkpoint; no new store or grade. */
+const CONTEXT_EXTRA={
+ foundation:[
+ ["Miren parkean dago. Liburu bat du.","Zer du Mirenek?",["Liburu bat","Botila bat","Giltza bat"],"Liburu bat","Liburu bat du Mirenek.","Begiratu bigarren esaldia."],
+ ["Jon etxetik dator. Ane plazara doa.","Nondik dator Jon?",["Etxetik","Plazatik","Eskolatik"],"Etxetik","Jon etxetik dator; abiapuntua da.","Begiratu Joni buruzko esaldia."]
+ ],
+ everyday:[
+ ["Ostegunean liburutegia itxita egongo da. Leirek asteazkenean itzuliko du liburua.","Noiz itzuliko du liburua Leirek?",["Asteazkenean","Ostegunean","Ostiralean"],"Asteazkenean","Leirek liburua asteazkenean itzuliko du.","Bereizi bi egunetako informazioa."],
+ ["Unai azokara joan da. Bi sagar erosi ditu; bat etxean utzi du eta bestea lagunari eman dio.","Zenbat sagar eman dizkio lagunari?",["Bat","Bi","Bat ere ez"],"Bat","Sagar bat etxean utzi du eta bestea lagunari eman dio.","Jarraitu bi sagarren bidea."]
+ ],
+ connected:[
+ ["Liburutegiko ordutegia luzatu dute, ikasleek arratsaldean ikasteko leku gehiago behar zutelako. Goizeko ordutegia ez da aldatu.","Zer dela eta luzatu dute ordutegia?",["Arratsaldeko ikasteko lekuen beharragatik.","Goizeko bisitari gutxiengatik.","Liburu berriengatik."],"Arratsaldeko ikasteko lekuen beharragatik.","Ikasleen beharra da erabakiaren arrazoia.","Bilatu -lako duen zatia."],
+ ["Auzoko denda itxi dute; ondorioz, zenbait herritarrek urrunago joan behar dute erosketak egitera. Beste batzuek etxera ekartzeko zerbitzua erabiltzen dute.","Zein da dendaren itxieraren ondorioetako bat?",["Zenbait herritarrek urrunago joan behar izatea.","Denda berri bat ireki izana.","Herritar guztiek zerbitzu bera erabiltzea."],"Zenbait herritarrek urrunago joan behar izatea.","Testuak zenbait herritar aipatzen ditu, ez guztiak.","Begiratu «ondorioz» ondoren zer datorren."]
+ ],
+ reasoning:[
+ ["Liburutegiaren erabilera handitu da ordutegia luzatu zenetik. Zuzendariak neurriari egozten dio gorakada; txostenak, ordea, garai berean ikastetxe berria ireki zela gogorarazi du.","Zer ondorio atera daiteke ziurtasunez?",["Erabilera handitu da, baina testuak ez du kausa bakarra frogatzen.","Ordutegiak eragin du gorakada osoa.","Ikastetxeak ez du inolako eraginik izan."],"Erabilera handitu da, baina testuak ez du kausa bakarra frogatzen.","Aldi bereko aldaketak ezin dira kausa bakar gisa aurkeztu frogarik gabe.","Bereizi behaketa eta kausaren interpretazioa."],
+ ["Auzoko merkatariek oinezkoentzako eremua handitzearen alde egin dute, baldin eta zamalanetarako sarbidea bermatzen bada. Proposamenak, hala ere, ez du oraindik ordutegi zehatzik jasotzen.","Nola laburbildu merkatarien jarrera?",["Aldekoak dira, baldintza bat betez gero.","Proposamenaren aurkakoak dira erabat.","Zamalanak debekatzeko eskatu dute."],"Aldekoak dira, baldintza bat betez gero.","Aldeko jarrera baldintzatua da, ez erabateko onarpena.","Kontuan hartu «baldin eta»."]
+ ]
+};
 function currentProfile(){
- const context={route:S.level,mission:S.level==="a1a2"&&inShelter()?2:1,episode:{number:S.level?episodeNumber():1}};
+ const context={route:S.level,mission:S.level==="a1a2"&&inShelter()?2:1,episode:{number:S.level?episodeNumber():1},recognitionEvidence:S.recognitionEvidence};
  return root.HBLearningSelection?.profile(context)||{stage:S.level==="b1b2"?"connected":"foundation",vocabularyLevel:island().adventure.vocabularyLevel};
 }
 function contextGameItems(){
- const stage=currentProfile().stage;
- return (CONTEXT_GAMES[stage]||CONTEXT_GAMES.foundation).map(([context,q,ch,answer,ex,hint],i)=>({id:"HB-CONTEXT-"+stage+"-"+(i+1),t:"mc",context,q,ch:shuffle(ch),a:[answer],ex,hint,src:"Jatorrizko fikziozko praktika / HB-CONTEXT-v1"}));
+ const profile=currentProfile(),stage=profile.readingStage||profile.stage,memory=S.recognitionEvidence||{};
+ const rows=[...(CONTEXT_GAMES[stage]||CONTEXT_GAMES.foundation),...(CONTEXT_EXTRA[stage]||[])].map(([context,q,ch,answer,ex,hint],i)=>({id:"HB-CONTEXT-"+stage+"-"+(i+1),skill:"reading",stage,t:"mc",context,q,ch:shuffle(ch),a:[answer],ex,hint,src:"Jatorrizko fikziozko praktika / HB-CONTEXT-v1"}));
+ return rows.sort((a,b)=>Number(!!memory[a.id])-Number(!!memory[b.id])||(memory[a.id]?.at||0)-(memory[b.id]?.at||0)).slice(0,3);
 }
 
 function worldGameItems(kind){
@@ -605,7 +625,7 @@ async function prepareVocabulary(){
 }
 function worldGamesHtml(){
  const count=episodeIds().filter(id=>S.episodes?.[id]).length;
- return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+svg("map")+'<span><strong>Irakurri eta erabaki</strong><small>'+(["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+svg("map")+'<span><strong>Irakurri eta erabaki</strong><small>'+(currentProfile().readingRepair?"Ulermena sendotzeko testu berriak":["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
  applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}if(!["words","links","verbs","context"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
@@ -851,12 +871,25 @@ function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picke
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
 function mL(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
 function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;const attempt=st.vocabularyAttempts[st.left]=(st.vocabularyAttempts[st.left]||0)+1;root.HBData?.activity?.({kind:"vocabulary_match",telemetryVersion:2,attempt,resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:attempt>1,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
+function recordRecognition(it,st,e,ok){
+ if(player.mode!=="worldgame"||e.retry||player.owner!==keyFor(KEY)||!["context","verbs"].includes(player.kind)||it.t!=="mc")return;
+ const skill=player.kind==="context"?"reading":"verbs",stage=it.stage||currentProfile().stage;
+ const memory=S.recognitionEvidence||(S.recognitionEvidence={}),old=memory[it.id],assisted=!!(st.tries||st.hintUsed);
+ const first=!st.recognitionRecorded;
+ if(!first&&st.checked!==true)return;
+ const now=Date.now(),firstMatch=old?old.firstMatch===true:false;
+ memory[it.id]={skill,stage,mode:"recognition",result:ok?(assisted?"supported":"match"):"mismatch",assisted,at:now,firstMatch:first&&!old&&ok&&!assisted||firstMatch,attempts:Math.min(999,(old?.attempts||0)+(first?1:0))};
+ // A repeated familiar item must not be treated as novel repair evidence.
+ if(old&&first)memory[it.id].firstMatch=false;
+ st.recognitionRecorded=true;save()
+}
 function check(){if(!player||player.phase!=="play")return;if(player.owner&&player.owner!==keyFor(KEY)){close();return}const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  if((player.mode==="episode"||player.mode==="worldgame")&&!st.studyRecorded&&!e.retry){st.studyRecorded=true;S.episodeStudyDays=S.episodeStudyDays||{};S.episodeStudyDays[today()]=true;save();if(root.HBData?.isRemote?.())root.HBData.activity?.({kind:"answer",item:it.id})}
  const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&(it.why||player.kind==="recall"))?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);
  if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis))){st.checked=true;st.neutral=true;st.ok=false;render();return}
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=player.mode==="worldgame"||!e.miss;else ok=isAccepted(st.sel,it.a);
+ recordRecognition(it,st,e,ok);
  /* Lehen hutsean: pista erakutsi eta bigarren aukera eman, erantzuna zuzenean erakutsi aurretik. */
  if(!ok&&st.tries===0&&!e.retry&&it.t!=="match"&&it.t!=="write"){
   st.tries=1;st.hintOn=true;player.combo=0;player.errors.add(it.id);
@@ -864,6 +897,7 @@ function check(){if(!player||player.phase!=="play")return;if(player.owner&&playe
   sfx("bad");render();return;
  }
  st.checked=true;st.ok=ok;
+ if(st.tries)recordRecognition(it,st,e,ok);
  recordEpisodeRecovery(it,st,e,ok);
  if(player.mode==="worldgame"){st.msg=ok?"Ongi!":"Berrikusi loturak.";render();return}
  if(ok){player.combo++;player.best=Math.max(player.best,player.combo);const gain=e.retry?5:(st.tries>0||st.hintUsed)?7:10;player.xp+=gain;if(!e.retry&&st.tries===0&&!st.hintUsed&&!player.errors.has(it.id))player.first++;st.msg=(st.tries>0?"Ederki! Bigarren saiakeran":pick(PRAISE))+` +${gain} XP`;sfx("ok")}
@@ -918,7 +952,7 @@ function learningContext(){
  const n=route?episodeNumber():null,L=route?episodeLesson(n):null;
  const errors=Object.fromEntries(Object.entries(S.episodeErrorMemory||{}).map(([k,v])=>[k,{errors:v.errors,lastErrorAt:v.lastErrorAt,lastRecoveryAt:v.lastRecoveryAt,dueAt:v.dueAt}]));
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
-  focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors};
+  focus:route==="b1b2"?["kau","ond"]:mission===2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{}};
 }
 root.HBBidea={...api,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
