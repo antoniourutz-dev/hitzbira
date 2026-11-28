@@ -147,7 +147,11 @@ const MAPS={
   <g class="m-house m-lib"><path d="M244 112V70h60v42z"/><path d="M240 70h68l-34-22z"/><path d="M252 76v30M264 76v30M284 76v30M296 76v30" class="m-col"/></g>
   <text x="52" y="134" class="m-lab">Etxea</text><text x="160" y="134" class="m-lab">Parkea</text><text x="274" y="134" class="m-lab">Museoa</text>
  </svg>`};
-function face(who){const c=DATA.cast[who]||{name:who,c:"#5b3cc4"};if(who==="bira")return `<span class="bd-face bd-face-bira">${bira("wink")}</span>`;return `<span class="bd-face" style="--c:${c.c}" aria-hidden="true">${esc(c.name.charAt(0))}</span>`}
+function face(who){const c=DATA.cast[who]||{name:who,c:"#5b3cc4"};if(who==="bira")return `<span class="bd-face bd-face-bira">${bira("wink")}</span>`;
+ const portraits={ane:{skin:"#f1bf99",hair:"#744337",shirt:"#e67f4d",cut:'<path d="M16 32Q10 8 32 7Q55 8 49 35L43 22Q27 28 21 20Z" fill="#744337"/>'},iker:{skin:"#d9a278",hair:"#342e33",shirt:"#5085cc",cut:'<path d="M15 29Q9 10 22 10Q31 2 46 13Q53 17 48 29L42 20 24 25Z" fill="#342e33"/>'},lur:{skin:"#b98562",hair:"#302b38",shirt:"#4e9874",cut:'<path d="M13 30Q8 7 32 6Q56 8 51 34L46 39 43 22 22 23 19 39Z" fill="#302b38"/>'},txinpart:{skin:"#f9cf80",hair:"#c05a37",shirt:"#cb6847",cut:'<path d="M14 31Q11 17 23 18L21 7 34 16 45 8 46 21Q53 24 49 34L43 25 22 26Z" fill="#c05a37"/>'}};
+ const p=portraits[who];if(!p)return `<span class="bd-face" style="--c:${c.c}" aria-hidden="true">${esc(c.name.charAt(0))}</span>`;
+ return '<span class="bd-face bd-cast-face" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="'+p.shirt+'" opacity=".17"/><path d="M7 64V58Q10 45 32 45Q54 45 57 58V64Z" fill="'+p.shirt+'"/><rect x="27" y="37" width="10" height="14" rx="5" fill="'+p.skin+'"/><ellipse cx="32" cy="28" rx="18" ry="20" fill="'+p.skin+'"/>'+p.cut+'<circle cx="26" cy="30" r="2" fill="#40333b"/><circle cx="38" cy="30" r="2" fill="#40333b"/><path d="M28 38q4 4 8 0" fill="none" stroke="#6b4746" stroke-width="1.7" stroke-linecap="round"/></svg></span>'
+}
 /* Leku-kasuaren amaiera nabarmendu: mendi<b>tik</b> */
 function caseInfo(w){const s=String(w);if(/tik$/i.test(s))return {tag:"NONDIK?",ico:"outof",cls:"c-from",cut:s.length-3};if(/ra$/i.test(s))return {tag:"NORA?",ico:"into",cls:"c-to",cut:s.length-2};return {tag:"NON?",ico:"pin",cls:"c-in",cut:s.length-1}}
 function caseWord(w){const c=caseInfo(w);return `${esc(w.slice(0,c.cut))}<b class="${c.cls}">${esc(w.slice(c.cut))}</b>`}
@@ -697,7 +701,7 @@ function gameArt(kind){
 }
 function worldGamesHtml(){
  const count=episodeIds().filter(id=>S.episodes?.[id]).length;
- return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+gameArt("words")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+gameArt("links")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+gameArt("verbs")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+gameArt("context")+'<span><strong>Irakurri eta erabaki</strong><small>'+(currentProfile().readingRepair?"Ulermena sendotzeko testu berriak":["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-rosco" onclick="HBBidea.startWorldGame(\'rosco\')">'+gameArt("rosco")+'<span><strong>Hitzen gurpila</strong><small>Asmatu hitzak, letraz letra</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><div class="bd-playroom-head"><div><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2></div>'+bira("wink","bd-playroom-bira")+'</div><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+gameArt("words")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+gameArt("links")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+gameArt("verbs")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+gameArt("context")+'<span><strong>Irakurri eta erabaki</strong><small>'+(currentProfile().readingRepair?"Ulermena sendotzeko testu berriak":["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-rosco" onclick="HBBidea.startWorldGame(\'rosco\')">'+gameArt("rosco")+'<span><strong>Hitzen gurpila</strong><small>Asmatu hitzak, letraz letra</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
  applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}if(!["words","links","verbs","context","rosco"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
@@ -763,7 +767,7 @@ function rememberEpisodeError(st,diagnosis){
 }
 function dueEpisodeItems(){
  const now=Date.now(),memory=S.episodeErrorMemory||{};
- const eligible=ERROR_RECALL.filter(i=>(S.level==="b1b2"||i.level==="a1a2"||i.code==="nornork")&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now);const groups=new Map();for(const i of eligible){if(!groups.has(i.code))groups.set(i.code,[]);groups.get(i.code).push(i)}return [...groups.values()].map(items=>items[((memory[items[0].code].probeCursor??memory[items[0].code].step??0)%items.length+items.length)%items.length]).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
+ const eligible=ERROR_RECALL.filter(i=>(S.level==="b1b2"||i.level==="a1a2"||i.code==="nornork"||i.code==="nornorinork"&&inMirror())&&Number.isFinite(memory[i.code]?.dueAt)&&memory[i.code].dueAt<=now);const groups=new Map();for(const i of eligible){if(!groups.has(i.code))groups.set(i.code,[]);groups.get(i.code).push(i)}return [...groups.values()].map(items=>items[((memory[items[0].code].probeCursor??memory[items[0].code].step??0)%items.length+items.length)%items.length]).sort((a,b)=>memory[a.code].dueAt-memory[b.code].dueAt).slice(0,3)
 }
 function recordEpisodeRecovery(it,st,e,ok){
  const recall=player.mode==="episode"&&player.segment==="recall"||player.mode==="worldgame"&&player.kind==="recall";
@@ -902,7 +906,7 @@ function body(){const it=cur().item,st=player.state,dis=st.checked?"disabled":""
  if(it.t==="build"){const used=new Set(st.picked);return `${mp}<p class="bd-src">${esc(it.q)}</p><p class="bd-instr">${it.instr?esc(it.instr):`Erabili <b>«${esc(it.k)}»</b> eta idatzi berriro bi esaldi gisa.`}</p><div class="bd-line${st.checked?(st.ok?" is-right":" is-wrong"):""}" aria-live="polite">${st.picked.length?st.picked.map(k=>{const t=st.tiles.find(x=>x.k===k);return `<button class="bd-tile is-placed" ${dis} onclick="HBBidea.untile(${k})">${esc(t.w)}</button>`}).join(""):`<span class="bd-ph">Sakatu fitxak ordenan</span>`}</div><div class="bd-bank">${st.tiles.map(t=>`<button class="bd-tile${used.has(t.k)?" is-used":""}" ${dis||used.has(t.k)?"disabled":""} onclick="HBBidea.tile(${t.k})">${esc(t.w)}</button>`).join("")}</div>`}
  if(it.t==="fix"){return `${mp}<p class="bd-instr${st.mistap?" bd-warn":""}" aria-live="polite">${st.tapped===null?(st.mistap?"Ez da hori. Begiratu berriro.":"Sakatu gaizki dagoen hitza."):"Ondo! Zein hitz jarri behar da?"}</p><p class="bd-q bd-fixq${st.mistap?" bd-shake":""}">${st.tokens.map((w,k)=>{const isW=w===it.w;let c="";if(st.tapped!==null&&isW)c=" is-struck";return `<button class="bd-word${c}" ${st.tapped!==null||st.checked?"disabled":""} onclick="HBBidea.tap(${k})">${esc(w)}</button>`}).join(" ")}</p>${st.tapped!==null?optBtns(st.opts,{a:[it.r]},st," bd-chips bd-chips-3"):""}`}
  if(it.t==="match"){return `${mp}<p class="bd-instr">${esc(it.q)}</p><div class="bd-match${it.pairs.some(p=>p[1].length>16)?" is-long":""}"><div>${it.pairs.map((p,k)=>{const m=st.matched.includes(k);return `<button class="bd-m bd-m-l${m?" is-done":""}${st.left===k?" is-sel":""}${st.flash&&st.flash[0]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mL(${k})">${esc(p[0])}</button>`}).join("")}</div><div>${st.right.map(k=>{const m=st.matched.includes(k),p=it.pairs[k];return `<button class="bd-m bd-m-r${m?" is-done":""}${st.flash&&st.flash[1]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mR(${k})">${esc(p[1])}</button>`}).join("")}</div></div>`}
- if(it.t==="write"){return `${mp}<div class="bd-write-task"><span class="bd-write-task-ico">${svg("map")}</span><div><span class="bd-kicker">ZURE TXANDA</span><p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p></div></div><label class="bd-write-label" for="bd-wr">Zure esaldia</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="Idatzi zure hitzekin…" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${player.mode==="episode"?`<p class="bd-write-note">${st.writeRetry&&!st.checked?"Saiatu berriro, zure hitzekin.":"Ez duzu eredua hitzez hitz kopiatu behar."}</p>`:st.checked?writeChecks(st.typed,it.check):""}`}
+ if(it.t==="write"){return `${mp}<div class="bd-write-task"><span class="bd-write-task-ico bd-write-bira">${bira("curious")}</span><div><span class="bd-kicker">ZURE TXANDA</span><p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p></div></div>${player.mode==="episode"&&player.L.scene?`<details class="bd-write-scene"><summary>${svg("book" )} Eszena gogoratu</summary><p>${esc(player.L.scene)}</p></details>`:""}<label class="bd-write-label" for="bd-wr">Zure esaldia</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="Idatzi zure hitzekin…" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${player.mode==="episode"?`<p class="bd-write-note">${st.writeRetry&&!st.checked?"Saiatu berriro, zure hitzekin.":"Ez duzu eredua hitzez hitz kopiatu behar."}</p>`:st.checked?writeChecks(st.typed,it.check):""}`}
  return ""}
 function writeChecks(t,kind){return `<ul class="bd-checks">${writeCheckList(t,kind).map(([l,ok])=>`<li class="${ok?"is-ok":""}">${svg(ok?"check":"x")}${esc(l)}</li>`).join("")}</ul>`}
 function ready(){const it=cur().item,st=player.state;if(it.t==="gap")return !!st.typed.trim();if(it.t==="write")return st.typed.trim().length>=(player.mode==="episode"&&player.L.forest?3:10);if(it.t==="build")return st.picked.length>0;if(it.t==="fix")return st.tapped!==null&&!!st.sel;if(it.t==="match")return st.matched.length===it.pairs.length;return !!st.sel}
@@ -992,6 +996,46 @@ const WRITE_NORK=[
 ];
 /* Goal-specific locatives: a different case can be grammatical with a different
    meaning. Do not mark it a normative error merely for missing the task goal. */
+/* HB-WRITE-v2: bounded contrasts tied to actual adventure tasks.
+   No claims about unparsed clauses or overall correctness. */
+const DATIVE_CONTRASTS=[
+ {prefix:["nik aneri giltza eman","nik giltza aneri eman"],expected:"diot",wrong:["dut","dio","dizut"]},
+ {prefix:["argik lurri gutuna eman","argik gutuna lurri eman"],expected:"dio",wrong:["du","diot","die"]},
+ {prefix:["anek lamiari ispilua erakutsi","anek ispilua lamiari erakutsi"],expected:"dio",wrong:["du","diot","die"]},
+ {prefix:["lagunek lamiari ispilua eta orrazia itzuli","lagunek ispilua eta orrazia lamiari itzuli"],expected:"dizkiote",wrong:["dituzte","diote","dizkiete"]},
+ {prefix:["guk lagunei argazkiak bidali","guk argazkiak lagunei bidali"],expected:"dizkiegu",wrong:["ditugu","diegu","dizkiogu"]},
+ {prefix:["udalak auzotarrei azalpenak eman","udalak azalpenak auzotarrei eman"],expected:"dizkie",wrong:["ditu","die","dizkio"]}
+];
+function dativeContrast(plain,raw){
+ const words=plain.split(" "),aux=words.pop(),prefix=words.join(" "),rule=DATIVE_CONTRASTS.find(r=>r.prefix.includes(prefix));
+ if(!rule)return null;
+ if(aux===rule.expected)return {status:"observed",message:"Egilea, objektua eta hartzailea egoki lotu dituzu egitura honetan.",rule:"HB-WRITE-v2-DATIVE"};
+ if(!rule.wrong.includes(aux))return null;
+ return {status:"contrast",code:"nornorinork",rule:"HB-WRITE-v2-DATIVE",from:aux,to:rule.expected,message:"Nor da hartzailea? Begiratu egileari, objektuari eta hartzaileari. Euskara batuan hiruren komunztadura adierazten dugu hemen.",example:raw.replace(new RegExp(aux+"([.]?)$","i"),(_,p)=>rule.expected+p)};
+}
+function routeGoal(it,plain){
+ if(it.id!=="HB-EP-FOREST-04-OPEN")return null;
+ const m=plain.match(/^(?:gu )?(zubitik|zubian|zubira) (errekan|errekara|errekatik) joango gara$/);
+ if(!m)return null;
+ const [_,start,end]=m;
+ if(start==="zubitik"&&end==="errekara")return {status:"observed",message:"Abiapuntua eta helmuga bereizi dituzu.",rule:"HB-WRITE-v2-ROUTE"};
+ const from=start!=="zubitik"?start:end,to=start!=="zubitik"?"zubitik":"errekara",code=start!=="zubitik"?"nondik":"nora";
+ return {status:"task_case",code,rule:"HB-WRITE-v2-ROUTE",from,to,message:code==="nondik"?"Zubitik abiatu behar duzue. Nondik joango zarete?":"Errekara iritsi behar duzue. Nora joango zarete?",example:plain.replace(from,to)};
+}
+function discourseGoal(it,raw){
+ if(!/^HB-EP-CAUSE-0[1-5]-OPEN$/.test(it.id))return null;
+ // A quoted form or an unclear clause cannot establish a communicative relation.
+ if(/[«»"“”]/u.test(raw))return null;
+ const cause=/\bizan\s+ere\b/iu.test(raw),suffix=/(?:^|[^\p{L}])[\p{L}]+lako(?=$|[^\p{L}])/iu.test(raw);
+ const result=/\b(?:beraz|hortaz|horrenbestez|horregatik|ondorioz|hori dela eta|horren ondorioz)\b/iu.test(raw);
+ const id=it.id,missing=message=>({status:"task",rule:"HB-WRITE-v2-DISCOURSE",message});
+ if(id.endsWith("01-OPEN")&&!cause)return missing("Bigarren esaldian «izan ere» erabiltzea eskatzen da. Saiatu zergatia azaltzen.");
+ if(id.endsWith("02-OPEN")&&!suffix)return missing("Atazak «-lako» erabiltzea eskatzen du. Saiatu kausa esaldi berean ematen.");
+ if(id.endsWith("04-OPEN")&&!cause&&!suffix)return missing("Azaldu zergatia «-lako» edo «izan ere» erabiliz.");
+ if(id.endsWith("05-OPEN")&&!suffix)return missing("Azaldu zergatia «-lako» erabiliz.");
+ if(/0[45]-OPEN$/.test(id)&&!result)return missing("Adierazi aurrekoaren ondorioa, adibidez «beraz» edo «horregatik» erabiliz.");
+ return null
+}
 function locativeGoal(it,plain){
  const tasks={
  "HB-EP-FOREST-01-OPEN":{forms:["errekan","errekara","errekatik"],target:1,pattern:/^(?:ni )?(errekan|errekara|errekatik) (?:noa|joan naiz)$/},
@@ -1010,7 +1054,8 @@ function reviewSentence(it,answer){
  // Keep punctuation and clause boundaries: we only parse a single plain affirmative sentence.
  const plain=raw.toLowerCase().normalize("NFC").replace(/\s+/g," ").replace(/[.]$/,"").trim();
  const known=(it.model&&norm(raw)===norm(it.model));
- const goalCase=locativeGoal(it,plain);if(goalCase)return goalCase;
+ const goalCase=routeGoal(it,plain)||locativeGoal(it,plain);if(goalCase)return goalCase;
+ const dative=dativeContrast(plain,raw);if(dative)return dative;
  if(/^[\p{L} ]+$/u.test(plain)&&!/\b(?:ez|omen|ote|ba|baina|eta)\b/.test(plain.replace("ispilua eta orrazia","ispilua orrazia"))){
   const words=plain.split(" "),aux=words.at(-1),prefix=words.slice(0,-1).join(" ");
   const issue=(code,expected,message)=>({status:"contrast",code,from:aux,to:expected,message,example:raw.replace(new RegExp(aux+"([.]?)$","i"),(_,p)=>expected+p)});
@@ -1022,8 +1067,7 @@ function reviewSentence(it,answer){
   for(const [sub,wanted,wrong,objects] of WRITE_NORK){if(!objects.some(o=>prefix===sub+" "+o))continue;if(wrong.includes(aux))return issue("nornork",wanted,wanted==="ditut"||wanted==="ditugu"||wanted==="dituzte"?"Objektua plurala da. Begiratu laguntzailearen komunztadurari.":"Egilea eta objektua ditugu esaldi honetan; begiratu laguntzaileari.");if(aux===wanted)return {status:"observed",message:"Laguntzailea egoki erabili duzu egitura honetan."}}
  }
  // Task-alignment only: no judgement on grammar or meaning from a marker alone.
- if(it.id==="HB-EP-CAUSE-01-OPEN"&&!/\bizan ere\b/i.test(raw))return {status:"task",message:"Bigarren esaldian «izan ere» erabiltzea eskatzen da. Saiatu zergatia azaltzen."};
- if(it.id==="HB-EP-CAUSE-02-OPEN"&&!/\b[\p{L}]+lako\b/iu.test(raw))return {status:"task",message:"Atazak «-lako» erabiltzea eskatzen du. Saiatu kausa esaldi berean ematen."};
+ const discourse=discourseGoal(it,raw);if(discourse)return discourse;
  return known?{status:"observed",message:"Ereduarekin bat dator zure esaldia."}:{status:"unverified"};
 }
 function checkEpisodeWriting(it,st){
@@ -1040,7 +1084,7 @@ function checkEpisodeWriting(it,st){
 }
 function writeFeedback(it,st){
  const a=st.writeAssessment;if(!a)return "";
- if(a.status==="contrast")return '<section class="bd-write-review is-repair" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg("bolt")+'</span><div><span class="bd-kicker">ZUZENDU ETA IKASI</span><h3>Laguntzailea berrikusi</h3></div></div><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Begiratu hitzari</small><del>'+esc(a.from)+'</del></span>'+(st.checked?'<span><small>Proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p class="bd-write-example">'+esc(a.example)+'</p><p class="bd-note">Egitura hau bakarrik aztertu dugu.</p>':'<p class="bd-write-next">Aldatu esaldia eta egiaztatu berriro.</p>')+'</section>';
+ if(a.status==="contrast")return '<section class="bd-write-review is-repair" role="status"><div class="bd-write-status"><span class="bd-write-symbol bd-write-bira">'+bira("retry")+'</span><div><span class="bd-kicker">ZUZENDU ETA IKASI</span><h3>Laguntzailea berrikusi</h3></div></div><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Begiratu hitzari</small><del>'+esc(a.from)+'</del></span>'+(st.checked?'<span><small>Proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p class="bd-write-example">'+esc(a.example)+'</p><p class="bd-note">Egitura hau bakarrik aztertu dugu.</p>':'<p class="bd-write-next">Aldatu esaldia eta egiaztatu berriro.</p>')+'</section>';
  if(a.status==="task_case")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Kasuari erreparatu</h3><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Zure forma</small><b>'+esc(a.from)+'</b></span>'+(st.checked?'<span><small>Atazarako proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Aldatu kasua eta saiatu berriro.</p>')+'</section>';
  if(a.status==="task")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Berrikusi eskakizuna</h3><p>'+esc(a.message)+'</p>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Osatu zure erantzuna eta saiatu berriro.</p>')+'</section>';
  if(!st.checked)return "";

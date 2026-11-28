@@ -376,6 +376,16 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('extra plural agreement pattern returns precise auxiliary',review(write,'Ikerrek bi gutun aurkitu du.').to==='ditu');
  check('different valid spelling or clause cannot be marked erroneous by rule',review(write,'Ane eta Iker elkarrekin joan dira.').status==='unverified');
  check('new visual route reuses current artwork and five game illustrations',w.HBBidea.bidea().includes('bd-mission-preview')&&(w.HBBidea.gaur().match(/class="bd-game-art"/g)||[]).length===5);
+ const dat={id:'HB-EP-MIRROR-05-OPEN',t:'write',model:'Lagunek lamiari lagundu diote.'};
+ check('recipient and plural object agreement are checked in explicit constructions',review(dat,'Lagunek lamiari ispilua eta orrazia itzuli dituzte.').to==='dizkiote'&&review(dat,'Lagunek ispilua eta orrazia lamiari itzuli dizkiote.').status==='observed');
+ check('different valid regimen remains unverified',review(dat,'Lagunek lamiari lagundu dute.').status==='unverified');
+ check('explicit dative correction preserves the sentence',review(dat,'Anek lamiari ispilua erakutsi du.').example==='Anek lamiari ispilua erakutsi dio.');
+ const routeTask={id:'HB-EP-FOREST-04-OPEN',t:'write',model:'Zubitik errekara joango gara.'};
+ check('origin and destination feedback matches real task',review(routeTask,'Zubian errekara joango gara.').code==='nondik'&&review(routeTask,'Zubitik errekan joango gara.').code==='nora'&&review(routeTask,'Zubitik errekara joango gara.').status==='observed');
+ const cause4={id:'HB-EP-CAUSE-04-OPEN',t:'write',model:'Eredua.'};
+ check('explicit cause and consequence task requirements are distinct from grammar',review(cause4,'Zubira etorri gara, marka bat ikusi dugulako.').status==='task'&&review(cause4,'Zubira etorri gara, marka bat ikusi dugulako. Horregatik, beste bide bat bilatuko dugu.').status==='unverified');
+ check('unrecognized discourse variants are not asserted wrong merely for quoted markers',review(cause4,'«Izan ere», esan du.').status==='unverified');
+ check('Bira art accompanies the game room',w.HBBidea.gaur().includes('bd-playroom-bira'));
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

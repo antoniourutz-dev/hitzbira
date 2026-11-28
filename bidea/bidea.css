@@ -788,3 +788,19 @@ html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="da
 .bd-world-games .bd-game-tile:focus-visible{outline:3px solid var(--bd-acc);outline-offset:2px}
 @media(min-width:760px){.bd-gaur-polished .bd-world-games .bd-world-game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bd-gaur-polished .bd-world-games .bd-game-tile{display:flex;flex-direction:row;align-items:center;min-height:112px}.bd-gaur-polished .bd-world-games .bd-game-tile:last-child{grid-column:1/-1}}
 @media(max-width:759px){.bd-world-games .bd-game-art{width:52px;height:52px;border-radius:14px}.bd-world-games .bd-game-art svg{width:50px;height:50px}.bd-gaur-polished .bd-world-games .bd-game-tile,.bd-mapa-meta .bd-world-games .bd-game-tile{min-height:76px;gap:10px;padding:10px 32px 10px 10px;flex-direction:row;align-items:center}}
+
+/* Visual universe foundation: original cast portraits and shared Bira guidance. */
+.bd-cast-face{background:transparent!important;overflow:hidden;display:grid;place-items:center;flex:none}
+.bd-cast-face svg{width:100%;height:100%;display:block}
+.bd-write-bira{background:var(--bd-lav);overflow:hidden;display:grid;place-items:center}
+.bd-write-bira .bd-bira{width:100%;height:100%;object-fit:contain}
+.bd-write-task-ico.bd-write-bira{width:60px;height:60px;border-radius:18px}
+.bd-write-status .bd-write-bira{width:52px;height:52px;border-radius:15px}
+.bd-write-scene{margin:0 0 16px;padding:11px 14px;background:var(--bd-canvas);border:1px solid var(--bd-line);border-radius:14px}
+.bd-write-scene summary{cursor:pointer;font-size:.9rem;font-weight:750;color:var(--bd-ink)}
+.bd-write-scene summary svg{width:16px;height:16px;vertical-align:middle;margin-right:5px}
+.bd-write-scene p{margin:10px 0 0;line-height:1.65;font-size:.95rem}
+.bd-playroom-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bd-playroom-head>div{min-width:0}
+.bd-playroom-bira{width:72px;height:72px;flex:none;object-fit:contain}
+@media(max-width:480px){.bd-write-task-ico.bd-write-bira{width:46px;height:46px}.bd-playroom-bira{width:60px;height:60px}}
