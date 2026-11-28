@@ -893,7 +893,7 @@ function body(){const it=cur().item,st=player.state,dis=st.checked?"disabled":""
  if(it.t==="build"){const used=new Set(st.picked);return `${mp}<p class="bd-src">${esc(it.q)}</p><p class="bd-instr">${it.instr?esc(it.instr):`Erabili <b>«${esc(it.k)}»</b> eta idatzi berriro bi esaldi gisa.`}</p><div class="bd-line${st.checked?(st.ok?" is-right":" is-wrong"):""}" aria-live="polite">${st.picked.length?st.picked.map(k=>{const t=st.tiles.find(x=>x.k===k);return `<button class="bd-tile is-placed" ${dis} onclick="HBBidea.untile(${k})">${esc(t.w)}</button>`}).join(""):`<span class="bd-ph">Sakatu fitxak ordenan</span>`}</div><div class="bd-bank">${st.tiles.map(t=>`<button class="bd-tile${used.has(t.k)?" is-used":""}" ${dis||used.has(t.k)?"disabled":""} onclick="HBBidea.tile(${t.k})">${esc(t.w)}</button>`).join("")}</div>`}
  if(it.t==="fix"){return `${mp}<p class="bd-instr${st.mistap?" bd-warn":""}" aria-live="polite">${st.tapped===null?(st.mistap?"Ez da hori. Begiratu berriro.":"Sakatu gaizki dagoen hitza."):"Ondo! Zein hitz jarri behar da?"}</p><p class="bd-q bd-fixq${st.mistap?" bd-shake":""}">${st.tokens.map((w,k)=>{const isW=w===it.w;let c="";if(st.tapped!==null&&isW)c=" is-struck";return `<button class="bd-word${c}" ${st.tapped!==null||st.checked?"disabled":""} onclick="HBBidea.tap(${k})">${esc(w)}</button>`}).join(" ")}</p>${st.tapped!==null?optBtns(st.opts,{a:[it.r]},st," bd-chips bd-chips-3"):""}`}
  if(it.t==="match"){return `${mp}<p class="bd-instr">${esc(it.q)}</p><div class="bd-match${it.pairs.some(p=>p[1].length>16)?" is-long":""}"><div>${it.pairs.map((p,k)=>{const m=st.matched.includes(k);return `<button class="bd-m bd-m-l${m?" is-done":""}${st.left===k?" is-sel":""}${st.flash&&st.flash[0]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mL(${k})">${esc(p[0])}</button>`}).join("")}</div><div>${st.right.map(k=>{const m=st.matched.includes(k),p=it.pairs[k];return `<button class="bd-m bd-m-r${m?" is-done":""}${st.flash&&st.flash[1]===k?" is-bad":""}" ${m||st.checked?"disabled":""} onclick="HBBidea.mR(${k})">${esc(p[1])}</button>`}).join("")}</div></div>`}
- if(it.t==="write"){return `${mp}<p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p><label class="bd-sr" for="bd-wr">Zure testua</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="${it.check==="nornork"?"Gaur goizean…":"Lehenik, etxetik…"}" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${st.checked&&player.mode!=="episode"?writeChecks(st.typed,it.check):""}`}
+ if(it.t==="write"){return `${mp}<div class="bd-write-task"><span class="bd-write-task-ico">${svg("map")}</span><div><span class="bd-kicker">ZURE TXANDA</span><p class="bd-q bd-q-sm">${esc(it.q)}</p><p class="bd-instr">${esc(it.instr)}</p></div></div><label class="bd-write-label" for="bd-wr">Zure esaldia</label><textarea id="bd-wr" class="bd-write" rows="4" data-focus placeholder="Idatzi zure hitzekin…" ${dis} oninput="HBBidea.typed(this.value)">${esc(st.typed)}</textarea>${player.mode==="episode"?`<p class="bd-write-note">${st.writeRetry&&!st.checked?"Saiatu berriro, zure hitzekin.":"Ez duzu eredua hitzez hitz kopiatu behar."}</p>`:st.checked?writeChecks(st.typed,it.check):""}`}
  return ""}
 function writeChecks(t,kind){return `<ul class="bd-checks">${writeCheckList(t,kind).map(([l,ok])=>`<li class="${ok?"is-ok":""}">${svg(ok?"check":"x")}${esc(l)}</li>`).join("")}</ul>`}
 function ready(){const it=cur().item,st=player.state;if(it.t==="gap")return !!st.typed.trim();if(it.t==="write")return st.typed.trim().length>=(player.mode==="episode"&&player.L.forest?3:10);if(it.t==="build")return st.picked.length>0;if(it.t==="fix")return st.tapped!==null&&!!st.sel;if(it.t==="match")return st.matched.length===it.pairs.length;return !!st.sel}
@@ -910,7 +910,7 @@ function deskSide(){if(!player||player.mode==="test"||player.mode==="worldgame"|
   <section class="bd-card bd-desk-keys"><span class="bd-kicker">TEKLATUA</span><ul><li><kbd>1–4</kbd><span>Aukeratu</span></li><li><kbd>H</kbd><span>Pista</span></li><li><kbd>Enter</kbd><span>Egiaztatu / Jarraitu</span></li><li><kbd>Esc</kbd><span>Itxi</span></li></ul></section>
  </aside>`}
 /* Feedbacka: esaldi zuzena osorik + zergatia, laburra eta bisuala. Azalpen teknikoa nahi duenarentzat. */
-function feedback(){const it=cur().item,st=player.state;if(!st.checked)return "";
+function feedback(){const it=cur().item,st=player.state;if(player.mode==="episode"&&it.t==="write"&&st.writeAssessment)return writeFeedback(it,st);if(!st.checked)return "";
  if(player.kind==="rosco"&&st.neutral)return '<section class="bd-fb is-neutral" role="status"><strong>Alderatu proposamenarekin.</strong><p>'+esc(it.ex)+'</p><p>Beste hitz egoki bat ere egon daiteke.</p></section>';
  if(player.mode==="episode"&&st.neutral)return '<section class="bd-fb is-neutral" role="status"><div><strong>'+(it.t==="write"?"Zure testua prest dago.":"Alderatu proposamenarekin.")+'</strong><p><b>Eredu bat:</b> '+esc(it.t==="write"?it.model:(solvedParts(it)||[]).join(""))+'</p><p>'+esc(it.ex)+'</p><p class="bd-note">Erantzuna ez da automatikoki baliozkotu.</p></div></section>';
  const parts=solvedParts(it),key=it.t==="fix"?it.r:it.t==="build"?it.k:it.a[0],g=S.level==="b1b2"&&key?groupOf(key,DATA.groups):null,p=g&&(player.mode==="episode"&&player.segment==="story"?player.L.patterns:DATA.patterns)[g],gl=key&&DATA.gloss[norm(key)];
@@ -926,7 +926,7 @@ function play(){const it=cur().item,st=player.state,test=player.mode==="test",re
  return `<div class="bd-pwrap${side?" has-desk-side":""}">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
  <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked&&!st.neutral?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${vocabularyNotice()}${body()}</main>
  ${test?"":nudgeHtml()+feedback()+auditBox()}</div>${side}</div>
- ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok||st.neutral?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${player.kind==="rosco"?`<button type="button" class="bd-btn bd-btn-ghost" onclick="HBBidea.skipRosco()">Saltatu</button>`:""}${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">Egiaztatu</button></div>`}</footer>`}</div>`}
+ ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok||st.neutral?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${player.kind==="rosco"?`<button type="button" class="bd-btn bd-btn-ghost" onclick="HBBidea.skipRosco()">Saltatu</button>`:""}${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">${player.mode==="episode"&&it.t==="write"&&st.writeRetry?"Egiaztatu berriro":"Egiaztatu"}</button></div>`}</footer>`}</div>`}
 function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
 function sel(o){const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}render()}
 function typed(v){player.state.typed=v;saveEpisodeDraft(true);const b=document.querySelector(".bd-pfoot .bd-btn-main");if(b)b.disabled=!ready()}
@@ -956,11 +956,73 @@ function recordRecognition(it,st,e,ok){
  if(old&&first)memory[it.id].firstMatch=false;
  st.recognitionRecorded=true;save()
 }
+/* HB-WRITE-v1: narrow, task-specific contrasts. Not a general parser.
+   Never interpret a quotation, subordinate clause or an unknown construction. */
+const WRITE_NOR=[
+ ["ni","naiz",["dut","duzu","dugu","dute"]],
+ ["zu","zara",["dut","duzu","dugu","dute"]],
+ ["gu","gara",["dut","duzu","dugu","dute"]],
+ ["zuek","zarete",["dut","duzu","duzue","dugu","dute"]],
+ ["ane","da",["du","ditu","dut","dute"]],
+ ["iker","da",["du","ditu","dut","dute"]],
+ ["lagunak","dira",["du","ditu","dute","dituzte"]]
+];
+const WRITE_NORK=[
+ ["nik","dut",["naiz","zara","da","gara","dira"],["ura edan","giltza hartu","ispilua hartu","orrazia ikusi","liburua irakurri","atea ireki"]],
+ ["guk","dugu",["naiz","gara","da","dira"],["giltza hartu","ispilua hartu","atea ireki","ura edan"]],
+ ["anek","du",["naiz","da","dira"],["ispilua hartu","kutxa ireki","ispilua erakutsi","atea ikusi"]],
+ ["lurrek","du",["naiz","da","dira"],["kutxa ireki","mapa ireki"]],
+ ["ikerrek","du",["naiz","da","dira"],["orrazia ikusi","kutxa ireki"]],
+ ["nik","ditut",["dut","naiz"],["bi gutun aurkitu","bi liburu irakurri"]],
+ ["guk","ditugu",["dugu","gara"],["bi gutun irakurri","bi botila bete"]],
+ ["lagunek","dituzte",["dute","dira"],["bi objektu aurkitu","ispilua eta orrazia itzuli"]]
+];
+function reviewSentence(it,answer){
+ const raw=String(answer||"").trim();
+ if(it?.t!=="write"||!raw||raw.length>600)return {status:"unverified"};
+ // Keep punctuation and clause boundaries: we only parse a single plain affirmative sentence.
+ const plain=raw.toLowerCase().normalize("NFC").replace(/\s+/g," ").replace(/[.]$/,"").trim();
+ const known=(it.model&&norm(raw)===norm(it.model));
+ if(/^[\p{L} ]+$/u.test(plain)&&!/\b(?:ez|omen|ote|ba|baina|eta)\b/.test(plain.replace("ispilua eta orrazia","ispilua orrazia"))){
+  const words=plain.split(" "),aux=words.at(-1),prefix=words.slice(0,-1).join(" ");
+  const issue=(code,expected,message)=>({status:"contrast",code,from:aux,to:expected,message,example:raw.replace(new RegExp(aux+"([.]?)$","i"),(_,p)=>expected+p)});
+  const matchNor=prefix.match(/^(ni|zu|gu|zuek|ane|iker|lagunak) (?:(?:aterpera|mendira|errekara|etxera|basora|eskolara|haitzulora|barrura|elkarrekin|errekaren ondoan) )?(?:joan|etorri|iritsi|sartu|eseri)$/);
+  if(matchNor){const [,sub]=matchNor,rule=WRITE_NOR.find(r=>r[0]===sub);if(rule[2].includes(aux))return issue("nor",rule[1],"Begiratu nor joan edo iritsi den: hemen NOR laguntzailea behar dugu.");if(aux===rule[1])return {status:"observed",message:"NOR laguntzailea egoki erabili duzu esaldi honetan."}}
+  // With an omitted subject, infer person only when the task explicitly supplies it.
+  const goal=/^HB-EP-SHELTER-01-OPEN$/.test(it.id)&&prefix==="aterpera joan";
+  if(goal&&aux==="dut")return issue("nor","naiz","Zure buruaz ari zara: joan naiz, ez joan dut.");
+  for(const [sub,wanted,wrong,objects] of WRITE_NORK){if(!objects.some(o=>prefix===sub+" "+o))continue;if(wrong.includes(aux))return issue("nornork",wanted,wanted==="ditut"||wanted==="ditugu"||wanted==="dituzte"?"Objektua plurala da. Begiratu laguntzailearen komunztadurari.":"Egilea eta objektua ditugu esaldi honetan; begiratu laguntzaileari.");if(aux===wanted)return {status:"observed",message:"Laguntzailea egoki erabili duzu egitura honetan."}}
+ }
+ // Task-alignment only: no judgement on grammar or meaning from a marker alone.
+ if(it.id==="HB-EP-CAUSE-01-OPEN"&&!/\bizan ere\b/i.test(raw))return {status:"task",message:"Bigarren esaldian «izan ere» erabiltzea eskatzen da. Saiatu zergatia azaltzen."};
+ if(it.id==="HB-EP-CAUSE-02-OPEN"&&!/\b[\p{L}]+lako\b/iu.test(raw))return {status:"task",message:"Atazak «-lako» erabiltzea eskatzen du. Saiatu kausa esaldi berean ematen."};
+ return known?{status:"observed",message:"Ereduarekin bat dator zure esaldia."}:{status:"unverified"};
+}
+function checkEpisodeWriting(it,st){
+ if(st.writeOriginal===undefined)st.writeOriginal=st.typed;
+ const assessment=reviewSentence(it,st.typed);
+ st.writeAssessment=assessment;
+ if(assessment.status==="contrast"&&!st.writeErrorRecorded){
+  st.writeErrorRecorded=true;storeDifficulty(assessment.code,assessment.from);
+ }
+ // One guided rewrite, no forced loop. Unknown alternatives remain unverified.
+ if(["contrast","task"].includes(assessment.status)&&!st.writeRetry){st.writeRetry=true;st.hintUsed=true;render();return}
+ st.checked=true;st.neutral=true;st.ok=false;render()
+}
+function writeFeedback(it,st){
+ const a=st.writeAssessment;if(!a)return "";
+ if(a.status==="contrast")return '<section class="bd-write-review is-repair" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg("bolt")+'</span><div><span class="bd-kicker">ZUZENDU ETA IKASI</span><h3>Laguntzailea berrikusi</h3></div></div><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Begiratu hitzari</small><del>'+esc(a.from)+'</del></span>'+(st.checked?'<span><small>Proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p class="bd-write-example">'+esc(a.example)+'</p><p class="bd-note">Egitura hau bakarrik aztertu dugu.</p>':'<p class="bd-write-next">Aldatu esaldia eta egiaztatu berriro.</p>')+'</section>';
+ if(a.status==="task")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Berrikusi eskakizuna</h3><p>'+esc(a.message)+'</p>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Osatu zure erantzuna eta saiatu berriro.</p>')+'</section>';
+ if(!st.checked)return "";
+ return '<section class="bd-write-review '+(a.status==="observed"?"is-observed":"is-reflect")+'" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg(a.status==="observed"?"check":"map")+'</span><div><span class="bd-kicker">'+(a.status==="observed"?"EGITURA LANDUA":"ALDERATU ETA IKASI")+'</span><h3>'+ (a.status==="observed"?(st.writeRetry?"Egitura berrikusi duzu":"Egitura egokia"):"Zure esaldia prest dago")+'</h3></div></div><p>'+esc(a.message||"Beste formulazio egoki batzuk ere egon daitezke.")+'</p><div class="bd-write-example"><span class="bd-kicker">EREDU BAT</span><p><b>Eredu bat:</b> '+esc(it.model)+'</p></div><p class="bd-note">'+(a.status==="observed"?"Egitura edo eredua egiaztatu dugu, ez testu osoa.":"Erantzuna ez da automatikoki baliozkotu.")+'</p></section>'
+}
+
 function check(){if(!player||player.phase!=="play")return;if(player.owner&&player.owner!==keyFor(KEY)){close();return}const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;
  if((player.mode==="episode"||player.mode==="worldgame")&&!st.studyRecorded&&!e.retry){st.studyRecorded=true;S.episodeStudyDays=S.episodeStudyDays||{};S.episodeStudyDays[today()]=true;save();if(root.HBData?.isRemote?.())root.HBData.activity?.({kind:"answer",item:it.id})}
  const diagnosis=(player.mode==="episode"||player.mode==="worldgame"&&(it.why||player.kind==="recall"))?classifyEpisodeError(it,it.t==="gap"?st.typed:st.sel):null;
  if(diagnosis)rememberEpisodeError(st,diagnosis);
- if(player.mode==="episode"&&(it.t==="write"||(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis))){st.checked=true;st.neutral=true;st.ok=false;render();return}
+ if(player.mode==="episode"&&it.t==="write"){checkEpisodeWriting(it,st);return}
+ if(player.mode==="episode"&&(it.t==="gap"&&!isAccepted(st.typed,it.a)&&!diagnosis)){st.checked=true;st.neutral=true;st.ok=false;render();return}
  let ok=false;if(it.t==="gap")ok=isAccepted(st.typed,it.a);else if(it.t==="write")ok=true;else if(it.t==="build")ok=isAccepted(st.picked.map(k=>st.tiles.find(t=>t.k===k).w).join(" "),it.a);else if(it.t==="fix")ok=norm(st.sel)===norm(it.r)&&!e.miss;else if(it.t==="match")ok=player.mode==="worldgame"||!e.miss;else ok=isAccepted(st.sel,it.a);
  recordRecognition(it,st,e,ok);
  /* Lehen hutsean: pista erakutsi eta bigarren aukera eman, erantzuna zuzenean erakutsi aurretik. */
@@ -1027,6 +1089,6 @@ function learningContext(){
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
   focus:route==="b1b2"?["kau","ond"]:mission>=2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{}};
 }
-root.HBBidea={...api,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,skipRosco,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
+root.HBBidea={...api,reviewSentence,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,skipRosco,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);
 })(typeof window!=="undefined"?window:globalThis);

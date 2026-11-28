@@ -406,3 +406,13 @@ body[data-hb-access="guest"] nav button{flex:1 1 0;max-width:180px;min-height:48
 .material-section .catalog-lesson-grid{margin-top:1rem}
 [data-theme=dark] .material-context{background:#211b35;border-color:#44365e}
 @media(max-width:680px){.material-context{align-items:stretch;flex-direction:column;padding:1rem}.material-switch{min-width:0}.material-switch button{flex:1;white-space:normal}.material-section{margin:1.25rem 0}.material-context .catalog-kicker{line-height:1.5}}
+
+/* Shared visual refinement: the same readable type scale and surfaces in the academy and practice. */
+body.hb-kit .material-context{border-radius:22px;box-shadow:0 6px 24px rgba(46,32,80,.05)}
+body.hb-kit .material-section{padding-block:8px 14px}
+body.hb-kit .material-section .catalog-lesson-grid{gap:14px}
+body.hb-kit .material-section h2,body.hb-kit .catalog-section-head h2{letter-spacing:-.025em;line-height:1.28}
+body.hb-kit .material-context p,body.hb-kit .material-section p,body.hb-kit .academy-practice-link p{line-height:1.65}
+body.hb-kit .material-switch button{min-height:44px;border-radius:12px}
+body.hb-kit .academy-practice-link{border-radius:20px}
+@media(max-width:680px){body.hb-kit .material-section .catalog-lesson-grid{gap:10px}body.hb-kit .material-section{padding-block:4px 10px}}
