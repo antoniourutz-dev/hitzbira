@@ -10,6 +10,7 @@ async function main(){
  check('single theme is named precisely',api.themeLabel([rows[0],rows[1]])==='a');
  const next=api.select(rows,{level:'C1',previous:items.flatMap(i=>i.vocabulary.map(r=>r.id)),rng:()=>.25});
  check('next game uses unseen vocabulary when enough exists',next.flatMap(i=>i.vocabulary).every(r=>!items.flatMap(i=>i.vocabulary).some(p=>p.id===r.id)));
+ const repairRow=items[0].vocabulary[0];const repaired=api.select(rows,{level:'C1',previous:items.flatMap(i=>i.vocabulary.map(r=>r.id)),evidence:{[api.resourceKey(repairRow)]:{result:'supported'}},rng:()=>.25});check('version-matched difficult vocabulary returns in next game',repaired[0].vocabulary.some(r=>r.id===repairRow.id));check('new version does not inherit old evidence',api.resourceKey({...repairRow,version:2})!==api.resourceKey(repairRow));
  check('level cannot be silently widened',api.select(rows,{level:'B1'}).length===0);
  check('theme cannot be silently widened',api.select(rows,{level:'C1',theme:'lexiko_a'}).flatMap(i=>i.vocabulary).every(r=>r.theme==='lexiko_a'));
  check('insufficient pairs do not create a game',api.select(rows.slice(0,2),{level:'C1'}).length===0);
@@ -95,6 +96,7 @@ async function main(){
  check('dynamic game uses existing player and source panel',w.HBBidea._player().queue.length===4&&els.get('bd-player').innerHTML.includes('Hitzen jatorria'));
  w.HBBidea.mL(0);w.HBBidea.mR(1);w.HBBidea.mL(0);w.HBBidea.mR(0);
  check('first wrong recognition and assisted recovery both retained without mastery',events.length===2&&events[0].result==='mismatch'&&events[1].assisted&&events.every(e=>e.mode==='recognition'&&e.academicState==='not_observed'&&e.resource.version===1));
+ check('versioned lexical difficulty persists without mastery',w.HBBidea._state().recognitionEvidence[api.resourceKey(events[0].resource)].result==='supported'&&w.HBBidea._state().recognitionEvidence[api.resourceKey(events[0].resource)].firstMatch===false);
  w.HBBidea.mL(1);w.HBBidea.mR(1);check('a different word retains its first-attempt status after a peer error',events[2].attempt===1&&events[2].assisted===false&&events[1].attempt===2&&events[2].telemetryVersion===2);
  w.HBBidea.close(true);w.HBBidea.setVocabularyTheme('lexiko_a');await w.HBBidea.startWorldGame('words');w.HBBidea.close(true);check('playing one topic preserves the other available topic in the menu',w.HBBidea.gaur().includes('value="lexiko_b"'));
  w.HBBidea.chooseAdventure('basorako-bidea');await w.HBBidea.startWorldGame('words');check('switching adventure changes the internal request to its assigned difficulty',requests.at(-1).level==='A1');check('out-of-adventure bank rows fall back instead of changing difficulty',w.HBBidea._player().vocabularyMode==='fallback');check('adventure choice is not proficiency certification',w.HBBidea._state().placed===false);w.HBBidea.chooseAdventure('uraren-misterioa');

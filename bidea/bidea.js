@@ -521,6 +521,10 @@ const VERB_TASKS=[
 ,{id:"HB-VERB-FOUND-2",code:"nor",level:"a1a2",stage:"foundation",t:"mc",q:"Ni etxera joan ____.",ch:["naiz","dut","da"],a:["naiz"],ex:"Ni naiz joan dena.",why:{dut:"Joan aditzak hemen NOR laguntzailea behar du.",da:"Ni naiz joan dena, ez hura."}},
  {id:"HB-VERB-EVERY-1",code:"nornork",level:"a1a2",stage:"everyday",t:"mc",q:"Nik ura edan ____.",ch:["naiz","dut","du"],a:["dut"],ex:"Nik edan dut ura.",why:{naiz:"Ura da objektua; nik adierazten du egilea.",du:"Nik lehen pertsona adierazten du."}},
  {id:"HB-VERB-EVERY-2",code:"nornork",level:"a1a2",stage:"everyday",t:"mc",q:"Guk bi botila bete ____.",ch:["dugu","gara","ditugu"],a:["ditugu"],ex:"Bi botila dira objektua; horregatik, ditugu.",why:{dugu:"Objektua plurala da: bi botila.",gara:"Guk bete dugu zerbait; objektua ere badago."}}
+,{id:"HB-VERB-FOUND-3",code:"nor",level:"a1a2",stage:"foundation",t:"mc",q:"Ane eta Jon eskolara iritsi ____.",ch:["da","dira","dute"],a:["dira"],ex:"Bi pertsona iritsi dira.",why:{da:"Bi pertsona dira.",dute:"Hemen ez da objekturik aipatzen."}},
+ {id:"HB-VERB-EVERY-3",code:"nornork",level:"a1a2",stage:"everyday",t:"mc",q:"Jonek bi liburu ekarri ____.",ch:["du","ditu","da"],a:["ditu"],ex:"Jonek bi liburu ekarri ditu.",why:{du:"Bi liburu dira objektua.",da:"Jonek egindako ekintza eta objektua ditugu."}},
+ {id:"HB-VERB-CONNECTED-1",code:"nornorinork",level:"b1b2",stage:"connected",t:"mc",q:"Guk lagunei argazkiak bidali ____.",ch:["ditugu","dizkiegu","diegu"],a:["dizkiegu"],ex:"Guk bidali dizkiegu argazkiak lagunei.",why:{ditugu:"Hartzailea ere adierazi behar da.",diegu:"Argazkiak plurala da."}},
+ {id:"HB-VERB-REASONING-1",code:"nornorinork",level:"b1b2",stage:"reasoning",t:"mc",q:"Udalak auzotarrei azalpenak eman ____.",ch:["ditu","dizkie","die"],a:["dizkie"],ex:"Udalak eman dizkie azalpenak auzotarrei.",why:{ditu:"Auzotarrekiko komunztadura falta da.",die:"Azalpenak plurala da."}}
 ].map(x=>({...x,src:"Jatorrizko testuinguru mugatua / HB-VERB-PILOT-v1"}));
 /* Original editorial trial: the same communicative topic with genuinely different
    demands. Fixed choices are recognition, never evidence of autonomous production. */
@@ -578,7 +582,7 @@ function contextGameItems(){
 function worldGameItems(kind){
  if(kind==="context")return contextGameItems();
  if(kind==="words")return wordGameGroups();
- if(kind==="verbs"){const stage=currentProfile().stage;return VERB_TASKS.filter(x=>x.level===S.level&&(!x.stage||x.stage===stage))}
+ if(kind==="verbs"){const stage=currentProfile().stage,items=VERB_TASKS.filter(x=>x.level===S.level&&(!x.stage||x.stage===stage)),memory=S.recognitionEvidence||{};return (root.HBLearningSelection?.practicePriority(items,{evidence:memory,errors:S.episodeErrorMemory||{}})||items).slice(0,3)}
  if(S.level==="a1a2"){
  const words=[["Basoa","Zuhaitz asko dauden lekua."],["Erreka","Ibai txikia."],["Mendia","Lur garaia."]];for(const t of FOREST_TREASURES)if(S.episodes?.[FOREST_IDS[FOREST_TREASURES.indexOf(t)]]?.treasure===t.id&&!words.some(p=>p[0]===t.title))words.push([t.title,t.desc]);
  if(kind==="words")return [{id:"HB-FOREST-GAME-WORDS",t:"match",q:"Lotu hitzak eta esanahiak.",pairs:words,a:["loturak"],ex:"Basoa, erreka eta mendia."}];
@@ -618,7 +622,7 @@ async function prepareVocabulary(){
  if(!root.HBData?.isRemote?.()||!root.HBVocabulary){openWorldGame("words",wordGameGroups(),{mode:"fallback",reason:"guest"});return}
  vocabularyRepo=vocabularyRepo||root.HBVocabulary.createRepository(root.HBData);
  const loading={mode:"worldgame",kind:"words",phase:"loading",owner};player=loading;const el=ensureEl();render();el.focus?.();
- const result=await vocabularyRepo.prepare(filters);
+ const result=await vocabularyRepo.prepare({...filters,evidence:S.recognitionEvidence||{}});
  if(player!==loading||owner!==keyFor(KEY)||result.mode==="cancelled")return;
  vocabularyThemes=[...new Set([...vocabularyThemes,...(result.themes||[])])];
  openWorldGame("words",result.mode==="live"?result.items:wordGameGroups(),{...result,level:filters.level});
@@ -870,7 +874,16 @@ function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))retu
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
 function tap(k){const st=player.state,it=cur().item;if(st.checked||st.tapped!==null)return;if(st.tokens[k]===it.w){st.tapped=k;st.mistap=false;sfx("tap")}else{st.mistap=true;cur().miss=true;sfx("bad")}render()}
 function mL(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.matched.includes(k))return;st.left=k;st.flash=null;sfx("tap");render()}
-function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;const attempt=st.vocabularyAttempts[st.left]=(st.vocabularyAttempts[st.left]||0)+1;root.HBData?.activity?.({kind:"vocabulary_match",telemetryVersion:2,attempt,resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:attempt>1,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
+function mR(k){if(player?.owner&&player.owner!==keyFor(KEY)){close();return}const st=player.state;if(st.checked||st.left===null||st.matched.includes(k))return;if(cur().item.vocabulary){const row=cur().item.vocabulary[st.left],chosen=cur().item.vocabulary[k];if(!row||!chosen)return;const attempt=st.vocabularyAttempts[st.left]=(st.vocabularyAttempts[st.left]||0)+1;rememberLexicalMatch(row,attempt,k===st.left);root.HBData?.activity?.({kind:"vocabulary_match",telemetryVersion:2,attempt,resource:row,chosen:chosen.id,result:k===st.left?"match":"mismatch",mode:"recognition",assisted:attempt>1,academicState:"not_observed"})}if(k===st.left){st.matched.push(k);st.left=null;st.flash=null;if(st.matched.length===cur().item.pairs.length){check();return}sfx("tap")}else{st.flash=[st.left,k];st.left=null;cur().miss=true;sfx("bad")}render()}
+function rememberLexicalMatch(row,attempt,ok){
+ if(!player||player.owner!==keyFor(KEY)||player.kind!=="words"||!root.HBData?.isRemote?.()||!root.HBVocabulary?.resourceKey)return;
+ const key=root.HBVocabulary.resourceKey(row);if(key.length>220)return;
+ const memory=S.recognitionEvidence||(S.recognitionEvidence={}),old=memory[key],assisted=attempt>1;
+ memory[key]={skill:"vocabulary",stage:currentProfile().stage,mode:"recognition",result:ok?(assisted?"supported":"match"):"mismatch",assisted,at:Date.now(),firstMatch:!old&&ok&&!assisted,attempts:Math.min(999,(old?.attempts||0)+1)};
+ // Retain a bounded version-specific lexical history in the existing checkpoint.
+ const keys=Object.keys(memory).filter(k=>k.startsWith("HB-VOCAB:")).sort((a,b)=>memory[b].at-memory[a].at);
+ for(const k of keys.slice(160))delete memory[k];save()
+}
 function recordRecognition(it,st,e,ok){
  if(player.mode!=="worldgame"||e.retry||player.owner!==keyFor(KEY)||!["context","verbs"].includes(player.kind)||it.t!=="mc")return;
  const skill=player.kind==="context"?"reading":"verbs",stage=it.stage||currentProfile().stage;

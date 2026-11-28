@@ -34,7 +34,7 @@ function select(cards,input={}){
  const adaptation=profile(context),band=route||"a1a2",byId=new Map(cards.map(c=>[c.id,c])),errors=context.errors||{},now=input.now??Date.now();
  const target=new Set(band==="b1b2"?[...basics,...laterBasics,...intermediate]:[...basics,...(adaptation.stage==="everyday"?laterBasics:[])]);
  const exists=id=>byId.has(id),review=new Set(),prerequisites=new Set();
- const pending=id=>["incorrect","unverified"].includes(input.attempts?.[id]?.lastResult);
+ const pending=id=>["incorrect","unverified"].includes(input.attempts?.[id]?.lastResult)||input.attempts?.[id]?.lastAssisted===true;
  const required=id=>{
   const graph=input.curriculum;
   const node=graph?.nodes?.find(n=>graph.route(n.id)?.refs.includes(id));
@@ -69,11 +69,18 @@ function select(cards,input={}){
   complementary:cards.filter(c=>!pool.some(x=>x.id===c.id)),
   reason:!route?"Hasi oinarrizko egiturekin eta aukeratu zure abentura.":"Hemen dituzu abenturan lagunduko dizuten egiturak eta berrikusteko gaiak."};
 }
+function practicePriority(items,{evidence={},errors={}}={}){
+ const difficult=r=>r&&["mismatch","supported"].includes(r.result);
+ return items.slice().sort((a,b)=>{
+  const rank=i=>{const row=evidence[i.id],m=errors[i.code];return difficult(row)?0:m&&Number(m.lastErrorAt)>Number(m.lastRecoveryAt||0)&&!row?1:!row?2:3};
+  return rank(a)-rank(b)||(evidence[a.id]?.at||0)-(evidence[b.id]?.at||0)
+ });
+}
 function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));
  return items.filter(c=>c.family==="decl"?(/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(c.id)||selection.band==="b1b2"):ids.has(c.id));
 }
-const api=Object.freeze({version:"HB-ROUTE-MATERIAL/3",profile,select,practiceFilter});
+const api=Object.freeze({version:"HB-ROUTE-MATERIAL/4",profile,select,practiceFilter,practicePriority});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 else root.HBLearningSelection=api;
 })(typeof window!=="undefined"?window:globalThis);
