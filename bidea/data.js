@@ -40,7 +40,7 @@ const lessons=[
  {id:"KAUS-A01-3",src:K+"A01#3",t:"gap",q:"Etxeko lanak atzeratu ditugu. ____, argibide batzuk falta dira.",a:["Izan ere","Zeren"],ex:"Argibide faltak aurreko erabakia azaltzen du. «Izan ere»rekin azalpenaren norabidea argia da."},
  {id:"KAUS-A02-5",src:K+"A02#5",t:"mc",q:"Euria ari zuen. ____, kalean jarraitu genuen.",ch:["Izan ere","Hala ere","Horrenbestez"],a:["Hala ere"],ex:"Ustekabeko gertakaria da; ez da kausazko azalpena."},
  {id:"KAUS-A01-4",src:K+"A01#4",t:"gap",q:"Leihatilan ilara luzea sortu da. ____, langile bakarra dago lanean.",a:["Izan ere","Zeren"],ex:"Bigarren perpausa lehenaren azalpen kausala da."},
- {id:"KAUS-A02-6",src:K+"A02#6",t:"mc",q:"Aste honetan ordutegia aldatu dugu. ____, gela nagusia itxita egongo da.",ch:["Izan ere","Horregatik","Adibidez"],a:["Izan ere"],ex:"Gelaren itxierak ordutegia aldatzea azaltzen du, baldin eta testuinguruan itxiera ordutegia aldatzeko arrazoia bada.",rv:true}
+ {id:"KAUS-A02-6",src:K+"A02#6",t:"mc",q:"Gela nagusia itxiko dutela jakin dugu. Hori dela eta, aste honetako ordutegia aldatu dugu. Aukeratu lehen baieztapenaren arrazoia ematen duen lokailua: Ordutegia aldatu dugu. ____, gela nagusia itxiko dute.",ch:["Izan ere","Horregatik","Adibidez"],a:["Izan ere"],ex:"Bigarren esaldiak ordutegia aldatzearen arrazoia azaltzen du; «horregatik» erabiltzeak kontrako norabidea emango luke.",rv:true}
  ]},
 {id:"b1b2-k1-i2",n:2,title:"Zeren eta -lako",es:"«Zeren» y «-lako»: otras formas de dar la causa",
  scene:"Bira irakasleari mezu bat idazten ari da: ezin izan du etxeko lana bukatu. Arrazoia ondo azaldu nahi du.",
@@ -267,7 +267,7 @@ const a1Lessons=[
 const G="GOLD-A1-001-";
 const a1K2Lessons=[
 {id:"a1a2-k2-i1",n:1,title:"Ni naiz, nik dut",es:"«Ni naiz» frente a «nik dut»",
- talk:[["bira","Gaur eguneko bi ekintza kontatuko ditugu. Begiratu bi esaldiei!","Hoy contaremos dos acciones del día. ¡Fíjate en las dos frases!"],["ane","Ni etxera joan naiz.","Yo he ido a casa."],["iker","Nik liburua irakurri dut.","Yo he leído el libro."]],
+ talk:[["bira","Gaurko bi ekintza kontatuko ditugu. Begiratu bi esaldiei!","Hoy contaremos dos acciones del día. ¡Fíjate en las dos frases!"],["ane","Ni etxera joan naiz.","Yo he ido a casa."],["iker","Nik liburua irakurri dut.","Yo he leído el libro."]],
  learn:"nornork",keys:["ni · naiz","nik · dut","zu · zara","zuk · duzu"],
  tip:"Nor joan da? Ni (naiz). Nork irakurri du? Nik (dut). Ez dute aditz guztiek eredu bera.",
  tipEs:"¿Quién ha ido? Ni (naiz). ¿Quién ha leído? Nik (dut). No todos los verbos siguen el mismo patrón.",

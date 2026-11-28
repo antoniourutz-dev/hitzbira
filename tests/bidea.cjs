@@ -108,11 +108,13 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.start(5);
  check('Chapter 2 Lesson 1 unlocks directly without blocking',w.HBBidea._player()&&w.HBBidea._player().L.id==='a1a2-k2-i1');
  w.HBBidea.begin();
+ const initialOptions=JSON.stringify(w.HBBidea._player().state.opts);check('lesson MC preserves all answer identities',new Set(w.HBBidea._player().state.opts).size===3&&w.HBBidea._player().state.opts.includes('da'));
  /* 1st wrong attempt: should NOT reveal answer, should show hint and allow 2nd try */
  w.HBBidea.sel('du');
  w.HBBidea.check();
  let p=w.HBBidea._player();
  check('first wrong attempt triggers hint + second try without revealing solution',p.state.checked===false&&p.state.tries===1&&p.state.hintOn===true&&p.state.wrongSel.includes('du')&&p.state.sel===null);
+ check('option order remains stable after a wrong answer',JSON.stringify(p.state.opts)===initialOptions);
  /* 2nd attempt correct: reveals feedback, awards +7 XP, keeps first-try counter honest (0) */
  w.HBBidea.sel('da');
  w.HBBidea.check();
@@ -406,6 +408,16 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  }
  check('complex contrast is bound to real task ID',review({id:'unknown',t:'write'},complexCases[0][2]).status==='unverified');
  check('cause and result markers cannot validate an incoherent relation',review({id:'HB-EP-CAUSE-01-OPEN',t:'write'},'Iturburuko hodia hautsi da. Izan ere, herrira ez da urik iristen.').status==='unverified');
+ // Exercises in the original lesson bank use the same bounded corrector as episodes.
+ w.HBBidea.setLevel('a1a2',false);w.HBBidea.start(4,true);w.HBBidea.begin();let lessonPlayer=w.HBBidea._player();
+ const openPos=lessonPlayer.queue.findIndex(e=>e.item.t==='write');check('legacy lesson contains open writing',openPos>=0);
+ for(let k=0;k<openPos;k++)w.HBBidea.next();
+ let before=lessonPlayer.first, xpBefore=lessonPlayer.xp;w.HBBidea.typed('Hitz bakarra.');w.HBBidea.check();
+ check('unverified free writing in a lesson does not count as correct or award XP',lessonPlayer.state.checked&&lessonPlayer.state.neutral&&!lessonPlayer.state.ok&&lessonPlayer.first===before&&lessonPlayer.xp===xpBefore&&els.get('bd-player').innerHTML.includes('Erantzuna ez da automatikoki baliozkotu.'));
+ w.HBBidea.close(true);
+ w.HBBidea.start(4,true);w.HBBidea.begin();lessonPlayer=w.HBBidea._player();const matchPos=lessonPlayer.queue.findIndex(e=>e.item.t==='match');
+ if(matchPos>=0){for(let k=0;k<matchPos;k++)w.HBBidea.next();const it=lessonPlayer.queue[lessonPlayer.pos].item;w.HBBidea.mL(0);w.HBBidea.mR(1);for(let k=0;k<it.pairs.length;k++){w.HBBidea.mL(k);w.HBBidea.mR(k)}check('all repaired pairs close without red panel or first-try credit',lessonPlayer.state.ok&&lessonPlayer.first===0&&lessonPlayer.xp===7)}
+ w.HBBidea.close(true);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

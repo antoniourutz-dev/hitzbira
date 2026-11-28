@@ -816,3 +816,5 @@ html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="da
 #bd-player .bd-pfoot .bd-btn-main{background:#4327a0;color:#fff}
 #bd-player .bd-write-review p{line-height:1.65}
 @media(max-width:540px){.bd-forest-scene{aspect-ratio:16/7}.bd-forest-scene .bd-location{font-size:.72rem;left:10px;bottom:8px}}
+
+#bd-player .bd-pfoot .bd-btn-main:disabled{background:var(--bd-line)!important;color:var(--bd-muted)!important;box-shadow:none!important;border:1px solid var(--bd-line);cursor:not-allowed;opacity:.72;transform:none;filter:none}
