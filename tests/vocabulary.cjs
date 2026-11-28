@@ -98,6 +98,11 @@ async function main(){
  w.HBBidea.mL(1);w.HBBidea.mR(1);check('a different word retains its first-attempt status after a peer error',events[2].attempt===1&&events[2].assisted===false&&events[1].attempt===2&&events[2].telemetryVersion===2);
  w.HBBidea.close(true);w.HBBidea.setVocabularyTheme('lexiko_a');await w.HBBidea.startWorldGame('words');w.HBBidea.close(true);check('playing one topic preserves the other available topic in the menu',w.HBBidea.gaur().includes('value="lexiko_b"'));
  w.HBBidea.chooseAdventure('basorako-bidea');await w.HBBidea.startWorldGame('words');check('switching adventure changes the internal request to its assigned difficulty',requests.at(-1).level==='A1');check('out-of-adventure bank rows fall back instead of changing difficulty',w.HBBidea._player().vocabularyMode==='fallback');check('adventure choice is not proficiency certification',w.HBBidea._state().placed===false);w.HBBidea.chooseAdventure('uraren-misterioa');
+ w.HBBidea.close(true);
+ const progress=w.HBBidea._state();progress.episodes=Object.fromEntries([1,2,3].map(n=>['HB-EP-CAUSE-0'+n,{visitedAt:1}]));await w.HBBidea.startWorldGame('words');
+ check('later World stage requests its own difficulty and rejects out-of-stage rows',requests.at(-1).level==='B2'&&w.HBBidea._player().vocabularyMode==='fallback');w.HBBidea.close(true);
+ w.HBBidea.chooseAdventure('basorako-bidea');const forest=w.HBBidea._state();forest.episodes={...forest.episodes,...Object.fromEntries([1,2,3,4,5].map(n=>['HB-EP-FOREST-0'+n,{visitedAt:1}]))};w.HBBidea.chooseForestMission(2);await w.HBBidea.startWorldGame('words');
+ check('second beginner mission requests its own difficulty, never advanced bank rows',requests.at(-1).level==='A2'&&w.HBBidea._player().vocabularyMode==='fallback');w.HBBidea.close(true);w.HBBidea.chooseAdventure('uraren-misterioa');
  w.HBBidea.close(true);w.HBData.vocabulary=()=>new Promise(r=>resolve=r);pending=w.HBBidea.startWorldGame('words');check('loading can be closed',els.get('bd-player').innerHTML.includes('Hitzak prestatzen'));w.HBBidea.close(true);resolve({contract:'hb-vocabulary-v1',rows});await pending;check('late response never reopens player',w.HBBidea._player()===null);
  console.log(checks+' checks passed (dynamic vocabulary; synthetic fixtures, no live claim)');
 }
