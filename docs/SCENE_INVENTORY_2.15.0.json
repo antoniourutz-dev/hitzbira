@@ -1,0 +1,448 @@
+[
+  {
+    "id": "HB-EP-FOREST-01",
+    "title": "Enborreko mezua",
+    "narrative": null,
+    "dialogue": [
+      [
+        "ane",
+        "Begiratu! Enbor zahar honetan mezu bat dago.",
+        "¡Mirad! En este tronco viejo hay un mensaje."
+      ],
+      [
+        "iker",
+        "Zer dio?",
+        "¿Qué dice?"
+      ],
+      [
+        "ane",
+        "«Menditik nator, basoan bizi naiz eta errekara noa.»",
+        "«Vengo del monte, vivo en el bosque y voy al arroyo.»"
+      ],
+      [
+        "lur",
+        "Nork idatzi du? Eta nora doa?",
+        "¿Quién lo ha escrito? ¿Y adónde va?"
+      ]
+    ],
+    "writing": [
+      {
+        "id": "HB-EP-FOREST-01-OPEN",
+        "prompt": "Birak jakin nahi du nora zoazen.",
+        "instruction": "Idatzi esaldi labur bat. Esan errekara zoazela.",
+        "model": "Errekara noa.",
+        "source": "Jatorrizko egokitzapena / EP-FOREST-01"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-FOREST-01.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-FOREST-02",
+    "title": "Basoko hitzak",
+    "narrative": null,
+    "dialogue": [
+      [
+        "txinpart",
+        "Kaixo! Txinpart naiz, basoko galtzagorria.",
+        "¡Hola! Soy Txinpart, el galtzagorri del bosque."
+      ],
+      [
+        "txinpart",
+        "Bidea aurkitu nahi duzue? Lehenik, ikasi basoko hitzak!",
+        "¿Queréis encontrar el camino? ¡Primero aprended las palabras del bosque!"
+      ],
+      [
+        "lur",
+        "Ados! Prest gaude.",
+        "¡De acuerdo! Estamos listos."
+      ]
+    ],
+    "writing": [
+      {
+        "id": "HB-EP-FOREST-02-OPEN",
+        "prompt": "Txinpartek non bizi zaren jakin nahi du.",
+        "instruction": "Idatzi esaldi bat: basoan bizi zarela esan.",
+        "model": "Basoan bizi naiz.",
+        "source": "Jatorrizko egokitzapena / EP-FOREST-02"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-FOREST-02.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-FOREST-03",
+    "title": "Non, nora, nondik?",
+    "narrative": null,
+    "dialogue": [
+      [
+        "iker",
+        "Mezuan hiru amaiera daude: -n, -ra eta -tik.",
+        "En el mensaje hay tres terminaciones: -n, -ra y -tik."
+      ],
+      [
+        "lur",
+        "Eta amaiera bakoitzak gauza bat esaten du.",
+        "Y cada terminación dice una cosa."
+      ],
+      [
+        "bira",
+        "Proba ditzagun beste hitz batzuekin!",
+        "¡Probémoslas con otras palabras!"
+      ]
+    ],
+    "writing": [
+      {
+        "id": "HB-EP-FOREST-03-OPEN",
+        "prompt": "Birari kontatu nora zoazen.",
+        "instruction": "Esan mendira zoazela.",
+        "model": "Mendira noa.",
+        "source": "Jatorrizko egokitzapena / EP-FOREST-03"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-FOREST-03.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-FOREST-04",
+    "title": "Hiru bideak",
+    "narrative": null,
+    "dialogue": [
+      [
+        "iker",
+        "Mapa bat aurkitu dut! Gurutzebide honetatik hiru bide ateratzen dira.",
+        "¡He encontrado un mapa! De este cruce salen tres caminos."
+      ],
+      [
+        "lur",
+        "Baina zein bide doa errekara?",
+        "¿Pero qué camino va al arroyo?"
+      ],
+      [
+        "txinpart",
+        "Begiratu ondo seinaleei… hi, hi!",
+        "Mirad bien las señales… ¡ji, ji!"
+      ]
+    ],
+    "writing": [
+      {
+        "id": "HB-EP-FOREST-04-OPEN",
+        "prompt": "Lagundu Lurri bidea aurkitzen.",
+        "instruction": "Idatzi esaldi bat: zubitik errekara joango zaretela esan.",
+        "model": "Zubitik errekara joango gara.",
+        "source": "Jatorrizko egokitzapena / EP-FOREST-04"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-FOREST-04.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-FOREST-05",
+    "title": "Zure mapa",
+    "narrative": null,
+    "dialogue": [
+      [
+        "ane",
+        "Errekara iritsi gara! Eta orain, zure txanda.",
+        "¡Hemos llegado al arroyo! Y ahora, te toca a ti."
+      ],
+      [
+        "lur",
+        "Mapa berri bat marraztu dugu: eskola, plaza eta liburutegia.",
+        "Hemos dibujado un mapa nuevo: la escuela, la plaza y la biblioteca."
+      ],
+      [
+        "iker",
+        "Azaldu ibilbidea, guk jarraitu ahal izateko.",
+        "Explica el recorrido para que podamos seguirlo."
+      ]
+    ],
+    "writing": [
+      {
+        "id": "HB-EP-FOREST-05-7",
+        "prompt": "Orain zu! Idatzi ibilbide hau: etxea → parkea → museoa.",
+        "instruction": "Idatzi bi edo hiru esaldi. Erabili lehenik, gero eta azkenik.",
+        "model": "Lehenik, etxetik parkera joan naiz. Gero, parkean jolastu naiz. Azkenik, museora joan naiz.",
+        "source": "K02-S05#7"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-FOREST-05.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-SHELTER-01",
+    "title": "Aterpe bila",
+    "narrative": "Ane eta Iker basotik atera dira. Euria hasi da. Anek aterpetxea ikusi du. Zer egin du bakoitzak?",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-SHELTER-01-OPEN",
+        "prompt": "Birari kontatu zer gertatu den.",
+        "instruction": "Esan aterpera joan zarela.",
+        "model": "Ni aterpera joan naiz.",
+        "source": "Jatorrizko fikziozko ekoizpena / a1a2-k2-i1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-SHELTER-01.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-SHELTER-02",
+    "title": "Atea ireki",
+    "narrative": "Lur eta Txinpart iritsi dira. Lau lagunak atearen aurrean daude. Giltza lurrean dago. Zer egin dute elkarrekin?",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-SHELTER-02-OPEN",
+        "prompt": "Birari kontatu zer gertatu den.",
+        "instruction": "Esan taldeak giltza hartu duela. Erabili «guk».",
+        "model": "Guk giltza hartu dugu.",
+        "source": "Jatorrizko fikziozko ekoizpena / a1a2-k2-i2"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-SHELTER-02.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-SHELTER-03",
+    "title": "Kutxako sekretua",
+    "narrative": "Barruan, kutxa bat dago. Anek gutun bat ikusi du, baina Ikerrek bi gutun aurkitu ditu. Zenbat gauza aurkitu dituzte?",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-SHELTER-03-OPEN",
+        "prompt": "Birari kontatu zer gertatu den.",
+        "instruction": "Esan bi gutun aurkitu dituzula. Erabili «nik».",
+        "model": "Nik bi gutun aurkitu ditut.",
+        "source": "Jatorrizko fikziozko ekoizpena / a1a2-k2-i3"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-SHELTER-03.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-SHELTER-04",
+    "title": "Zer gertatu da?",
+    "narrative": "Txinpartek aterpean gertatutakoa jakin nahi du. Ane barrura sartu da eta Lurrek kutxa ireki du. Kontatu gertatutakoa.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-SHELTER-04-OPEN",
+        "prompt": "Birari kontatu zer gertatu den.",
+        "instruction": "Idatzi bi esaldi: Ane sartu da eta Lurrek kutxa ireki duela adierazi.",
+        "model": "Ane sartu da. Lurrek kutxa ireki du.",
+        "source": "Jatorrizko fikziozko ekoizpena / a1a2-k2-i4"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-SHELTER-04.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-SHELTER-05",
+    "title": "Lagunentzako mezua",
+    "narrative": "Euria gelditu da. Gutunetako mapak errekara eramango ditu lagunak. Bira zain dago: kontatu zer egin duzuen eta zer aurkitu duzuen.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-SHELTER-05-OPEN",
+        "prompt": "Birari kontatu zer gertatu den.",
+        "instruction": "Idatzi bi esaldi: nora joan zareten eta zer aurkitu duzuen.",
+        "model": "Gu aterpera etorri gara. Guk bi gutun irakurri ditugu.",
+        "source": "Jatorrizko fikziozko ekoizpena / a1a2-k2-i4"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-SHELTER-05.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-MIRROR-01",
+    "title": "Errekako distira",
+    "narrative": "Ane eta Iker errekara iritsi dira. Harri baten ondoan ispilu txiki bat dago. Ispilua biribila da. Nork utzi du hor?",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-MIRROR-01-OPEN",
+        "prompt": "Zure txanda",
+        "instruction": "Birari deskribatu ispilua.",
+        "model": "Ispilua txikia eta biribila da.",
+        "source": "Jatorrizko fikziozko jarduera / HB-MIRROR-v1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-MIRROR-01.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-MIRROR-02",
+    "title": "Zilarrezko orrazia",
+    "narrative": "Ikerrek orrazi bat ikusi du. Orrazia luzea eta distiratsua da. Zilarrezkoa da. Anek kutxa batean gorde du, ez galtzeko.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-MIRROR-02-OPEN",
+        "prompt": "Zure txanda",
+        "instruction": "Esan nolakoa den orrazia.",
+        "model": "Orrazia luzea da.",
+        "source": "Jatorrizko fikziozko jarduera / HB-MIRROR-v1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-MIRROR-02.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-MIRROR-03",
+    "title": "Haitzuloaren sarrera",
+    "narrative": "Lurrek mapa ireki du. Haitzuloa errekaren beste aldean dago. Lagunak zubitik igaro dira. Sarreran, ahots bat entzun dute.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-MIRROR-03-OPEN",
+        "prompt": "Zure txanda",
+        "instruction": "Esan non dagoen haitzuloa.",
+        "model": "Haitzuloa errekaren beste aldean dago.",
+        "source": "Jatorrizko fikziozko jarduera / HB-MIRROR-v1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-MIRROR-03.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-MIRROR-04",
+    "title": "Lamiaren mezua",
+    "narrative": "Haitzuloan lamia bat dago. Lagunei esan die ispilua eta orrazia galdu dituela. Ikerrek kutxa ireki du. Anek ispilua erakutsi dio.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-MIRROR-04-OPEN",
+        "prompt": "Zure txanda",
+        "instruction": "Esan zer galdu duen lamiak.",
+        "model": "Lamiak ispilua eta orrazia galdu ditu.",
+        "source": "Jatorrizko fikziozko jarduera / HB-MIRROR-v1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-MIRROR-04.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-MIRROR-05",
+    "title": "Lagunen oparia",
+    "narrative": "Lagunek ispilua eta orrazia itzuli dizkiote lamiari. Lamiak eskerrak eman dizkie. Denak errekaren ondoan eseri dira. Birak dio laguntzea dela altxorrik ederrena.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-MIRROR-05-OPEN",
+        "prompt": "Zure txanda",
+        "instruction": "Kontatu Birari zer egin duten lagunek.",
+        "model": "Lagunek lamiari lagundu diote.",
+        "source": "Jatorrizko fikziozko jarduera / HB-MIRROR-v1"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-MIRROR-05.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-CAUSE-01",
+    "title": "Non dago ura?",
+    "narrative": "Argi herriko iturrira iritsi da, baina ez da urik ateratzen. Lurrek iturburua ikusi du: hodia hautsi da. Herritarrek zer gertatu den jakin nahi dute. Lagundu Argiri zergatia azaltzen.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-CAUSE-01-OPEN",
+        "prompt": "Argik zure laguntza behar du.",
+        "instruction": "Idatzi bi esaldi herrikoei uraren arazoa azaltzeko. Bigarrenean, erabili «izan ere».",
+        "model": "Herrira ez da urik iristen. Izan ere, iturburuko hodia hautsi da.",
+        "source": "Jatorrizko fikziozko jarduera / EP-CAUSE-01"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-CAUSE-01.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-CAUSE-02",
+    "title": "Giltza zaharra",
+    "narrative": "Argik giltzari begiratu dio: errota baten ikurra du. Lurrekin errotara joan da, baina atea itxita dago. Kai bidean dator. Lagundu Argiri zergatik dauden han azaltzen.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-CAUSE-02-OPEN",
+        "prompt": "Kaik ez daki zergatik zaudeten errotan.",
+        "instruction": "Idatzi esaldi bat arrazoia azaltzeko. Erabili «-lako».",
+        "model": "Errotara etorri gara, giltzan errotaren ikurra ikusi dugulako.",
+        "source": "Jatorrizko fikziozko jarduera / EP-CAUSE-02"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-CAUSE-02.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-CAUSE-03",
+    "title": "Errotaren sekretua",
+    "narrative": "Kaik atearen atzean zarata entzun du. Giltzarekin atea ireki dute. Barruan, gurpila geldirik dago eta hodia buxatuta. Lurrek argia sartu du leihotik. Argik herritarrei arazoa eta irtenbidea azaldu nahi dizkie.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-CAUSE-03-OPEN",
+        "prompt": "Herritarrei aurkikuntzaren berri eman.",
+        "instruction": "Idatzi bi edo hiru esaldi. Azaldu zergatik ez dabilen errota eta proposatu irtenbide bat.",
+        "model": "Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.",
+        "source": "Jatorrizko fikziozko jarduera / EP-CAUSE-03"
+      },
+      {
+        "id": "HB-EP-CAUSE-03-REPORT",
+        "prompt": "Lurren aurkikuntza kontatu.",
+        "instruction": "Lurrek hau esan du: «Hodia buxatuta dago». Kontatu zehar-estiloan: Lurrek … esan du.",
+        "model": "Lurrek hodia buxatuta dagoela esan du.",
+        "source": "HB-WRITE-v3 / jatorrizko zirriborroa / berrikuspen zain"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-CAUSE-03.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-CAUSE-04",
+    "title": "Paperaren arrastoa",
+    "narrative": "Paper zaharra ireki dute: errotatik zubira doan mapa da. Zubiaren ondoan marka bat dago. Lurrek harriak ikusi ditu; badirudi beste oztopo bat dagoela hodian. Lagundu taldeari arrastoa azaltzen.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-CAUSE-04-OPEN",
+        "prompt": "Kontatu aurkikuntza Birari.",
+        "instruction": "Azaldu zergatik joan zareten zubira eta zer egin behar duzuen orain. Erabili «-lako» edo «izan ere», eta ondoriozko lotura bat.",
+        "model": "Zubira etorri gara, mapan marka bat ikusi dugulako. Bidea itxita dago; beraz, beste bide bat bilatu behar dugu.",
+        "source": "Jatorrizko fikziozko jarduera / EP-CAUSE-04"
+      },
+      {
+        "id": "HB-EP-CAUSE-04-CONCESSION",
+        "prompt": "Aurkikuntza eta oztopoa bereizi.",
+        "instruction": "Mapa aurkitu dugu; hala ere, bidea itxita dago. Lotu bi ideiak «arren» erabiliz.",
+        "model": "Mapa aurkitu dugun arren, bidea itxita dago.",
+        "source": "HB-WRITE-v3 / jatorrizko zirriborroa / berrikuspen zain"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-CAUSE-04.svg",
+    "status": "berrikusteko"
+  },
+  {
+    "id": "HB-EP-CAUSE-05",
+    "title": "Ura berriro!",
+    "narrative": "Mapari esker, lagunek hodiko beste oztopoa aurkitu dute zubiaren ondoan. Herritarrekin batera kendu dituzte harriak. Ura berriro iritsi da iturrira eta errota martxan dago. Argik batzarrean azaldu behar du zer gertatu den.",
+    "dialogue": null,
+    "writing": [
+      {
+        "id": "HB-EP-CAUSE-05-OPEN",
+        "prompt": "Herriko batzarrean hitz egin.",
+        "instruction": "Azaldu hiru esalditan zer arazo zegoen, zergatik eta nola konpondu duzuen. Erabili «-lako» eta ondoriozko lotura bat.",
+        "model": "Herrira ez zen urik iristen, hodia buxatuta zegoelako. Herritarrek hodia garbitu dute. Beraz, errota berriro dabil.",
+        "source": "Jatorrizko fikziozko jarduera / EP-CAUSE-05"
+      },
+      {
+        "id": "HB-EP-CAUSE-05-CONDITION",
+        "prompt": "Etorkizuneko arriskua azaldu.",
+        "instruction": "Jarri baldintza hau: hodia berriro buxatzea. Ondorioa: ura ez iristea. Erabili «bada».",
+        "model": "Hodia berriro buxatzen bada, ura ez da iritsiko.",
+        "source": "HB-WRITE-v3 / jatorrizko zirriborroa / berrikuspen zain"
+      }
+    ],
+    "art": "/assets/scenes/HB-EP-CAUSE-05.svg",
+    "status": "berrikusteko"
+  }
+]

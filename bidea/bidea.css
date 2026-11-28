@@ -806,6 +806,9 @@ html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="da
 @media(max-width:480px){.bd-write-task-ico.bd-write-bira{width:46px;height:46px}.bd-playroom-bira{width:60px;height:60px}}
 
 /* Scene art stays separate from readable narrative and persistent actions. */
+.bd-scene-cast{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 22px;margin:16px 0}
+.bd-scene-cast>span{display:flex;align-items:center;gap:7px;font-size:.85rem}
+.bd-scene-cast .bd-face{width:40px;height:40px;flex:none}
 .bd-forest-scene{aspect-ratio:16/7;background:#dce9dc}
 .bd-forest-scene>.bd-scene-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
 .bd-forest-scene .bd-location{background:#fff5d7;color:#30234c;max-width:70%;font-weight:800}

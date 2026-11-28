@@ -148,7 +148,7 @@ const MAPS={
   <text x="52" y="134" class="m-lab">Etxea</text><text x="160" y="134" class="m-lab">Parkea</text><text x="274" y="134" class="m-lab">Museoa</text>
  </svg>`};
 function face(who,mood="calm"){const c=DATA.cast[who]||{name:who,c:"#5b3cc4"};if(who==="bira")return `<span class="bd-face bd-face-bira">${bira("wink")}</span>`;
- const portraits={ane:{skin:"#f1bf99",hair:"#744337",shirt:"#e67f4d",cut:'<path d="M16 32Q10 8 32 7Q55 8 49 35L43 22Q27 28 21 20Z" fill="#744337"/>'},iker:{skin:"#d9a278",hair:"#342e33",shirt:"#5085cc",cut:'<path d="M15 29Q9 10 22 10Q31 2 46 13Q53 17 48 29L42 20 24 25Z" fill="#342e33"/>'},lur:{skin:"#b98562",hair:"#302b38",shirt:"#4e9874",cut:'<path d="M13 30Q8 7 32 6Q56 8 51 34L46 39 43 22 22 23 19 39Z" fill="#302b38"/>'},txinpart:{skin:"#f9cf80",hair:"#c05a37",shirt:"#cb6847",cut:'<path d="M14 31Q11 17 23 18L21 7 34 16 45 8 46 21Q53 24 49 34L43 25 22 26Z" fill="#c05a37"/>'}};
+ const portraits={argi:{skin:"#d9a278",hair:"#453733",shirt:"#b47728",cut:'<path d="M14 30Q9 10 26 7Q48 4 50 28L42 22 36 14 24 24Z" fill="#453733"/>'},kai:{skin:"#b98562",hair:"#302b38",shirt:"#367f83",cut:'<path d="M14 29Q8 11 24 7Q46 3 51 25L43 23 39 17 22 27Z" fill="#302b38"/>'},ane:{skin:"#f1bf99",hair:"#744337",shirt:"#e67f4d",cut:'<path d="M16 32Q10 8 32 7Q55 8 49 35L43 22Q27 28 21 20Z" fill="#744337"/>'},iker:{skin:"#d9a278",hair:"#342e33",shirt:"#5085cc",cut:'<path d="M15 29Q9 10 22 10Q31 2 46 13Q53 17 48 29L42 20 24 25Z" fill="#342e33"/>'},lur:{skin:"#b98562",hair:"#302b38",shirt:"#4e9874",cut:'<path d="M13 30Q8 7 32 6Q56 8 51 34L46 39 43 22 22 23 19 39Z" fill="#302b38"/>'},txinpart:{skin:"#f9cf80",hair:"#c05a37",shirt:"#cb6847",cut:'<path d="M14 31Q11 17 23 18L21 7 34 16 45 8 46 21Q53 24 49 34L43 25 22 26Z" fill="#c05a37"/>'}};
  const p=portraits[who];if(!p)return `<span class="bd-face" style="--c:${c.c}" aria-hidden="true">${esc(c.name.charAt(0))}</span>`;
  return '<span class="bd-face bd-cast-face" aria-hidden="true"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="31" fill="'+p.shirt+'" opacity=".17"/><path d="M7 64V58Q10 45 32 45Q54 45 57 58V64Z" fill="'+p.shirt+'"/><rect x="27" y="37" width="10" height="14" rx="5" fill="'+p.skin+'"/><ellipse cx="32" cy="28" rx="18" ry="20" fill="'+p.skin+'"/>'+p.cut+(mood==="curious"?'<path d="m22 25 7-2m6 0 7 2" stroke="#40333b" stroke-width="1.5" fill="none"/>':'')+(who==="txinpart"?'<path d="M18 18 30 0 46 18Z" fill="#cb6847"/><circle cx="30" cy="3" r="3" fill="#ffdc79"/>':'')+'<circle cx="26" cy="30" r="2" fill="#40333b"/><circle cx="38" cy="30" r="2" fill="#40333b"/><path d="M28 38q4 4 8 0" fill="none" stroke="#6b4746" stroke-width="1.7" stroke-linecap="round"/></svg></span>'
 }
@@ -369,18 +369,14 @@ function collectionHtml(){
  const ts=episodeTreasures(),ids=episodeIds(),found=ts.map((t,i)=>S.episodes?.[ids[i]]?.treasure===t.id),count=found.filter(Boolean).length;
  return '<section class="bd-card bd-collection"><details><summary><span class="bd-collection-head">'+svg("star")+'<span><strong>Nire altxorrak</strong><small>'+count+'/'+ts.length+' aurkituta</small></span></span><span class="bd-chip">Ikusi</span></summary><div class="bd-collection-grid">'+ts.map((t,i)=>treasureCard(t,found[i])).join("")+'</div></details></section>'
 }
-function episodeLandscape(n){if(inMirror())return '<figure class="bd-episode-landscape"><svg viewBox="0 0 640 200" aria-hidden="true"><rect width="640" height="200" fill="#c6e4de"/><path d="M0 115 150 26 300 124 490 18 640 115V200H0Z" fill="#719e83"/><path d="M380 145Q390 40 460 46Q528 48 552 145Z" fill="#7d8183"/><path d="M419 145V105a44 44 0 0 1 88 0v40Z" fill="#39474b"/><path d="M0 176Q145 116 300 170T640 155V200H0Z" fill="#69aab8"/><circle cx="230" cy="147" r="19" fill="#fff8d1" stroke="#bc9848" stroke-width="5"/><path d="M245 161l17 22" stroke="#bc9848" stroke-width="8" stroke-linecap="round"/></svg><span class="bd-location">Lamiaren ispilua</span>'+bira("curious","bd-landscape-bira")+'</figure>';if(inShelter())return '<figure class="bd-episode-landscape"><svg viewBox="0 0 640 200" aria-hidden="true"><rect width="640" height="200" fill="#b8cdd0"/><path d="M0 140 125 42 270 140 405 30 640 145V200H0Z" fill="#729389"/><path d="M0 170Q170 134 320 170T640 155V200H0Z" fill="#496f61"/><path d="M210 175V80L320 25 430 80V175Z" fill="#d8c5a5" stroke="#76614d" stroke-width="4"/><path d="m198 85 122-65 122 65" fill="none" stroke="#8b5247" stroke-width="13"/><rect x="290" y="110" width="62" height="65" rx="5" fill="#705744"/><rect x="372" y="100" width="34" height="35" fill="#f4d88b"/><path d="M45 15l-12 25m40-10L61 55m80-42-12 25m420-30-12 25m48-10-12 25" stroke="#e3eff0" stroke-width="5"/></svg><span class="bd-location">Aterpetxeko giltza</span>'+bira("curious","bd-landscape-bira")+'</figure>';if(S.level==="a1a2"){
- const id=FOREST_IDS[n-1],labels=["Enborreko mezua","Txinparten basoa","Mendiko bidea","Hiru bideen gurutzea","Errekako mapa"];
- return '<figure class="bd-episode-landscape bd-forest-scene" data-scene-id="'+id+'"><img class="bd-scene-art" src="/assets/scenes/'+id+'.svg" alt="" width="960" height="420"><figcaption class="bd-location">'+esc(labels[n-1])+'</figcaption>'+bira(n===5?"calm":"curious","bd-landscape-bira")+'</figure>';
- }
- const common='<rect width="640" height="200" fill="#dce9dc"/><circle cx="525" cy="35" r="25" fill="#f7d78c"/><path d="M0 120 120 36 210 110 340 20 470 110 640 50V200H0Z" fill="#8daea0"/><path d="M0 145Q150 90 300 142T640 122V200H0Z" fill="#668d72"/>';
- const scenes=[
- '<path d="M0 180Q170 145 320 184T640 162V200H0" fill="#79b3bf"/><path d="M180 152h150v22H180Z" fill="#a6a69b"/><path d="M210 150v-55h88v55" fill="#d8c9ac" stroke="#7b7867" stroke-width="4"/><path d="M244 124h42v10h-15v12" fill="none" stroke="#6a7475" stroke-width="7"/><path d="M386 172h105v-64h-34m-17 0h-28v64" fill="none" stroke="#9a7056" stroke-width="13"/><path d="m445 100 10 17m-17 0 12-18" stroke="#f7d78c" stroke-width="3"/>',
- '<path d="M0 181Q175 135 350 176T640 152V200H0" fill="#b0aa78"/><path d="M210 170V80L320 32 430 80V170Z" fill="#d4c0a1" stroke="#6d796b" stroke-width="4"/><path d="m195 86 125-62 125 62" stroke="#985d51" stroke-width="13" fill="none"/><path d="M290 170v-50a30 30 0 0 1 60 0v50" fill="#536961"/><circle cx="336" cy="143" r="4" fill="#f6d479"/><path d="M440 155h85v15h-85" fill="#a3a69b"/>',
- '<rect width="640" height="200" fill="#455b59"/><path d="M0 0 130 200M640 0 510 200" stroke="#344a48" stroke-width="32"/><path d="M420 20h105v70H420Z" fill="#f6d99c"/><path d="M420 90 300 200h190l35-110" fill="#f6d99c" opacity=".3"/><circle cx="240" cy="116" r="65" fill="#a8bb9f" stroke="#b78e62" stroke-width="14"/><path d="M240 51v130m-65-65h130m-111-46 92 92m0-92-92 92" stroke="#8c704e" stroke-width="8"/><path d="M370 155h140v-25" fill="none" stroke="#91a09d" stroke-width="16"/>'
- ];
- return '<figure class="bd-episode-landscape"><svg viewBox="0 0 640 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+(n===3?"":common)+(scenes[n-1]|| (n===4?'<path d="M0 175Q180 120 350 175T640 160V200H0Z" fill="#79b3bf"/><path d="M110 137h400M160 137v40m320-40v40M160 169q160-110 320 0" fill="none" stroke="#b89b74" stroke-width="22"/>':'<path d="M0 180Q180 140 350 181T640 155V200H0Z" fill="#79b3bf"/><path d="M200 160v-60h155v60" fill="#d8c9ac" stroke="#7b7867" stroke-width="5"/><path d="M260 115h52v12h-18v25q0 10 20 18" fill="none" stroke="#5f98af" stroke-width="9"/>'))+'</svg><span class="bd-location">'+esc(["Herriko iturria","Errota zaharra","Errotaren barrua","Zubia","Herriko plaza"][n-1])+'</span>'+bira("curious","bd-landscape-bira")+'</figure>'
+function episodeLandscape(n){
+ const family=inMirror()?"MIRROR":inShelter()?"SHELTER":S.level==="a1a2"?"FOREST":"CAUSE";
+ const titles={FOREST:["Enborreko mezua","Txinparten basoa","Mendiko bidea","Hiru bideen gurutzea","Errekako mapa"],SHELTER:["Aterpe bila","Atea ireki","Kutxako sekretua","Zer gertatu da?","Lagunentzako mezua"],MIRROR:["Errekako distira","Zilarrezko orrazia","Haitzuloaren sarrera","Lamiaren mezua","Lagunen oparia"],CAUSE:["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"]};
+ if(!Number.isInteger(n)||n<1||n>5)return "";
+ const id="HB-EP-"+family+"-0"+n;
+ return '<figure class="bd-episode-landscape bd-forest-scene" data-scene-id="'+id+'"><img class="bd-scene-art" src="/assets/scenes/'+id+'.svg" alt="" width="960" height="420"><figcaption class="bd-location">'+esc(titles[family][n-1])+'</figcaption>'+bira(n===5?"calm":"curious","bd-landscape-bira")+'</figure>';
 }
+
 const EPISODE_IDS=["HB-EP-CAUSE-01","HB-EP-CAUSE-02","HB-EP-CAUSE-03","HB-EP-CAUSE-04","HB-EP-CAUSE-05"];
 
 const FOREST_ID="HB-EP-FOREST-01";
@@ -748,6 +744,9 @@ const ERROR_RECALL=[
  ,{id:"HB-RECALL-SUBORD",code:"subordination",level:"b1b2",t:"mc",q:"Mezu hau kontatu: «Atea itxita dago». Mirenek atea itxita ____ esan du.",ch:["dago","dagoela"],a:["dagoela"],ex:"Esandako mezua -ela bidez lotu dugu.",why:{dago:"Esandako mezua mendeko perpaus gisa lotu: dagoela."}},
  {id:"HB-RECALL-CONCESSION",code:"concession",level:"b1b2",t:"mc",q:"«Liburua irakurri dugu; hala ere, zalantzak ditugu». Liburua irakurri ____ arren, zalantzak ditugu.",ch:["dugu","dugun"],a:["dugun"],ex:"Adizki jokatuarekin: dugun arren.",why:{dugu:"Hemen adizki jokatuari -n lotu: dugun arren."}},
  {id:"HB-RECALL-CONDITION",code:"condition",level:"b1b2",t:"mc",q:"Ez dakigu euririk egingo duen. Baldintza gisa: Euria egiten ____, etxean geratuko gara.",ch:["da","bada"],a:["bada"],ex:"Baldintza: euria egiten bada.",why:{da:"«Da» baieztapena da; baldintza gisa, bada."}}
+ ,{id:"HB-RECALL-SUBORD-2",code:"subordination",level:"b1b2",t:"mc",q:"Mezu hau kontatu: «Bilera bihar da». Jonek bilera bihar ____ esan du.",ch:["da","dela"],a:["dela"],ex:"Esandako mezua -ela bidez lotu dugu: dela.",why:{da:"Zehar-estiloan mezua lotu: dela."}},
+ {id:"HB-RECALL-CONCESSION-2",code:"concession",level:"b1b2",t:"mc",q:"«Bazkaria prestatu dugu; hala ere, ez dugu jan». Bazkaria prestatu ____ arren, ez dugu jan.",ch:["dugu","dugun"],a:["dugun"],ex:"Adizki jokatuarekin: dugun arren.",why:{dugu:"Hemen adizki jokatuari -n lotu: dugun arren."}},
+ {id:"HB-RECALL-CONDITION-2",code:"condition",level:"b1b2",t:"mc",q:"Ez dakigu denda irekita egongo den. Baldintza gisa: Denda irekita ____, ogia erosiko dugu.",ch:["dago","badago"],a:["badago"],ex:"Baldintza: denda irekita badago.",why:{dago:"«Dago» baieztapena da; baldintza gisa, badago."}}
 ].map(i=>({...i,src:"Jatorrizko berreskurapen ariketa / HB-ERROR-v1"}));
 function classifyEpisodeError(it,response){
  const expected=norm(it.a?.[0]),actual=norm(response);
@@ -767,7 +766,7 @@ function classifyEpisodeError(it,response){
  return null
 }
 function episodeErrorStore(){return S.episodeErrorMemory||(S.episodeErrorMemory={})}
-function storeDifficulty(code,confused){const memory=episodeErrorStore(),old=memory[code]||{errors:0,recoveries:0},now=Date.now();memory[code]={...old,errors:(old.errors||0)+1,confused,lastErrorAt:now,dueAt:now+EP_REVIEW_DAY,step:0};save()}
+function storeDifficulty(code,confused,evidence){const memory=episodeErrorStore(),old=memory[code]||{errors:0,recoveries:0},now=Date.now();memory[code]={...old,errors:(old.errors||0)+1,confused,lastErrorAt:now,dueAt:now+EP_REVIEW_DAY,step:0,...(evidence?{writingEvidence:evidence}:{})};save()}
 function observePractice(id,answer){syncState();if(guestLimited()||!S.level)return false;const allowed={"HB07-err-1":{code:"nor",wrong:["du","dio"]},"HB07-err-2":{code:"nornork",wrong:["da","zaio"]},"HB07-err-3":{code:"nornorinork",wrong:["da","zaio"]}},rule=allowed[id],actual=norm(answer);if(!rule||!rule.wrong.includes(actual)||(rule.code==="nornorinork"&&S.level==="a1a2"))return false;storeDifficulty(rule.code,actual);return true}
 function rememberEpisodeError(st,diagnosis){
  if(!diagnosis||st.errorRecorded||player.owner!==keyFor(KEY))return;
@@ -897,7 +896,8 @@ function learnHtml(L){
 function flow(p,k,compact){const kk=k&&k!=="-lako"?caseLike(k,true)+",":p.k;
  return `<div class="bd-flow bd-flow-${p.dir}${compact?" is-compact":""}"><span class="bd-flow-tag">${p.dir==="back"?"←":p.dir==="cross"?"⇄":"→"} ${esc(p.tag)}</span><div class="bd-flow-row"><span class="bd-flow-a">${esc(p.a)}</span>${kk?`<b class="bd-flow-k">${esc(kk)}</b>`:""}<span class="bd-flow-b">${esc(p.b)}</span></div>${compact?"":`<small>${esc(p.why)}${help()?` · <i>${esc(p.es)}</i>`:""}</small>`}</div>`}
 function sceneHtml(L){if(L.talk)return `<div class="bd-talk">${L.talk.map(([w,t,es],k)=>`<div class="bd-say${w==="bira"?" is-bira":""}" style="--k:${k}">${face(w,k===1?'curious':'calm')}<div><small class="bd-who">${esc((DATA.cast[w]||{}).name||w)}</small><p>${esc(t)}</p>${help()?`<small class="bd-es">${esc(es)}</small>`:""}</div></div>`).join("")}</div>`;
- return `<div class="bd-scene">${bira("curious","bd-bira-lg")}<div class="bd-bubble bd-bubble-big"><p>${esc(L.scene)}</p>${help()?`<small>${esc(L.sceneEs)}</small>`:""}</div></div>`}
+ const cast=Object.entries(DATA.cast).filter(([id,c])=>id!=="bira"&&String(L.scene||"").includes(c.name));
+ return `${cast.length?'<div class="bd-scene-cast" aria-label="Eszenako pertsonaiak">'+cast.map(([id,c])=>'<span>'+face(id,"curious")+'<b>'+esc(c.name)+'</b></span>').join("")+'</div>':""}<div class="bd-scene">${bira("curious","bd-bira-lg")}<div class="bd-bubble bd-bubble-big"><p>${esc(L.scene)}</p>${help()?`<small>${esc(L.sceneEs)}</small>`:""}</div></div>`}
 function intro(){const L=player.L,ch=chapterOf(L.id);return `<div class="bd-pwrap">${top()}<main class="bd-intro">
  <span class="bd-kicker">${player.mode==="episode"?"2 · ESZENA":esc(ch.title.toUpperCase())+" · "+L.n+". IKASGAIA"}</span><h1>${esc(L.title)}</h1>${help()?`<p class="bd-es">${esc(L.es)}</p>`:""}
  ${player.mode==="episode"?episodeLandscape(L.n):""}${sceneHtml(L)}${L.map?`<div class="bd-mapwrap">${MAPS[L.map]}</div>`:""}
@@ -1071,10 +1071,14 @@ function complexReview(it,raw){
  const canonical=x=>x.toLowerCase().normalize("NFC").replace(/\s+/g," ").replace(/\s*,\s*/g,", ").replace(/[.!]$/,"").trim();
  const text=canonical(raw),same=x=>canonical(x)===text;
  if([r.model,...r.variants].some(same))return {status:"observed",rule:it.id,message:"Ataza honetako egitura mugatua ereduarekin bat dator. Ez dugu testu osoa ebaluatu."};
- if(!same(r.wrong))return it.id==="HB-EP-MIRROR-05-OPEN"?null:{status:"unverified"};
+ const tokenTo=new RegExp("\\b"+r.to+"\\b","i");
+ const pairs=[r.model,...r.variants].map(good=>({good,bad:good.replace(tokenTo,r.from)}));
+ const matched=pairs.find(p=>same(p.bad));
+ if(!matched)return it.id==="HB-EP-MIRROR-05-OPEN"?null:{status:"unverified"};
  // Replace the auxiliary token, never an arbitrary substring (e.g. dago inside dagoela).
- const token=new RegExp("\\b"+r.from+"\\b","i");
- return {status:"contrast",classification:["cause","condition"].includes(r.code)?"ERABILERA_DESDOITUA":"ARAU_AKATSA",sourceStatus:"berrikusteko",code:r.code,rule:it.id,from:r.from,to:r.to,message:r.hint,example:raw.replace(token,r.to)};
+ const token=new RegExp("\\b"+r.from+"\\b","gi"),prefix=matched.good.slice(0,matched.good.search(tokenTo));
+ const skip=(prefix.match(token)||[]).length;let occurrence=0;
+ return {status:"contrast",classification:["cause","condition"].includes(r.code)?"ERABILERA_DESDOITUA":"ARAU_AKATSA",sourceStatus:"berrikusteko",code:r.code,rule:it.id,from:r.from,to:r.to,message:r.hint,example:raw.replace(token,value=>occurrence++===skip?r.to:value)};
 }
 function reviewSentence(it,answer){
  const raw=String(answer||"").trim();
@@ -1105,8 +1109,11 @@ function checkEpisodeWriting(it,st){
  st.writeAssessment=assessment;
  if(["contrast","task_case"].includes(assessment.status)){
   const recorded=st.writeRecordedCodes||(st.writeRecordedCodes=[]);
-  if(!recorded.includes(assessment.code)&&!(st.writeErrorRecorded&&recorded.length===0)){recorded.push(assessment.code);storeDifficulty(assessment.code,assessment.from)}
+  if(!recorded.includes(assessment.code)&&!(st.writeErrorRecorded&&recorded.length===0)){recorded.push(assessment.code);storeDifficulty(assessment.code,assessment.from,{v:1,taskId:it.id,rule:assessment.rule||"HB-WRITE-v1",classification:assessment.classification||(assessment.status==="task_case"?"ERABILERA_DESDOITUA":"ARAU_AKATSA"),sourceStatus:assessment.sourceStatus||"berrikusteko",mode:"guided_rewrite",result:"pending",at:Date.now()})}
  }
+ // Preserve bounded provenance without copying learner text into error memory.
+ // Guided repair never advances retrieval or establishes mastery.
+ for(const code of st.writeRecordedCodes||[]){const ev=S.episodeErrorMemory?.[code]?.writingEvidence;if(ev?.taskId===it.id){ev.result=assessment.status==="observed"?"supported":assessment.status==="unverified"?"unverified":"pending";ev.at=Date.now();save()}}
  // One guided rewrite, no forced loop. Unknown alternatives remain unverified.
  if(["contrast","task","task_case"].includes(assessment.status)&&!st.writeRetry){st.writeRetry=true;st.hintUsed=true;render();return}
  st.checked=true;st.neutral=true;st.ok=false;render()

@@ -159,7 +159,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.startEpisode();
  check('episode starts with Gogoratu without inventing previous evidence',w.HBBidea._player().phase==='gogoratu'&&w.HBBidea._player().recall.length===0);
  w.HBBidea.begin();
- check('episode renders original location artwork and existing mascot',els.get('bd-player').innerHTML.includes('bd-episode-landscape')&&els.get('bd-player').innerHTML.includes('Herriko iturria')&&els.get('bd-player').innerHTML.includes('bd-landscape-bira'));
+ check('episode renders exact scene artwork and existing mascot',els.get('bd-player').innerHTML.includes('/assets/scenes/HB-EP-CAUSE-01.svg')&&els.get('bd-player').innerHTML.includes('Non dago ura?')&&els.get('bd-player').innerHTML.includes('bd-landscape-bira'));
  check('episode opens Argi scene and uses seven activities',w.HBBidea._player().phase==='intro'&&w.HBBidea._player().queue.length===7&&els.get('bd-player').innerHTML.includes('2 · ESZENA'));
  check('episode keys match the water mystery, not the bus example',els.get('bd-player').innerHTML.includes('iturburuko hodia hautsi da.')&&!els.get('bd-player').innerHTML.includes('autobusa matxuratu da.')&&els.get('bd-player').innerHTML.includes('width:20%'));
  check('episode tracker includes five stages and current step',els.get('bd-player').innerHTML.includes('bd-episode-stages')&&els.get('bd-player').innerHTML.includes('aria-current="step"')&&els.get('bd-player').innerHTML.includes('Hurrengoa'));
@@ -211,7 +211,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.close(true);
  check('Gaur recommends third episode and shows two distinct treasures',w.HBBidea.gaur().includes('Errotaren sekretua')&&w.HBBidea.gaur().includes('2/5 aurkituta'));
  w.HBBidea.startEpisode();w.HBBidea.begin();
- check('third episode has distinct illustrated location and contextual examples',w.HBBidea._player().L.id==='HB-EP-CAUSE-03'&&els.get('bd-player').innerHTML.includes('Errotaren barrua')&&els.get('bd-player').innerHTML.includes('Hodia buxatuta dago.'));
+ check('third episode has distinct illustrated location and contextual examples',w.HBBidea._player().L.id==='HB-EP-CAUSE-03'&&els.get('bd-player').innerHTML.includes('/assets/scenes/HB-EP-CAUSE-03.svg')&&els.get('bd-player').innerHTML.includes('Hodia buxatuta dago.'));
  w.HBBidea.begin();
  for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
  w.HBBidea.typed('Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.');w.HBBidea.check();w.HBBidea.next();
