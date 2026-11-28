@@ -519,7 +519,41 @@ const VERB_TASKS=[
  {id:"HB-VERB-NORI-1",code:"nornorinork",level:"b1b2",t:"mc",q:"Nik Joni mapa eman ____. (Joni da hartzailea.)",ch:["dut","diot","dizut"],a:["diot"],ex:"Ni naiz egilea, mapa da objektua eta Joni da hartzailea: diot.",why:{dut:"«Dut» adizkiak objektua eta egilea adierazten ditu. Esaldi honetan Joni da hartzailea; hartzailearekiko komunztadura ere behar dugu.",dizut:"«Dizut» adizkiaren hartzailea zu zara; hemen Joni da hartzailea."}},
  {id:"HB-VERB-NORI-2",code:"nornorinork",level:"b1b2",t:"mc",q:"Argik Lurri gutuna eman ____. (Lur da hartzailea.)",ch:["du","dio","diot"],a:["dio"],ex:"Argi da egilea, gutuna da objektua eta Lur da hartzailea: dio.",why:{du:"Lurri hartzailea ageri da; harekiko komunztadura ere behar dugu.",diot:"«Diot» adizkiak ni adierazten du egile gisa; hemen Argik eman du."}}
 ].map(x=>({...x,src:"Jatorrizko testuinguru mugatua / HB-VERB-PILOT-v1"}));
+/* Original editorial trial: the same communicative topic with genuinely different
+   demands. Fixed choices are recognition, never evidence of autonomous production. */
+const CONTEXT_GAMES={
+ foundation:[
+ ["Iturrian ura dago. Anek ura edan du.","Zer edan du Anek?",["Ura","Esnea","Kafea"],"Ura","Anek ura edan du.","Bilatu edariaren izena."],
+ ["Iker etxean dago. Orain iturrira doa.","Nora doa Iker?",["Iturrira","Etxera","Eskolara"],"Iturrira","Iturrira doa: helmuga da.","Begiratu nora doan."],
+ ["Ane eta Iker iturrian daude. Botila hutsik dago.","Non daude?",["Iturrian","Etxean","Basoan"],"Iturrian","Iturrian daude biak.","Bilatu lekua."]
+ ],
+ everyday:[
+ ["Ane iturrira joan da, baina ez dago urik. Dendara joan da botila bat erostera.","Zer egin du Anek?",["Dendan ura erosi du.","Iturrian botila bete du.","Etxera itzuli da."],"Dendan ura erosi du.","Iturrira joan da lehenik, gero dendara.","Begiratu bigarren ekintza."],
+ ["Ikerrek bi botila bete ditu. Anek bat eskatu dio eta Ikerrek eman dio.","Zer egin du Ikerrek Anerentzat?",["Botila bat eman dio.","Bi botila eskatu dizkio.","Botila bat erosi dio."],"Botila bat eman dio.","Ane da hartzailea; Ikerrek eman dio.","Nork eman dio nori?"],
+ ["Iturria itxita dago. Kartelak dio bihar irekiko dutela.","Noiz hartu ahal izango dute ura iturrian, kartelaren arabera?",["Bihar","Gaur","Atzo"],"Bihar","Kartelak biharko informazioa ematen du.","Bilatu denbora adierazten duen hitza."]
+ ],
+ connected:[
+ ["Herriko iturria lehortu da, hornidura-hodia hautsi delako. Udalak behin-behineko hornidura antolatu du.","Zein da iturria lehortzearen arrazoia?",["Hodia hautsi izana.","Hornidura antolatu izana.","Herritarrek ura aurreztu izana."],"Hodia hautsi izana.","Hodiaren haustura da kausa; behin-behineko hornidura, erantzuna.","Bereizi kausa eta neurria."],
+ ["Matxurak hiru egun iraungo duela iragarri dute. Bitartean, ur-biltegi mugikorrak jarri dituzte plazan.","Zer esan nahi du «bitartean» hitzak hemen?",["Matxura konpondu arte.","Matxura gertatu aurretik.","Matxura konpondu eta gero."],"Matxura konpondu arte.","Bi egoeren arteko denbora-tartea adierazten du.","Pentsatu noiz erabiltzen diren biltegiak."],
+ ["Herritarrek kexak azaldu dituzte. Udalak egoeraren berri egunero emango duela agindu du.","Zer hitz eman du udalak?",["Egunero informazioa ematea.","Egunero hodia aldatzea.","Kexak debekatzea."],"Egunero informazioa ematea.","Hitz ematea konpromisoa hartzea da.","Bereizi eskaria eta konpromisoa."]
+ ],
+ reasoning:[
+ ["Ur-eskasiak agerian utzi du sarearen ahultasuna. Udalak dio matxura puntual batek eragin duela, baina auzotarrek aspaldiko mantentze-lanen gabezia salatu dute.","Zein baieztapen dago testuak berak bermatuta?",["Bi eragilek kausaren inguruan azalpen desberdinak eman dituzte.","Mantentze-lanen gabezia da frogatutako kausa bakarra.","Udalak bere azalpena gezurtatu du."],"Bi eragilek kausaren inguruan azalpen desberdinak eman dituzte.","Testuak bi ikuspegi jasotzen ditu, baina ez du kausa bakarra frogatzen.","Bereizi noren iritzia den eta zer dakigun."],
+ ["Hornidura berrezarri duten arren, elkarteak ez du mobilizazioa eten. Elkartearen ustez, larrialdia konpontzea ez da sarearen etorkizuna bermatzea.","Zein da elkartearen jarrera?",["Berehalako konponbidea ez da nahikoa epe luzerako.","Hornidura ez da berrezarri.","Larrialdiko neurri guztiak baztertu behar dira."],"Berehalako konponbidea ez da nahikoa epe luzerako.","Kontzesioa eta epe luzerako kezka lotzen dira; ez da konponketa ukatzen.","Aztertu «arren» eta azken esaldiko kontrastea."],
+ ["Txostenak bi aukera aipatu ditu: sare zaharra berritzea edo matxurak gertatu ahala konpontzea. Bigarrena merkeagoa da berehala; lehenak, aldiz, etorkizuneko etenak murriztu ditzake.","Zein da testuarekiko laburpen fidela?",["Hasierako kostua eta epe luzeko arriskua alderatu behar dira.","Sare berriak eten guztiak saihestuko ditu.","Bigarren aukera epe luzera merkeena dela frogatu dute."],"Hasierako kostua eta epe luzeko arriskua alderatu behar dira.","Testuak aukera eta ondorio posibleak bereizten ditu; ez du bermerik ematen.","Ez bihurtu aukera bat ziurtasun."]
+ ]
+};
+function currentProfile(){
+ const context={route:S.level,mission:S.level==="a1a2"&&inShelter()?2:1,episode:{number:S.level?episodeNumber():1}};
+ return root.HBLearningSelection?.profile(context)||{stage:S.level==="b1b2"?"connected":"foundation",vocabularyLevel:island().adventure.vocabularyLevel};
+}
+function contextGameItems(){
+ const stage=currentProfile().stage;
+ return (CONTEXT_GAMES[stage]||CONTEXT_GAMES.foundation).map(([context,q,ch,answer,ex,hint],i)=>({id:"HB-CONTEXT-"+stage+"-"+(i+1),t:"mc",context,q,ch,a:[answer],ex,hint,src:"Jatorrizko fikziozko praktika / HB-CONTEXT-v1"}));
+}
+
 function worldGameItems(kind){
+ if(kind==="context")return contextGameItems();
  if(kind==="words")return wordGameGroups();
  if(kind==="verbs")return VERB_TASKS.filter(x=>x.level===S.level);
  if(S.level==="a1a2"){
@@ -545,8 +579,8 @@ function worldGameItems(kind){
 }
 let vocabularyRepo=null,vocabularyOwner=null,vocabularyTheme="all",vocabularyThemes=[];
 function vocabularyFilters(){
- const owner=keyFor(KEY)+":"+island().adventure.id;if(vocabularyOwner!==owner){vocabularyOwner=owner;vocabularyTheme="all";vocabularyThemes=[];vocabularyRepo?.cancel()}
- return {level:island().adventure.vocabularyLevel,theme:vocabularyTheme};
+ const profile=currentProfile(),owner=keyFor(KEY)+":"+island().adventure.id+":"+profile.stage;if(vocabularyOwner!==owner){vocabularyOwner=owner;vocabularyTheme="all";vocabularyThemes=[];vocabularyRepo?.cancel()}
+ return {level:profile.vocabularyLevel,theme:vocabularyTheme};
 }
 function setVocabularyTheme(value){if(guestLimited())return;if(value!=="all"&&!vocabularyThemes.includes(value))return;vocabularyTheme=value;refresh()}
 function vocabularyControls(){if(guestLimited())return "";vocabularyFilters();return '<p class="bd-note">'+esc(island().adventure.title)+' · Abenturan landutako hitzekin jolastuko zara.</p>'+(vocabularyThemes.length?'<div class="bd-vocab-controls"><label>Gaia <select onchange="HBBidea.setVocabularyTheme(this.value)"><option value="all">Gai guztiak</option>'+vocabularyThemes.map(t=>'<option value="'+esc(t)+'"'+(t===vocabularyTheme?' selected':'')+'>'+esc(t.replace(/^lexiko_/,"").replace(/_/g," "))+'</option>').join('')+'</select></label></div>':'')}
@@ -568,14 +602,14 @@ async function prepareVocabulary(){
 }
 function worldGamesHtml(){
  const count=episodeIds().filter(id=>S.episodes?.[id]).length;
- return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>Nor, nork eta nori?</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+svg("map")+'<span><strong>Irakurri eta erabaki</strong><small>'+(["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
- applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}if(!["words","links","verbs"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
+ applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}if(!["words","links","verbs","context"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
 }
 function openWorldGame(kind,items,vocabulary={}){
  if(!items.length)return;
- const L={id:"HB-WORLD-GAME-"+kind,title:kind==="recall"?"Gogoratu":kind==="verbs"?"Aditzen erronka":kind==="words"?"Hitzak lotu":S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka",keys:[],items};
+ const L={id:"HB-WORLD-GAME-"+kind,title:kind==="context"?"Irakurri eta erabaki":kind==="recall"?"Gogoratu":kind==="verbs"?"Aditzen erronka":kind==="words"?"Hitzak lotu":S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka",keys:[],items};
  player={mode:"worldgame",owner:keyFor(KEY),L,kind,vocabularyMode:vocabulary.mode,vocabularyReason:vocabulary.reason,vocabularyLevel:vocabulary.level,phase:"play",queue:items.map(item=>({item,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()
 }
@@ -768,7 +802,7 @@ const TYPE_B={mc:"Aukeratu lokailu egokia",gap:"Idatzi falta den lokailua",build
 function blankHtml(q,fill){const parts=esc(q).split("____");return parts.join(`<span class="bd-blank${fill?" is-filled":""}">${fill?esc(fill):"&nbsp;"}</span>`)}
 function optBtns(opts,it,st,cls=""){return `<div class="bd-opts${cls}">${opts.map((o,k)=>{const tried=st.wrongSel.includes(o);let c="";if(st.checked){if(isAccepted(o,it.a))c=" is-right";else if(o===st.sel||tried)c=" is-wrong"}else if(tried)c=" is-tried";else if(o===st.sel)c=" is-sel";return `<button class="bd-opt${c}" ${st.checked||tried?"disabled":""} onclick="HBBidea.sel(${jq(o)})"><kbd>${k+1}</kbd>${esc(o)}</button>`}).join("")}</div>`}
 function body(){const it=cur().item,st=player.state,dis=st.checked?"disabled":"";const mp=it.map?`<div class="bd-mapwrap is-small">${MAPS[it.map]}</div>`:"";
- if(it.t==="mc"||it.t==="chips"){return `${mp}<p class="bd-q">${blankHtml(it.q,st.sel)}</p>${optBtns(st.opts,it,st,it.t==="chips"&&!it.ch?" bd-chips":it.t==="chips"?" bd-chips bd-chips-3":"")}`}
+ if(it.t==="mc"||it.t==="chips"){return `${mp}${it.context?`<div class="bd-context-text"><span class="bd-kicker">IRAKURRI</span><p>${esc(it.context)}</p></div>`:""}<p class="bd-q">${blankHtml(it.q,st.sel)}</p>${optBtns(st.opts,it,st,it.t==="chips"&&!it.ch?" bd-chips":it.t==="chips"?" bd-chips bd-chips-3":"")}`}
  if(it.t==="gap")return `${mp}<p class="bd-q">${blankHtml(it.q,st.typed&&st.checked?st.typed:"")}</p>${it.h?`<p class="bd-hint">${svg("bolt")}${esc(it.h)}</p>`:""}<form class="bd-type" onsubmit="event.preventDefault();HBBidea.check()"><label class="bd-sr" for="bd-in">Zure erantzuna</label><input id="bd-in" data-focus autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Idatzi hemen…" value="${esc(st.typed)}" ${dis} oninput="HBBidea.typed(this.value)" class="${st.checked&&!st.neutral?(st.ok?"is-right":"is-wrong"):""}"></form>`;
  if(it.t==="build"){const used=new Set(st.picked);return `${mp}<p class="bd-src">${esc(it.q)}</p><p class="bd-instr">${it.instr?esc(it.instr):`Erabili <b>«${esc(it.k)}»</b> eta idatzi berriro bi esaldi gisa.`}</p><div class="bd-line${st.checked?(st.ok?" is-right":" is-wrong"):""}" aria-live="polite">${st.picked.length?st.picked.map(k=>{const t=st.tiles.find(x=>x.k===k);return `<button class="bd-tile is-placed" ${dis} onclick="HBBidea.untile(${k})">${esc(t.w)}</button>`}).join(""):`<span class="bd-ph">Sakatu fitxak ordenan</span>`}</div><div class="bd-bank">${st.tiles.map(t=>`<button class="bd-tile${used.has(t.k)?" is-used":""}" ${dis||used.has(t.k)?"disabled":""} onclick="HBBidea.tile(${t.k})">${esc(t.w)}</button>`).join("")}</div>`}
  if(it.t==="fix"){return `${mp}<p class="bd-instr${st.mistap?" bd-warn":""}" aria-live="polite">${st.tapped===null?(st.mistap?"Ez da hori. Begiratu berriro.":"Sakatu gaizki dagoen hitza."):"Ondo! Zein hitz jarri behar da?"}</p><p class="bd-q bd-fixq${st.mistap?" bd-shake":""}">${st.tokens.map((w,k)=>{const isW=w===it.w;let c="";if(st.tapped!==null&&isW)c=" is-struck";return `<button class="bd-word${c}" ${st.tapped!==null||st.checked?"disabled":""} onclick="HBBidea.tap(${k})">${esc(w)}</button>`}).join(" ")}</p>${st.tapped!==null?optBtns(st.opts,{a:[it.r]},st," bd-chips bd-chips-3"):""}`}
@@ -783,7 +817,7 @@ function auditBox(){if(!S.auditor)return "";const it=cur().item,a=AUD[it.id]||{}
  <label class="bd-sr" for="bd-anote">Oharra</label><textarea id="bd-anote" rows="2" placeholder="Oharra (aukerakoa)…" onchange="HBBidea.auditNote(this.value)">${esc(a.note||"")}</textarea></aside>`}
 function nudgeHtml(){const it=cur().item,st=player.state;if(st.checked||!st.hintOn||player.mode==="test")return "";
  const retryTry=st.tries>0;
- return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(st.diagnosis||hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
+ return `<section class="bd-nudge${retryTry?" is-retry":""}" role="status" aria-live="polite">${bira(retryTry?"retry":"curious","bd-bira-sm")}<div><strong>${retryTry?"Ia-ia! Saiatu berriro.":"Pista"}</strong><p>${esc(st.diagnosis||it.hint||hintFor(it,DATA.groups,DATA.patterns))}</p></div></section>`}
 function deskSide(){if(!player||player.mode==="test"||player.mode==="worldgame"||!player.L)return "";const L=player.L;
  return `<aside class="bd-desk-side" aria-label="Ikasteko laguntza">
   <details class="bd-card bd-desk-cheat"><summary>Laguntza-txartela</summary><div class="bd-desk-cheat-body">${learnHtml(L)}<p class="bd-tip">${svg("bolt")}<span>${esc(L.tip)}${help()?`<small>${esc(L.tipEs)}</small>`:""}</span></p></div></details>

@@ -99,7 +99,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  const store=new Map(),els=new Map();
  function mkEl(id){const e={id,hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null};els.set(id,e);return e}
  const ls={getItem:k=>store.get(k)??null,setItem:(k,v)=>store.set(k,String(v)),removeItem:k=>store.delete(k)};
- const w={HB_BIDEA:D,HBData:{keyFor:k=>k,isRemote:()=>false,activity(){}},draw(){}};
+ const w={HB_BIDEA:D,HBLearningSelection:require("../learning-selection.js"),HBData:{keyFor:k=>k,isRemote:()=>false,activity(){}},draw(){}};
  const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:()=>mkEl('bd-player'),querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
  vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8'),{window:w,globalThis:w,localStorage:ls,document:doc,location:{search:''},URLSearchParams});
  w.HBBidea.setLevel('a1a2',false);
@@ -151,6 +151,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  const route=w.HBBidea.bidea(),home=w.HBBidea.gaur();
  check('Bidea shows five narrative episode titles before any completion and preserves optional grammar',["Non dago ura?","Giltza zaharra","Errotaren sekretua","Paperaren arrastoa","Ura berriro!"].every(t=>route.includes(t))&&route.includes('bd-world-path')&&!route.includes('Ikasgai gehiago')&&route.includes('Lagundu zure abenturari'));
  check('Gaur recommends the narrative before optional grammar, with games available from the start',home.includes('Non dago ura?')&&!home.includes('Ikasgai gehiago')&&home.includes('Hitzak lotu')&&route.includes('Loturen erronka'));
+ w.HBBidea.startWorldGame('context');check('World context game uses causal meaning and longer stimulus',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-connected-1'&&els.get('bd-player').innerHTML.includes('hornidura-hodia'));w.HBBidea.close(true);
  w.HBBidea.startEpisode(3);check('later episodes cannot be opened out of sequence',w.HBBidea._player()===null);
  w.HBBidea.startWorldGame('words');check('starter word game has four groups without any treasure unlocked',w.HBBidea._player().mode==='worldgame'&&w.HBBidea._player().queue.length===4&&w.HBBidea._player().queue[0].item.pairs.length===3);w.HBBidea.close(true);
  w.HBBidea.startWorldGame('links');check('starter connector game is accessible immediately',w.HBBidea._player().queue.length===2);w.HBBidea.close(true);
@@ -233,6 +234,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  }
  check('five treasure cards persist without adding XP or formal evidence',w.HBBidea.gaur().includes('5/5 aurkituta')&&Object.keys(w.HBBidea._state().episodes).length===5&&JSON.stringify(w.HBBidea._state().lessons)===before&&w.HBBidea._state().xp===beforeXp);
  const savedEpisodes=JSON.stringify(w.HBBidea._state().episodes);
+ w.HBBidea.startWorldGame('context');check('later World episode offers argument and inference instead of literal detail',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-reasoning-1'&&els.get('bd-player').innerHTML.includes('mantentze-lanen gabezia'));w.HBBidea.close(true);
  w.HBBidea.startWorldGame('words');
  const pairs=w.HBBidea._player().queue[0].item.pairs;
  check('word game uses all five earned vocabulary treasures',pairs.length===5&&pairs.some(p=>p[0]==='Iturburua'));
@@ -259,6 +261,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.setLevel('a1a2',false);
  check('forest narrative is visible in Gaur and Bidea without mixing water-mystery navigation',w.HBBidea.gaur().includes('KONDAIREN ZAINDARIAK')&&w.HBBidea.bidea().includes('Basorako bidea')&&w.HBBidea.bidea().includes('0/5'));
  check('beginner games are available before completion',w.HBBidea.gaur().includes('Hitzak lotu')&&w.HBBidea.bidea().includes('Non, nora, nondik?'));
+ w.HBBidea.startWorldGame('context');check('foundation context uses a short everyday text and literal comprehension',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-foundation-1'&&els.get('bd-player').innerHTML.includes('Zer edan du Anek?'));w.HBBidea.close(true);
  w.HBBidea.startWorldGame('links');check('beginner game uses contextual locatives',w.HBBidea._player().queue.length===3&&w.HBBidea._player().queue[0].item.a[0]==='basoan');w.HBBidea.close(true);
  w.HBBidea.startEpisode();if(w.HBBidea._player().recall.length){w.HBBidea.begin();while(w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}}else w.HBBidea.begin();
  check('forest scene reuses canonical message and illustration',w.HBBidea._player().L.id==='HB-EP-FOREST-01'&&els.get('bd-player').innerHTML.includes('Menditik nator, basoan bizi naiz eta errekara noa.')&&els.get('bd-player').innerHTML.includes('Basoko bidea'));
@@ -325,6 +328,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.startEpisode();while(w.HBBidea._player().phase==="play"){const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==="mc"||it.t==="chips"){w.HBBidea.sel(it.a[0]);w.HBBidea.check()}else break;w.HBBidea.next()}w.HBBidea.close(true);
  const ss=w.HBBidea._state();delete ss.forestDraft;
  w.HBBidea.chooseForestMission(2);check('second free adventure opens only after five forest episodes',w.HBBidea.gaur().includes('Aterpetxeko giltza')&&w.HBBidea.bidea().includes('0/5'));
+ w.HBBidea.startWorldGame('context');check('second beginner adventure uses everyday sequence and recipient comprehension',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-everyday-1');w.HBBidea.close(true);
  for(let n=1;n<=5;n++){w.HBBidea.startEpisode(n);let pl=w.HBBidea._player();check('shelter episode has stable ID and seven tasks',pl.L.id==='HB-EP-SHELTER-0'+n&&pl.L.items.length===7);w.HBBidea.begin();while(w.HBBidea._player().phase==='play'&&w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}w.HBBidea.begin();if(n===1){w.HBBidea.sel('da');w.HBBidea.check();w.HBBidea.next();w.HBBidea.askQuit();w.HBBidea.chooseForestMission(1);w.HBBidea.startEpisode();check('second mission resumes exact item and cannot overwrite paused draft',w.HBBidea._player().L.shelter&&w.HBBidea._player().pos===1)}
  let loops=0;while(w.HBBidea._player().phase==='play'){if(++loops>25)throw Error('stalled shelter');const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}else if(it.t==='build'){for(const word of w.HBBidea.tilesFor(it.a[0])){const st=p.state;w.HBBidea.tile(st.tiles.find(t=>t.w===word&&!st.picked.includes(t.k)).k)}w.HBBidea.check()}else if(it.t==='fix'){w.HBBidea.tap(p.state.tokens.indexOf(it.w));w.HBBidea.sel(it.r);w.HBBidea.check()}else if(it.t==='gap'||it.t==='write'){w.HBBidea.typed(it.t==='write'?it.model:it.a[0]);w.HBBidea.check()}else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}if(!p.state.checked)throw Error('not checked: '+it.id);if(it.t==='write')check('shelter production remains neutral',p.state.neutral);w.HBBidea.next()}w.HBBidea.finishEpisode();w.HBBidea.close(true)}
  check('all 15 episodes retained across three missions',Object.keys(w.HBBidea._state().episodes).length===15&&w.HBBidea.bidea().includes('5/5 aurkituta'));

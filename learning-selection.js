@@ -16,10 +16,17 @@ const needs={
 };
 const errorLinks={non:{family:"decl",case:"NON"},nora:{family:"decl",case:"NORA"},nondik:{family:"decl",case:"NONDIK"},nor:{id:"HB07-err-1"},nornork:{id:"HB07-err-2"},nornorinork:{id:"HB07-err-3"},cause:{id:"HB06-kau-01"},result:{id:"HB07-ond-3"}};
 const touched=(id,input)=>Number(input.attempts?.[id]?.n)>0;
+/* Editorial target, not assessed proficiency: only existing narrative stages. */
+function profile(context={}){
+ const route=["a1a2","b1b2"].includes(context.route)?context.route:null;
+ const stage=route==="b1b2"?(Number(context.episode?.number)>=4?"reasoning":"connected"):route==="a1a2"&&context.mission===2?"everyday":"foundation";
+ const levels={foundation:"A1",everyday:"A2",connected:"B1",reasoning:"B2"};
+ return {route,stage,vocabularyLevel:levels[stage],source:route?"editorial_route":"provisional",skillAssessment:null};
+}
 function select(cards,input={}){
  const context=input.context||{},route=["a1a2","b1b2"].includes(context.route)?context.route:null;
- const band=route||"a1a2",byId=new Map(cards.map(c=>[c.id,c])),errors=context.errors||{},now=input.now??Date.now();
- const target=new Set(band==="b1b2"?[...basics,...laterBasics,...intermediate]:[...basics,...(context.mission===2?laterBasics:[])]);
+ const adaptation=profile(context),band=route||"a1a2",byId=new Map(cards.map(c=>[c.id,c])),errors=context.errors||{},now=input.now??Date.now();
+ const target=new Set(band==="b1b2"?[...basics,...laterBasics,...intermediate]:[...basics,...(adaptation.stage==="everyday"?laterBasics:[])]);
  const exists=id=>byId.has(id),review=new Set(),prerequisites=new Set();
  const pending=id=>["incorrect","unverified"].includes(input.attempts?.[id]?.lastResult);
  const required=id=>{
@@ -48,7 +55,7 @@ function select(cards,input={}){
  for(const id of target)if(exists(id)&&focus.includes(byId.get(id).family)&&!available(id))prepare(id);
  const preferred=ordered.some(c=>focus.includes(c.family))?ordered:[...cards.filter(c=>focusPrep.has(c.id)),...ordered.filter(c=>!focusPrep.has(c.id))];
  const pool=cards.filter(c=>current.some(x=>x.id===c.id)||review.has(c.id)||prerequisites.has(c.id));
- return {route,band,provisional:!route,source:route?(context.placed?"placement":"adventure"):"no_evidence",episode:context.episode||null,
+ return {route,band,adaptation,provisional:!route,source:route?(context.placed?"placement":"adventure"):"no_evidence",episode:context.episode||null,
   pool,primary:preferred.slice(0,4),review:cards.filter(c=>review.has(c.id)),prerequisites:cards.filter(c=>prerequisites.has(c.id)&&!review.has(c.id)),
   next:ordered.filter(c=>!preferred.slice(0,4).some(x=>x.id===c.id)&&!opened.has(c.id)&&!touched(c.id,input)).slice(0,6),reviewCases,
   families:["decl",...new Set(pool.map(c=>c.family))],
@@ -60,7 +67,7 @@ function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));
  return items.filter(c=>c.family==="decl"?(/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(c.id)||selection.band==="b1b2"):ids.has(c.id));
 }
-const api=Object.freeze({version:"HB-ROUTE-MATERIAL/1",select,practiceFilter});
+const api=Object.freeze({version:"HB-ROUTE-MATERIAL/2",profile,select,practiceFilter});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 else root.HBLearningSelection=api;
 })(typeof window!=="undefined"?window:globalThis);

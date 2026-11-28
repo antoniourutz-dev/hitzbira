@@ -78,7 +78,7 @@ async function main(){
  r=await request(undefined,{...productionOptions,entries:[{...grantedEntry,knowledge_metadata:{hitzbira_vocab:{rights_status:'revoked'}}}]});check('production release honors revocation',r.body.rows.length===0);
  const releaseRows=Array.from(releaseContext.release.rows);check('release contains references only and no definitions',releaseRows.length===32&&releaseRows.every(r=>!r.term&&!r.meaning&&r.fingerprint.length===64));
 
- const store=new Map(),els=new Map(),events=[],requests=[],w={HBVocabulary:api,draw(){}};
+ const store=new Map(),els=new Map(),events=[],requests=[],w={HBVocabulary:api,HBLearningSelection:require('../learning-selection.js'),draw(){}};
  const el=()=>({hidden:false,innerHTML:'',dataset:{},scrollTop:0,setAttribute(){},focus(){},querySelector:()=>null});
  const doc={readyState:'complete',body:{dataset:{},appendChild(e){els.set(e.id,e)}},addEventListener(){},getElementById:id=>els.get(id)||null,createElement:el,querySelector:()=>null,querySelectorAll:()=>[],documentElement:{classList:{add(){},remove(){}}}};
  let isRemote=false;
