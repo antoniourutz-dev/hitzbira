@@ -106,13 +106,13 @@ function save(k,value,details={}){
    The existing outbox and server acknowledgment govern synchronization. Sequential devices only. */
 function localGuestBidea(){
  const raw=readLocal("hitzbira-bidea-v1");if(!obj(raw))return null;
- const episodes=Object.fromEntries(Object.entries(raw.episodes||{}).filter(([id,v])=>/^HB-EP-(?:FOREST|SHELTER)-0[1-5]$/.test(id)&&obj(v)));
- const forestDraft=raw.forestDraft?.v===1&&/^HB-EP-(?:FOREST|SHELTER)-0[1-5]$/.test(raw.forestDraft.id)?raw.forestDraft:null;
+ const episodes=Object.fromEntries(Object.entries(raw.episodes||{}).filter(([id,v])=>/^HB-EP-(?:FOREST|SHELTER|MIRROR)-0[1-5]$/.test(id)&&obj(v)));
+ const forestDraft=raw.forestDraft?.v===1&&/^HB-EP-(?:FOREST|SHELTER|MIRROR)-0[1-5]$/.test(raw.forestDraft.id)?raw.forestDraft:null;
  const days=Object.fromEntries(Object.entries(raw.episodeStudyDays||{}).filter(([k,v])=>/^\d{4}-\d{2}-\d{2}$/.test(k)&&v===true));
  const memory=Object.fromEntries(Object.entries(raw.episodeErrorMemory||{}).filter(([k,v])=>["non","nora","nondik","nor","nornork"].includes(k)&&obj(v)));
- const recognitionEvidence=Object.fromEntries(Object.entries(raw.recognitionEvidence||{}).filter(([id,r])=>obj(r)&&r.mode==="recognition"&&Number.isFinite(r.at)&&["match","mismatch","supported"].includes(r.result)&&["foundation","everyday"].includes(r.stage)&&((r.skill==="reading"&&new RegExp("^HB-CONTEXT-"+r.stage+"-[1-5]$").test(id))||(r.skill==="verbs"&&["HB-VERB-NOR-1","HB-VERB-FOUND-2","HB-VERB-EVERY-1","HB-VERB-EVERY-2"].includes(id)))).map(([id,r])=>[id,{skill:r.skill,stage:r.stage,mode:"recognition",result:r.result,assisted:r.assisted===true,at:r.at,firstMatch:r.firstMatch===true,attempts:Math.min(999,Math.max(1,Number(r.attempts)||1))}]));
+ const recognitionEvidence=Object.fromEntries(Object.entries(raw.recognitionEvidence||{}).filter(([id,r])=>obj(r)&&r.mode==="recognition"&&Number.isFinite(r.at)&&["match","mismatch","supported"].includes(r.result)&&["foundation","everyday"].includes(r.stage)&&((r.skill==="reading"&&new RegExp("^HB-CONTEXT-"+r.stage+"-[1-5]$").test(id))||(["reading","grammar"].includes(r.skill)&&r.stage==="everyday"&&/^HB-EP-MIRROR-0[1-5]-[1-4]$/.test(id))||(r.skill==="verbs"&&["HB-VERB-NOR-1","HB-VERB-FOUND-2","HB-VERB-EVERY-1","HB-VERB-EVERY-2"].includes(id)))).map(([id,r])=>[id,{skill:r.skill,stage:r.stage,mode:"recognition",result:r.result,assisted:r.assisted===true,at:r.at,firstMatch:r.firstMatch===true,attempts:Math.min(999,Math.max(1,Number(r.attempts)||1))}]));
  if(!Object.keys(episodes).length&&!forestDraft&&!Object.keys(days).length&&!Object.keys(memory).length&&!Object.keys(recognitionEvidence).length)return null;
- return {level:"a1a2",forestMission:raw.forestMission===2?2:1,placed:false,lessons:{},days:{},xp:0,episodes,episodeErrorMemory:memory,episodeStudyDays:days,recognitionEvidence,...(forestDraft?{forestDraft}:{}),help:raw.help==="eu"?"eu":"es",sound:raw.sound!==false}
+ return {level:"a1a2",forestMission:[2,3].includes(raw.forestMission)?raw.forestMission:1,placed:false,lessons:{},days:{},xp:0,episodes,episodeErrorMemory:memory,episodeStudyDays:days,recognitionEvidence,...(forestDraft?{forestDraft}:{}),help:raw.help==="eu"?"eu":"es",sound:raw.sound!==false}
 }
 async function importGuestBidea(){
  if(!authorized||loadBidea())return false;

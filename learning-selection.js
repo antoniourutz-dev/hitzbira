@@ -19,7 +19,7 @@ const touched=(id,input)=>Number(input.attempts?.[id]?.n)>0;
 /* Editorial target, not assessed proficiency: only existing narrative stages. */
 function profile(context={}){
  const route=["a1a2","b1b2"].includes(context.route)?context.route:null;
- const stage=route==="b1b2"?(Number(context.episode?.number)>=4?"reasoning":"connected"):route==="a1a2"&&context.mission===2?"everyday":"foundation";
+ const stage=route==="b1b2"?(Number(context.episode?.number)>=4?"reasoning":"connected"):route==="a1a2"&&context.mission>=2?"everyday":"foundation";
  const levels={foundation:"A1",everyday:"A2",connected:"B1",reasoning:"B2"};
  const evidence=context.recognitionEvidence||{},order=["foundation","everyday","connected","reasoning"],rows=Object.entries(evidence).filter(([id,r])=>r&&/^HB-CONTEXT-(foundation|everyday|connected|reasoning)-[1-5]$/.test(id)&&id.startsWith("HB-CONTEXT-"+r.stage+"-")&&r.skill==="reading"&&r.mode==="recognition"&&Number.isFinite(r.at));
  const difficult=rows.filter(([,r])=>r.stage===stage&&r.result!=="match"&&["mismatch","supported"].includes(r.result));
