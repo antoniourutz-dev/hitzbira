@@ -21,11 +21,15 @@ Aplicadas las copias locales 00/04/05/08 v2.1 y 02 v2.0 identificadas en `INCREM
 
 ## CI y preview
 
-Pendiente de comprobar tras el push de este incremento. Solo preview de esta rama; sin despliegue manual a producción.
+Incremento ejecutable `275d12debe235a91ac42f65418d937d58d8db0fb`: [CI 46124911999](https://github.com/antoniourutz-dev/hitzbira/actions/runs/46124911999) completado con `success`. Vercel `dpl_3n8vfKiryVVhb8jz342rK8A5dpGs`, estado READY, misma rama y SHA, target preview (`null`, no producción). URL inmutable: https://hitzbira-d6bhtu0yb-antoniourutz-devs-projects.vercel.app ; alias estable: https://hitzbira-git-feature-guest-ac-cbff4f-antoniourutz-devs-projects.vercel.app/ . Este cierre documental no modifica el ejecutable.
 
 ## Revisión visual
 
-Pendiente de comprobar en navegador tras el despliegue. No se heredan como pruebas del nuevo incremento las de 2.14.0.
+Navegador real sobre la preview de 2.15.0, meta-versión comprobada. Se inspeccionaron individualmente las quince ilustraciones nuevas: refugio 01–05, espejo 01–05 y agua 01–05. No se heredan como pruebas del nuevo incremento las de 2.14.0.
+
+Smoke real con el borrador previo FOREST-02, Erronka 3/7: abrir, cerrar, reabrir y volver a Bidea conserva el mismo paso; Gaur/Jolastokia y Bidea muestran FOREST-02. Escritorio 1366×900: footer inferior 898.997, viewport 900; móvil solicitado 390×844 (DOM 391×844): footer inferior 843.997. Sin desbordamiento horizontal. Capturas inspeccionadas: texto legible y Jarraitu visible. Imágenes rotas observadas: 0; errores de consola capturados: 0. Viewport restaurado al terminar.
+
+Alcance limitado: las escenas nuevas se verificaron individualmente y su conexión al jugador mediante pruebas de integración; no se recorrieron las veinte escenas completas por UI ni se probó una cuenta autenticada. El smoke no prueba el rendimiento didáctico ni equivale a una auditoría de accesibilidad. No se alteró el progreso previo para desbloquear aventuras durante el smoke.
 
 ## Límites
 
