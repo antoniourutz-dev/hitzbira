@@ -357,7 +357,7 @@ function finalEpisodes(n){
 const EP_TREASURES=[
  {id:"auzolana",title:"Auzolana",kind:"ELKARLANA",desc:"Herritarrek elkarrekin egiten duten lana, komunitatearen mesedetan.",example:"Herriko iturria konpontzeko, auzolanean aritu dira.",es:"Trabajo comunitario en beneficio de la comunidad."},
  {id:"giltza",title:"Giltza",kind:"HITZEN ALTXORRA",desc:"Giltza batekin atea ireki dezakegu. Hitz hori irudiz ere erabiltzen dugu, arazo bat konpontzeko funtsezko zerbait adierazteko.",example:"Elkarlana da arazoa konpontzeko giltza.",es:"Llave; también clave para resolver un problema."},
- {id:"errota",title:"Errota",kind:"HITZEN ALTXORRA",desc:"Errota batean alea ehotzen da, adibidez irina egiteko. Uraren indarraz dabilena ur-errota da.",example:"Ur-errotako gurpilak biraka egin du.",es:"Molino. Un molino hidráulico aprovecha la fuerza del agua."},
+ {id:"errota",title:"Errota",kind:"HITZEN ALTXORRA",desc:"Errota batean alea ehotzen da, adibidez irina egiteko. Uraren indarraz dabilena ur-errota da.",example:"Ur-errotako gurpila biraka ibili da.",es:"Molino. Un molino hidráulico aprovecha la fuerza del agua."},
  {id:"zubia",title:"Zubia",kind:"HITZEN ALTXORRA",desc:"Ibai, errepide edo hutsune baten gainetik igarotzeko eraikuntza.",example:"Zubitik igaro gara.",es:"Puente."},
  {id:"iturburua",title:"Iturburua",kind:"HITZEN ALTXORRA",desc:"Ura lurretik berez ateratzen den tokia.",example:"Iturburutik dator errekako ura.",es:"Manantial."}
 ];
@@ -1039,6 +1039,7 @@ function discourseGoal(it,raw){
  const result=/\b(?:beraz|hortaz|horrenbestez|horregatik|ondorioz|hori dela eta|horren ondorioz)\b/iu.test(raw);
  const id=it.id,missing=message=>({status:"task",rule:"HB-WRITE-v2-DISCOURSE",message});
  if(id.endsWith("01-OPEN")&&!cause)return missing("Bigarren esaldian «izan ere» erabiltzea eskatzen da. Saiatu zergatia azaltzen.");
+ if(id.endsWith("01-OPEN")&&/^izan\s+ere[,.!?\s]*$/iu.test(raw.trim()))return missing("«Izan ere» ez da nahikoa: bi esaldi osatu, bigarrenak lehenaren arrazoia azal dezan.");
  if(id.endsWith("02-OPEN")&&!suffix)return missing("Atazak «-lako» erabiltzea eskatzen du. Saiatu kausa esaldi berean ematen.");
  if(id.endsWith("04-OPEN")&&!cause&&!suffix)return missing("Azaldu zergatia «-lako» edo «izan ere» erabiliz.");
  if(id.endsWith("05-OPEN")&&!suffix)return missing("Azaldu zergatia «-lako» erabiliz.");
@@ -1086,7 +1087,12 @@ function reviewSentence(it,answer){
  if(it?.t!=="write"||!raw||raw.length>600)return {status:"unverified"};
  // Keep punctuation and clause boundaries: we only parse a single plain affirmative sentence.
  const plain=raw.toLowerCase().normalize("NFC").replace(/\s+/g," ").replace(/[.]$/,"").trim();
+ // Single-word answers do not demonstrate the requested sentence in these explicit tasks.
+ const fullSentenceTask=/^HB-EP-(?:FOREST-0[1-4]|SHELTER-0[1-5]|CAUSE-0[1-5])-OPEN$/.test(it.id);
+ if(fullSentenceTask&&/^[\p{L}-]+[.!?]?$/u.test(raw))return {status:"task",rule:"HB-WRITE-v4-SENTENCE",message:"Atazak esaldi bat edo gehiago eskatzen ditu. Osatu zure ideia; hitz bakarrarekin ez dugu helburua egiaztatu."};
  const complex=complexReview(it,raw);if(complex)return complex;
+ // Explicit task requirements precede general auxiliary recognition.
+ const requiredDiscourse=discourseGoal(it,raw);if(requiredDiscourse)return requiredDiscourse;
  const known=(it.model&&norm(raw)===norm(it.model));
  const goalCase=routeGoal(it,plain)||locativeGoal(it,plain);if(goalCase)return goalCase;
  const dative=dativeContrast(plain,raw);if(dative)return dative;
@@ -1101,7 +1107,7 @@ function reviewSentence(it,answer){
   for(const [sub,wanted,wrong,objects] of WRITE_NORK){if(!objects.some(o=>prefix===sub+" "+o))continue;if(wrong.includes(aux))return issue("nornork",wanted,wanted==="ditut"||wanted==="ditugu"||wanted==="dituzte"?"Objektua plurala da. Begiratu laguntzailearen komunztadurari.":"Egilea eta objektua ditugu esaldi honetan; begiratu laguntzaileari.");if(aux===wanted)return {status:"observed",message:"Laguntzailea egoki erabili duzu egitura honetan."}}
  }
  // Task-alignment only: no judgement on grammar or meaning from a marker alone.
- const discourse=discourseGoal(it,raw);if(discourse)return discourse;
+ 
  return known?{status:"observed",message:"Ereduarekin bat dator zure esaldia."}:{status:"unverified"};
 }
 function checkEpisodeWriting(it,st){
@@ -1125,7 +1131,7 @@ function writeFeedback(it,st){
  if(a.status==="task_case")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Kasuari erreparatu</h3><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Zure forma</small><b>'+esc(a.from)+'</b></span>'+(st.checked?'<span><small>Atazarako proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Aldatu kasua eta saiatu berriro.</p>')+'</section>';
  if(a.status==="task")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Berrikusi eskakizuna</h3><p>'+esc(a.message)+'</p>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Osatu zure erantzuna eta saiatu berriro.</p>')+'</section>';
  if(!st.checked)return "";
- return '<section class="bd-write-review '+(a.status==="observed"?"is-observed":"is-reflect")+'" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg(a.status==="observed"?"check":"map")+'</span><div><span class="bd-kicker">'+(a.status==="observed"?"EGITURA LANDUA":"ALDERATU ETA IKASI")+'</span><h3>'+ (a.status==="observed"?(st.writeRetry?"Egitura berrikusi duzu":"Egitura egokia"):"Zure esaldia prest dago")+'</h3></div></div><p>'+esc(a.message||"Beste formulazio egoki batzuk ere egon daitezke.")+'</p><div class="bd-write-example"><span class="bd-kicker">EREDU BAT</span><p><b>Eredu bat:</b> '+esc(it.model)+'</p></div><p class="bd-note">'+(a.status==="observed"?"Egitura edo eredua egiaztatu dugu, ez testu osoa.":"Erantzuna ez da automatikoki baliozkotu.")+'</p></section>'
+ return '<section class="bd-write-review '+(a.status==="observed"?"is-observed":"is-reflect")+'" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg(a.status==="observed"?"check":"map")+'</span><div><span class="bd-kicker">'+(a.status==="observed"?"EGITURA LANDUA":"ALDERATU ETA IKASI")+'</span><h3>'+ (a.status==="observed"?(st.writeRetry?"Egitura berrikusi duzu":"Egitura egokia"):"Ezin izan dugu esaldi osoa egiaztatu")+'</h3></div></div><p>'+esc(a.message||"Beste formulazio egoki batzuk ere egon daitezke.")+'</p><div class="bd-write-example"><span class="bd-kicker">EREDU BAT</span><p><b>Eredu bat:</b> '+esc(it.model)+'</p></div><p class="bd-note">'+(a.status==="observed"?"Egitura edo eredua egiaztatu dugu, ez testu osoa.":"Erantzuna ez da automatikoki baliozkotu.")+'</p></section>'
 }
 
 function check(){if(!player||player.phase!=="play")return;if(player.owner&&player.owner!==keyFor(KEY)){close();return}const e=cur(),it=e.item,st=player.state;if(st.checked||!ready())return;

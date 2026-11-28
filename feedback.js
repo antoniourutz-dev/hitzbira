@@ -37,7 +37,7 @@ const G06_NOTES = {
     "Deitzera jomuga da, ez gogoratzearen edukia."
   ],
   "GB-adi-10": [
-    "Egitera jarduerarantz joatea da; hemen jardueratik gatoz.",
+    "Egitera helburua adierazteko egokia da (erosketak egitera gatoz); hemen erosketak egin ondoren itzultzen ari gara.",
     "Egiteko helburua edo izenlaguna izan daiteke; hemen abiapuntua adierazi nahi da."
   ],
   "GB-osa-01": [
@@ -229,7 +229,7 @@ const G06_NOTES = {
     "Naizelako kausa da; ez baldintzazko hipotesia."
   ],
   "HB07-kon-1": [
-    "Duela duten kontzesiozko eraikuntzak ere badaude; hemen -(e)n forma eskatu da.",
+    "Duela adierazpen-osagarrietan erabiltzen da, besteak beste. Nahiz eta egitura honetan -(e)n eskatzen da: duen.",
     "Duelako kausa adierazteko erabil daiteke; hemen -(e)n forma eskatu da."
   ],
   "HB07-kon-2": [

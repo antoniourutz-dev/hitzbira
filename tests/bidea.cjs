@@ -407,6 +407,9 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
   check(id+' markers alone do not establish structure',review(task,'Izan ere, arren, bada, beraz.').status==='unverified');
  }
  check('complex contrast is bound to real task ID',review({id:'unknown',t:'write'},complexCases[0][2]).status==='unverified');
+ check('single word in explicit forest sentence task receives task feedback not success',review({id:'HB-EP-FOREST-01-OPEN',t:'write'},'erreka').status==='task');
+ check('explicit discourse goal checked before simple auxiliary contrast',review({id:'HB-EP-CAUSE-01-OPEN',t:'write'},'Ni mendira joan naiz.').status==='task');
+ check('connector by itself cannot satisfy writing task',review({id:'HB-EP-CAUSE-01-OPEN',t:'write'},'Izan ere.').status==='task');
  check('cause and result markers cannot validate an incoherent relation',review({id:'HB-EP-CAUSE-01-OPEN',t:'write'},'Iturburuko hodia hautsi da. Izan ere, herrira ez da urik iristen.').status==='unverified');
  { // Exercises in the original lesson bank use the same bounded corrector as episodes.
  w.HBBidea.setLevel('a1a2',false);w.HBBidea.start(4,true);w.HBBidea.begin();let lessonPlayer=w.HBBidea._player();
