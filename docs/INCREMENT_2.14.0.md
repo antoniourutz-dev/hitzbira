@@ -44,7 +44,15 @@ Tokiko kopiak aurkitu dira `Documents/Codex/2026-11-19/erabili-sustrai-gram-sort
 
 ## Egiaztapenak eta mugak
 
-`node tests/run.cjs`: suite guztiak gaindituta. Kasu positiboak, negatiboak, aldaerak, aipuak, lokailu solteak, ataza ezezagunak, zuzenketa minimoa eta gainerako abentura/guest/account erregresioa. `complex-writing.cjs`: 22 proba bereizi; benetako queue/check/save/resume bidea, originala, memoria behin bakarrik, lagundutako emaitza neutrala eta berreskurapen desberdina barne. Fixtures sintetikoak; ez ikasleen ekoizpen errealak.
+`node tests/run.cjs`: suite guztiak gaindituta. Kasu positiboak, negatiboak, aldaerak, aipuak, lokailu solteak, ataza ezezagunak, zuzenketa minimoa eta gainerako abentura/guest/account erregresioa. `complex-writing.cjs`: 27 proba bereizi; benetako queue/check/save/resume bidea, originala, memoria behin bakarrik, lagundutako emaitza neutrala, berreskurapen desberdina eta bost eszenen benetako integrazioa barne. Fixtures sintetikoak; ez ikasleen ekoizpen errealak.
+
+### Mahaigaineko eta mugikorreko browser smoke
+
+2026-11-28, preview egonkorrean, 2.14.0 meta-bertsioa. Runtime commit `942daef7ff521c529aa7b312e1d6b415d1994af2`, Vercel READY eta CI `46123251617` success. 1366×900 mahaigaina eta eskatutako 390×844 mugikorreko viewporta (DOMak 391×844 itzuli du). Jarraitu/Goazen footerra ikusgai: mahaigainean beheko ertza 898.997 / viewport 900; mugikorrean 843.997 / 844. Ez overflow horizontalik.
+
+Gordetako FOREST-01eko 5/7 urratsetik benetako UI bidez jarraitu da: erantzuna → Jarraitu → idazmena → «Errekatik noa» ataza-pista → «Errekara noa» berridazketa → altxorra → FOREST-02. Bigarren eszenaren irudia eta Bira kargatuta, testua irakurgarri, botoia ikusgai bi tamainetan. Irten eta Bidean urrats bera berreskuragarri; Jolastokiak eszena bera darabil eta Aditzen erronka ireki da. Ikusitako irudi apurtuak: 0; harrapatutako console errorrak: 0. Bost SVGak banaka nabigatzailean ikusita. Azken artelan-doikuntzak FOREST-04ko zubia erdiko bidearekin lerrokatzen du; aplikazio-logika ez da aldatu.
+
+Smoke mugatua da: ez dira 20 eszenak gailu errealetan osorik jokatu; ez da WCAG auditoria edo kontu autentifikatuaren egiaztapena. Tokiko browser sarbideak huts egin du; emaitza bisualak urruneko previewkoak dira.
 
 Benetako kontu autentifikatuen end-to-end eta adituaren hizkuntza-auditoria egiteke. Ez IA zerbitzurik, ez gakorik, ez datu-basearen eskema edo baimenen aldaketarik. 09 eta 05eko T01–T24/B01–B08 multzo osoa ez dira gainditutzat ematen.
 

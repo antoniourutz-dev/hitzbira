@@ -35,6 +35,15 @@ api.close(true);api.startDueRecall();
 check('all three complex difficulties schedule different retrieval tasks',new Set(api._player().queue.map(x=>x.item.code)).size===3);
 check('retrieval uses a new communicative context',api._player().queue.every(x=>!['Lurrek','Hodia','Mapa'].some(w=>x.item.q.includes(w))));
 api.close(true);
+api.setLevel('a1a2',false);api._state().forestMission=1;
+for(let number=1;number<=5;number++){
+ const state=api._state();delete state.forestDraft;state.episodes=state.episodes||{};
+ for(let j=1;j<number;j++)state.episodes['HB-EP-FOREST-0'+j]={treasure:'test'};
+ api.startEpisode(number);api.begin();
+ const html=elements.get('bd-player').innerHTML;
+ check('forest '+number+' player uses exact real scene artwork',html.includes('data-scene-id="HB-EP-FOREST-0'+number+'"')&&html.includes('/assets/scenes/HB-EP-FOREST-0'+number+'.svg'));
+ api.close(true);delete state.forestDraft;
+}
 const art=Array.from({length:5},(_,i)=>fs.readFileSync(path.join(root,'assets/scenes/HB-EP-FOREST-0'+(i+1)+'.svg'),'utf8'));
 check('five real forest scene IDs have distinct vector compositions',new Set(art).size===5&&art.every(s=>s.includes('viewBox="0 0 960 420"')));
 const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
