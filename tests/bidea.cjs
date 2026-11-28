@@ -227,6 +227,8 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
   w.HBBidea.begin();
   for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
   w.HBBidea.typed('Hodia buxatuta zegoen. Beraz, garbitu egin dugu.');w.HBBidea.check();
+  check('missing required cause form prompts a rewrite rather than a grammar penalty',w.HBBidea._player().state.writeAssessment.status==='task'&&!w.HBBidea._player().state.checked);
+  w.HBBidea.typed(w.HBBidea._player().queue[6].item.model);w.HBBidea.check();
   check('written production is neutral and not automatically certified',w.HBBidea._player().state.neutral);
   w.HBBidea.next();w.HBBidea.finishEpisode();
   if(n===5)check('mission ends with resolved story and optional game, not a nonexistent episode',els.get('bd-player').innerHTML.includes('Misterioa argituta!')&&els.get('bd-player').innerHTML.includes('Jolastokira')&&!els.get('bd-player').innerHTML.includes('startEpisode(6)'));
