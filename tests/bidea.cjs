@@ -215,6 +215,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.begin();
  for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
  w.HBBidea.typed('Errota ez dabil, hodia buxatuta dagoelako. Beraz, hodia garbitu behar dugu.');w.HBBidea.check();w.HBBidea.next();
+ w.HBBidea.typed(w.HBBidea._player().queue[7].item.model);w.HBBidea.check();w.HBBidea.next();
  check('third treasure does not require autonomous production credit',w.HBBidea._player().phase==='altxorra'&&els.get('bd-player').innerHTML.includes('Errota'));
  w.HBBidea.finishEpisode();w.HBBidea.close(true);
  check('all three collectible cards are visible with no duplicate rewards',w.HBBidea.gaur().includes('3/5 aurkituta')&&w.HBBidea.bidea().includes('Errota')&&Object.keys(w.HBBidea._state().episodes).length===3);
@@ -223,14 +224,14 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('Gaur offers optional vocabulary and connector games after discovering treasures',w.HBBidea.gaur().includes('Hitzak lotu')&&w.HBBidea.bidea().includes('Loturen erronka'));
  for(let n=4;n<=5;n++){
   w.HBBidea.startEpisode();w.HBBidea.begin();
-  check('next narrative episode uses the shared player and seven original tasks',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===7);
+  check('next narrative episode includes a bounded complex writing task',w.HBBidea._player().L.n===n&&w.HBBidea._player().queue.length===8);
   w.HBBidea.begin();
   for(let i=0;i<6;i++){const it=w.HBBidea._player().queue[i].item;if(it.t==='mc')w.HBBidea.sel(it.a[0]);else w.HBBidea.typed(it.a[0]);w.HBBidea.check();w.HBBidea.next()}
   w.HBBidea.typed('Hodia buxatuta zegoen. Beraz, garbitu egin dugu.');w.HBBidea.check();
   check('missing required cause form prompts a rewrite rather than a grammar penalty',w.HBBidea._player().state.writeAssessment.status==='task'&&!w.HBBidea._player().state.checked);
   w.HBBidea.typed(w.HBBidea._player().queue[6].item.model);w.HBBidea.check();
   check('written production is neutral and not automatically certified',w.HBBidea._player().state.neutral);
-  w.HBBidea.next();w.HBBidea.finishEpisode();
+  w.HBBidea.next();w.HBBidea.typed(w.HBBidea._player().queue[7].item.model);w.HBBidea.check();w.HBBidea.next();w.HBBidea.finishEpisode();
   if(n===5)check('mission ends with resolved story and optional game, not a nonexistent episode',els.get('bd-player').innerHTML.includes('Misterioa argituta!')&&els.get('bd-player').innerHTML.includes('Jolastokira')&&!els.get('bd-player').innerHTML.includes('startEpisode(6)'));
   w.HBBidea.close(true);
  }
@@ -266,7 +267,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.startWorldGame('context');check('foundation context uses a short everyday text and literal comprehension',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-foundation-1'&&els.get('bd-player').innerHTML.includes('Zer edan du Anek?'));w.HBBidea.close(true);
  w.HBBidea.startWorldGame('links');check('beginner game uses contextual locatives',w.HBBidea._player().queue.length===3&&w.HBBidea._player().queue[0].item.a[0]==='basoan');w.HBBidea.close(true);
  w.HBBidea.startEpisode();if(w.HBBidea._player().recall.length){w.HBBidea.begin();while(w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}}else w.HBBidea.begin();
- check('forest scene reuses canonical message and illustration',w.HBBidea._player().L.id==='HB-EP-FOREST-01'&&els.get('bd-player').innerHTML.includes('Menditik nator, basoan bizi naiz eta errekara noa.')&&els.get('bd-player').innerHTML.includes('Basoko bidea'));
+ check('forest scene reuses canonical message and exact episode artwork',w.HBBidea._player().L.id==='HB-EP-FOREST-01'&&els.get('bd-player').innerHTML.includes('Menditik nator, basoan bizi naiz eta errekara noa.')&&els.get('bd-player').innerHTML.includes('/assets/scenes/HB-EP-FOREST-01.svg'));
  w.HBBidea.begin();w.HBBidea.sel('Errekara');w.HBBidea.check();w.HBBidea.next();w.HBBidea.askQuit();
  check('beginner draft does not overwrite B1–B2 draft',w.HBBidea._state().forestDraft.pos===1&&JSON.stringify(w.HBBidea._state().episodeDraft)===bDraft);
  w.HBBidea.setLevel('b1b2',false);w.HBBidea.startEpisode();check('intermediate draft remains resumable',w.HBBidea._player().L.n===5);w.HBBidea.close(true);
@@ -332,7 +333,7 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.chooseForestMission(2);check('second free adventure opens only after five forest episodes',w.HBBidea.gaur().includes('Aterpetxeko giltza')&&w.HBBidea.bidea().includes('0/5'));
  w.HBBidea.startWorldGame('context');check('second beginner adventure uses everyday sequence and recipient comprehension',w.HBBidea._player().queue[0].item.id==='HB-CONTEXT-everyday-1');w.HBBidea.close(true);
  for(let n=1;n<=5;n++){w.HBBidea.startEpisode(n);let pl=w.HBBidea._player();check('shelter episode has stable ID and seven tasks',pl.L.id==='HB-EP-SHELTER-0'+n&&pl.L.items.length===7);w.HBBidea.begin();while(w.HBBidea._player().phase==='play'&&w.HBBidea._player().segment==='recall'){const p=w.HBBidea._player();w.HBBidea.sel(p.queue[p.pos].item.a[0]);w.HBBidea.check();w.HBBidea.next()}w.HBBidea.begin();if(n===1){w.HBBidea.sel('da');w.HBBidea.check();w.HBBidea.next();w.HBBidea.askQuit();w.HBBidea.chooseForestMission(1);w.HBBidea.startEpisode();check('second mission resumes exact item and cannot overwrite paused draft',w.HBBidea._player().L.shelter&&w.HBBidea._player().pos===1)}
- let loops=0;while(w.HBBidea._player().phase==='play'){if(++loops>25)throw Error('stalled shelter');const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}else if(it.t==='build'){for(const word of w.HBBidea.tilesFor(it.a[0])){const st=p.state;w.HBBidea.tile(st.tiles.find(t=>t.w===word&&!st.picked.includes(t.k)).k)}w.HBBidea.check()}else if(it.t==='fix'){w.HBBidea.tap(p.state.tokens.indexOf(it.w));w.HBBidea.sel(it.r);w.HBBidea.check()}else if(it.t==='gap'||it.t==='write'){if(n===1&&it.t==='write'){const before=w.HBBidea._state().episodeErrorMemory.nor?.errors||0;w.HBBidea.typed('Ni aterpera joan dut.');w.HBBidea.check();check('wrong written auxiliary prompts a rewrite and stores one difficulty',!p.state.checked&&p.state.writeRetry&&els.get('bd-player').innerHTML.includes('Laguntzailea berrikusi')&&w.HBBidea._state().episodeErrorMemory.nor.errors===before+1);w.HBBidea.askQuit();w.HBBidea.startEpisode();check('writing draft retains original and repair prompt',w.HBBidea._player().state.writeOriginal==='Ni aterpera joan dut.'&&w.HBBidea._player().state.writeRetry);w.HBBidea.typed(it.model);w.HBBidea.check();check('guided rewrite remains neutral, not mastery',w.HBBidea._player().state.neutral&&w.HBBidea._player().state.writeAssessment.status==='observed')}else{w.HBBidea.typed(it.t==='write'?it.model:it.a[0]);w.HBBidea.check()}}else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}if(!w.HBBidea._player().state.checked)throw Error('not checked: '+it.id);if(it.t==='write')check('shelter production remains neutral',w.HBBidea._player().state.neutral);w.HBBidea.next()}w.HBBidea.finishEpisode();w.HBBidea.close(true)}
+ let loops=0;while(w.HBBidea._player().phase==='play'){if(++loops>25)throw Error('stalled shelter');const p=w.HBBidea._player(),it=p.queue[p.pos].item;if(it.t==='match'){for(let i=0;i<it.pairs.length;i++){w.HBBidea.mL(i);w.HBBidea.mR(i)}}else if(it.t==='build'){for(const word of w.HBBidea.tilesFor(it.a[0])){const st=p.state;w.HBBidea.tile(st.tiles.find(t=>t.w===word&&!st.picked.includes(t.k)).k)}w.HBBidea.check()}else if(it.t==='fix'){w.HBBidea.tap(p.state.tokens.indexOf(it.w));w.HBBidea.sel(it.r);w.HBBidea.check()}else if(it.t==='gap'||it.t==='write'){if(n===1&&it.t==='write'){const before=w.HBBidea._state().episodeErrorMemory.nor?.errors||0;w.HBBidea.typed('Ni aterpera joan dut.');w.HBBidea.check();check('wrong written auxiliary prompts a rewrite and stores one difficulty',!p.state.checked&&p.state.writeRetry&&els.get('bd-player').innerHTML.includes('Egitura berrikusi')&&w.HBBidea._state().episodeErrorMemory.nor.errors===before+1);w.HBBidea.askQuit();w.HBBidea.startEpisode();check('writing draft retains original and repair prompt',w.HBBidea._player().state.writeOriginal==='Ni aterpera joan dut.'&&w.HBBidea._player().state.writeRetry);w.HBBidea.typed(it.model);w.HBBidea.check();check('guided rewrite remains neutral, not mastery',w.HBBidea._player().state.neutral&&w.HBBidea._player().state.writeAssessment.status==='observed')}else{w.HBBidea.typed(it.t==='write'?it.model:it.a[0]);w.HBBidea.check()}}else{w.HBBidea.sel(it.a[0]);w.HBBidea.check()}if(!w.HBBidea._player().state.checked)throw Error('not checked: '+it.id);if(it.t==='write')check('shelter production remains neutral',w.HBBidea._player().state.neutral);w.HBBidea.next()}w.HBBidea.finishEpisode();w.HBBidea.close(true)}
  check('all 15 episodes retained across three missions',Object.keys(w.HBBidea._state().episodes).length===15&&w.HBBidea.bidea().includes('5/5 aurkituta'));
  w.HBBidea.chooseForestMission(3);check('third guest adventure opens after prior two',w.HBBidea.bidea().includes('Lamiaren ispilua')&&w.HBBidea.bidea().includes('0/5'));
  for(let n=1;n<=5;n++){w.HBBidea.startEpisode(n);let p=w.HBBidea._player();check('mirror episode has seven contextual items',p.L.id==='HB-EP-MIRROR-0'+n&&p.L.items.length===7);w.HBBidea.begin();while(w.HBBidea._player().phase==='play'&&w.HBBidea._player().segment==='recall'){const it=w.HBBidea._player().queue[w.HBBidea._player().pos].item;w.HBBidea.sel(it.a[0]);w.HBBidea.check();w.HBBidea.next()}w.HBBidea.begin();
@@ -388,6 +389,23 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('explicit cause and consequence task requirements are distinct from grammar',review(cause4,'Zubira etorri gara, marka bat ikusi dugulako.').status==='task'&&review(cause4,'Zubira etorri gara, marka bat ikusi dugulako. Horregatik, beste bide bat bilatuko dugu.').status==='unverified');
  check('unrecognized discourse variants are not asserted wrong merely for quoted markers',review(cause4,'«Izan ere», esan du.').status==='unverified');
  check('Bira art accompanies the game room',w.HBBidea.gaur().includes('bd-playroom-bira'));
+ const complexCases=[
+  ['HB-EP-CAUSE-02-OPEN','Errotara etorri gara, giltzan errotaren ikurra ikusi dugulako.','Errotara etorri gara, giltzan errotaren ikurra ikusi dugu.','Giltzan errotaren ikurra ikusi dugulako etorri gara errotara.','Errotara etorri gara, ikurra ikusi baitugu.','dugulako'],
+  ['HB-EP-CAUSE-03-REPORT','Lurrek hodia buxatuta dagoela esan du.','Lurrek hodia buxatuta dago esan du.','Hodia buxatuta dagoela esan du Lurrek.','Lurrek hodia buxatuta dagoen galdetu du.','dagoela'],
+  ['HB-EP-CAUSE-04-CONCESSION','Mapa aurkitu dugun arren, bidea itxita dago.','Mapa aurkitu dugu arren, bidea itxita dago.','Bidea itxita dago, mapa aurkitu dugun arren.','Nahiz eta mapa aurkitu dugun, bidea itxita dago.','dugun'],
+  ['HB-EP-CAUSE-05-CONDITION','Hodia berriro buxatzen bada, ura ez da iritsiko.','Hodia berriro buxatzen da, ura ez da iritsiko.','Ura ez da iritsiko, hodia berriro buxatzen bada.','Hodia buxatuko balitz, ura ez litzateke iritsiko.','bada'],
+  ['HB-EP-MIRROR-05-OPEN','Lagunek lamiari ispilua eta orrazia itzuli dizkiotela esan du Anek.','Lagunek lamiari ispilua eta orrazia itzuli dituztela esan du Anek.','Anek esan du lagunek lamiari ispilua eta orrazia itzuli dizkiotela.','Lagunek lamiari bi objektuak itzuli dizkiotela dio Anek.','dizkiotela']
+ ];
+ for(const [id,positive,negative,variant,ambiguous,to] of complexCases){
+  const task={id,t:'write'};
+  check(id+' positive and reversed order observed within bounded scope',review(task,positive).status==='observed'&&review(task,variant).status==='observed');
+  check(id+' one-token correction preserves everything else',review(task,negative).to===to&&review(task,negative).example===positive);
+  check(id+' legitimate unparsed alternative is never penalized',review(task,ambiguous).status==='unverified');
+  check(id+' quoted and larger clauses abstain',review(task,'«'+negative+'» esan du.').status==='unverified'&&review(task,negative+' Hala ere, ez dakigu.').status==='unverified');
+  check(id+' markers alone do not establish structure',review(task,'Izan ere, arren, bada, beraz.').status==='unverified');
+ }
+ check('complex contrast is bound to real task ID',review({id:'unknown',t:'write'},complexCases[0][2]).status==='unverified');
+ check('cause and result markers cannot validate an incoherent relation',review({id:'HB-EP-CAUSE-01-OPEN',t:'write'},'Iturburuko hodia hautsi da. Izan ere, herrira ez da urik iristen.').status==='unverified');
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));
