@@ -355,6 +355,13 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('two distinct assisted reading answers trigger scoped support, not a level change',profile.stage==='reasoning'&&profile.readingStage==='connected'&&profile.vocabularyLevel==='B2'&&profile.skillAssessment===null);
  check('recognition retains assisted result without falsely crediting autonomy',Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').length===2&&Object.values(w.HBBidea._state().recognitionEvidence).filter(r=>r.skill==='reading'&&r.stage==='reasoning').every(r=>r.result==='supported'&&!r.firstMatch));
  w.HBBidea.startWorldGame('context');check('support game actually changes its text pool',w.HBBidea._player().queue.every(e=>e.item.stage==='connected'));w.HBBidea.close(true);
+ // A clue game records cued recall separately from recognition and leaves the narrative untouched.
+ const routeBefore=JSON.stringify(w.HBBidea._state().episodes);
+ w.HBBidea.startWorldGame('rosco');let rp=w.HBBidea._player();check('rosco offers six distinct letters at current stage',rp.queue.length===6&&new Set(rp.queue.map(e=>e.item.letter)).size===6&&rp.queue.every(e=>e.item.stage==='reasoning')&&els.get('bd-player').innerHTML.includes('bd-rosco-ring'));
+ let ri=rp.queue[0].item;w.HBBidea.showHint();w.HBBidea.typed(ri.a[0]);w.HBBidea.check();check('hinted lexical retrieval is not mastery',w.HBBidea._state().recognitionEvidence[ri.id].mode==='cued_recall'&&w.HBBidea._state().recognitionEvidence[ri.id].result==='supported');w.HBBidea.next();
+ let skipped=rp.queue[rp.pos].item.id;w.HBBidea.skipRosco();check('skip is not a mistake or evidence',!w.HBBidea._state().recognitionEvidence[skipped]);
+ let unknown=rp.queue[rp.pos].item;w.HBBidea.typed('ez dakit');w.HBBidea.check();w.HBBidea.typed('beste aukera');w.HBBidea.check();check('unmatched open answer is unverified',rp.state.neutral&&w.HBBidea._state().recognitionEvidence[unknown.id].result==='unverified');w.HBBidea.close(true);
+ w.HBBidea.startWorldGame('rosco');check('next rosco prioritizes previously supported and unverified words',w.HBBidea._player().queue.some(e=>e.item.id===ri.id)&&w.HBBidea._player().queue.some(e=>e.item.id===unknown.id)&&JSON.stringify(w.HBBidea._state().episodes)===routeBefore);w.HBBidea.close(true);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));
