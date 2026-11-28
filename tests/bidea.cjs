@@ -42,7 +42,7 @@ check('match items have 3–5 distinct pairs',aitems.filter(i=>i.t==='match').ev
 check('write item has a model answer',aitems.filter(i=>i.t==='write').every(i=>i.model&&i.instr));
 check('B1–B2 lesson keys map to a direction pattern',ls.every(l=>l.keys.every(k=>k==='-lako'||D.patterns[api.groupOf(k,D.groups)])));
 check('placement has six graded questions',D.placement.length===6&&D.placement.every(i=>i.ch.filter(c=>api.isAccepted(c,i.a)).length===1));
-check('placement thresholds',api.placeLevel(6)==='b1b2'&&api.placeLevel(5)==='b1b2'&&api.placeLevel(4)==='a1a2'&&api.placeLevel(0)==='a1a2');
+check('orientation is conservative and never awards a level',api.placeLevel(6)==='b1b2'&&api.placeLevel(5)==='a1a2'&&api.placeLevel(0)==='a1a2'&&api.placementSummary({P1:'match'}).assessment===null);
 check('greeting follows the clock',api.greetingFor(9)[0]==='Egun on!'&&api.greetingFor(16)[0]==='Arratsalde on!'&&api.greetingFor(22)[0]==='Gabon!'&&api.greetingFor(3)[0]==='Gabon!');
 check('solved sentence fills the blank',api.solvedParts({t:'mc',q:'Ez gara iritsi. ____, autobusa.',a:['izan ere']}).join('')==='Ez gara iritsi. Izan ere, autobusa.');
 check('solved sentence marks the fixed word',api.solvedParts(aitems.find(i=>i.t==='fix'))[1]===aitems.find(i=>i.t==='fix').r);
@@ -143,6 +143,11 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  w.HBBidea.close(true);
  w.HBBidea.startTest();
  check('placement test omits desktop cheat-sheet sidebar',!els.get('bd-player').innerHTML.includes('bd-desk-side'));
+ w.HBBidea.dunno();w.HBBidea.dunno();
+ check('two unknown responses do not end orientation',w.HBBidea._player().pos===2&&w.HBBidea._player().phase==='play');
+ for(let i=2;i<6;i++)w.HBBidea.sel(D.placement[i].a[0]);
+ check('orientation tracks skipped separately, recommends without CEFR claim',w.HBBidea._player().phase==='placed'&&w.HBBidea._player().level==='a1a2'&&w.HBBidea._state().placementV2.answers.P1==='skipped'&&els.get('bd-player').innerHTML.includes('Hasteko proposamena')&&els.get('bd-player').innerHTML.includes('4/6'));
+ check('orientation evidence is separate from mastery and practice',w.HBBidea.learningContext().placement.answers.P2==='skipped'&&w.HBBidea.learningContext().placed===false);
  w.HBBidea.close(true);
  const gaurHtml=w.HBBidea.gaur();
  check('Gaur renders editorial greeting bar, redesigned Eguneko helburua with single-line ring and tinted stat icons',gaurHtml.includes('bd-desk-greet')&&gaurHtml.includes('bd-stats-card')&&gaurHtml.includes('bd-goal-val')&&gaurHtml.includes('bd-stat-ico is-fire')&&gaurHtml.includes('bd-review-banner'));

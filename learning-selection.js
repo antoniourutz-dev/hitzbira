@@ -29,6 +29,19 @@ function profile(context={}){
  const repair=difficult.length>=2&&previous!==stage&&repaired<2&&repaired+unseen>=2;
  return {route,stage,vocabularyLevel:levels[stage],readingStage:repair?previous:stage,readingRepair:repair,source:route?"editorial_route":"provisional",skillAssessment:null};
 }
+// Recent orientation evidence only changes priority of as-yet-unpractised material.
+function placementFocus(context,attempts,now){
+ const p=context.placement;
+ if(p?.v!==2||!Number.isFinite(p.at)||p.at>now||now-p.at>14*86400000||!["P1","P2","P3","P4","P5","P6"].every(id=>["match","mismatch","skipped"].includes(p.answers?.[id])))return {families:[],cases:[]};
+ const pending=id=>["mismatch","skipped"].includes(p.answers[id]);
+ const families=[],cases=[];
+ if(pending("P1")&&!Number(attempts?.["HB07-err-1"]?.n))families.push("err");
+ if(pending("P4")&&!Number(attempts?.["HB07-err-3"]?.n))families.push("err");
+ if(pending("P2")&&!Object.keys(attempts||{}).some(k=>/-NORA-sg$/.test(k)&&Number(attempts[k]?.n)>0))cases.push("NORA");
+ if(pending("P5")&&!Number(attempts?.["HB06-kau-01"]?.n))families.push("kau");
+ if(pending("P6")&&!Number(attempts?.["HB07-ond-3"]?.n))families.push("ond");
+ return {families:[...new Set(families)],cases};
+}
 function select(cards,input={}){
  const context=input.context||{},route=["a1a2","b1b2"].includes(context.route)?context.route:null;
  const adaptation=profile(context),band=route||"a1a2",byId=new Map(cards.map(c=>[c.id,c])),errors=context.errors||{},now=input.now??Date.now();
@@ -45,7 +58,7 @@ function select(cards,input={}){
  for(const id of target)if(exists(id)&&!available(id))for(const p of required(id))if(exists(p)&&(!touched(p,input)||pending(p)))prerequisites.add(p);
  for(const id of prerequisites)if(!available(id))prerequisites.delete(id);
  for(const id of target)if(exists(id)&&pending(id))review.add(id);
- const reviewCases=[];
+ const orientation=placementFocus(context,input.attempts,now),reviewCases=[...orientation.cases];
  for(const [code,m] of Object.entries(errors)){
   const link=errorLinks[code];
   if(!link||!(Number(m.errors)>0)||!(Number(m.lastErrorAt)>Number(m.lastRecoveryAt||0)||Number(m.dueAt)<=now))continue;
@@ -53,9 +66,9 @@ function select(cards,input={}){
   if(link.case)reviewCases.push(link.case);
  }
  const current=cards.filter(c=>target.has(c.id)&&available(c.id));
- const focus=context.focus?.length?context.focus:band==="b1b2"?["kau","ond"]:["decl","ize","err"];
+ const focus=[...new Set([...orientation.families,...(context.focus?.length?context.focus:band==="b1b2"?["kau","ond"]:["decl","ize","err"])])];
  const opened=new Set(input.opened||[]),rank=c=>pending(c.id)?0:!touched(c.id,input)&&!opened.has(c.id)?1:2;
- const ordered=current.slice().sort((a,b)=>Number(!focus.includes(a.family))-Number(!focus.includes(b.family))||rank(a)-rank(b));
+ const ordered=current.slice().sort((a,b)=>Number(!(orientation.families.includes(a.family)&&!touched(a.id,input)))-Number(!(orientation.families.includes(b.family)&&!touched(b.id,input)))||Number(!focus.includes(a.family))-Number(!focus.includes(b.family))||rank(a)-rank(b));
  const focusPrep=new Set();
  const prepare=(id,seen=new Set())=>{if(seen.has(id))return;seen.add(id);for(const p of required(id)){if(!exists(p)||touched(p,input)&&!pending(p))continue;if(available(p))focusPrep.add(p);else prepare(p,seen)}};
  for(const id of target)if(exists(id)&&focus.includes(byId.get(id).family)&&!available(id))prepare(id);
@@ -63,7 +76,7 @@ function select(cards,input={}){
  const pool=cards.filter(c=>current.some(x=>x.id===c.id)||review.has(c.id)||prerequisites.has(c.id));
  return {route,band,adaptation,provisional:!route,source:route?(context.placed?"placement":"adventure"):"no_evidence",episode:context.episode||null,
   pool,primary:preferred.slice(0,4),review:cards.filter(c=>review.has(c.id)),prerequisites:cards.filter(c=>prerequisites.has(c.id)&&!review.has(c.id)),
-  next:ordered.filter(c=>!preferred.slice(0,4).some(x=>x.id===c.id)&&!opened.has(c.id)&&!touched(c.id,input)).slice(0,6),reviewCases,
+  orientation, next:ordered.filter(c=>!preferred.slice(0,4).some(x=>x.id===c.id)&&!opened.has(c.id)&&!touched(c.id,input)).slice(0,6),reviewCases:[...new Set(reviewCases)],
   families:["decl",...new Set(pool.map(c=>c.family))],
   blocked:cards.filter(c=>target.has(c.id)&&!available(c.id)),
   complementary:cards.filter(c=>!pool.some(x=>x.id===c.id)),
@@ -80,7 +93,7 @@ function practiceFilter(items,selection){
  const ids=new Set(selection.pool.map(c=>c.id));
  return items.filter(c=>c.family==="decl"?(/^D09-.+-(NOR|NORK|NORI|NON|NORA|NONDIK)-sg$/.test(c.id)||selection.band==="b1b2"):ids.has(c.id));
 }
-const api=Object.freeze({version:"HB-ROUTE-MATERIAL/4",profile,select,practiceFilter,practicePriority});
+const api=Object.freeze({version:"HB-ROUTE-MATERIAL/5",profile,select,practiceFilter,practicePriority,placementFocus});
 if(typeof module!=="undefined"&&module.exports)module.exports=api;
 else root.HBLearningSelection=api;
 })(typeof window!=="undefined"?window:globalThis);

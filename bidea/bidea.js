@@ -23,7 +23,19 @@ function fixTokens(item){const i=item.q.indexOf(item.w);if(i<0)return item.q.spl
 function fixOptions(item,groups,rnd=Math.random){if(item.opts)return shuffle(item.opts,rnd);const gr=groupOf(item.r,groups),gw=groupOf(item.w,groups),pool=[];for(const [g,list] of Object.entries(groups))if(g!==gr&&g!==gw)pool.push(list[0]);return shuffle([item.r,...shuffle(pool,rnd).slice(0,2)],rnd)}
 function starsFor(first,total){const r=total?first/total:0;return r>=.9?3:r>=.7?2:1}
 /* Maila-proba: bi huts jarraian → amaitu. 5 zuzen edo gehiago → B1–B2. */
-function placeLevel(score){return score>=5?"b1b2":"a1a2"}
+// Existing six prompts: orientation, never a CEFR assessment.
+const PLACEMENT_ITEMS=Object.freeze({
+ P1:{node:"V-0",label:"NOR laguntzailea"},P2:{node:"DEK-1",label:"Helmuga · NORA"},
+ P3:{node:"V-1",label:"Iraganeko ekintza"},P4:{node:"V-1",label:"Hartzailea eta laguntzailea"},
+ P5:{node:"OND-1",label:"Arrazoia eta lotura"},P6:{node:"OND-2",label:"Ondoriozko lotura"}
+});
+function placementSummary(answers){
+ const items=Object.keys(PLACEMENT_ITEMS).map(id=>({id,...PLACEMENT_ITEMS[id],result:["match","mismatch","skipped"].includes(answers?.[id])?answers[id]:"unseen"}));
+ const matched=items.filter(x=>x.result==="match").length,complete=items.every(x=>x.result!=="unseen");
+ // All six matches merely make the second existing adventure a possible starting point.
+ return {items,matched,complete,route:complete&&matched===6?"b1b2":"a1a2",assessment:null};
+}
+function placeLevel(score){return score===6?"b1b2":"a1a2"}
 function greetingFor(h){return h>=6&&h<13?["Egun on!","¡Buenos días!"]:h>=13&&h<20?["Arratsalde on!","¡Buenas tardes!"]:["Gabon!","¡Buenas noches!"]}
 /* Esaldi osoa, erantzuna nabarmenduta: [aurretik, erantzuna, ondoren]. */
 function solvedParts(item){
@@ -57,7 +69,7 @@ function dueReviews(lessonsState,lessonList,now=Date.now()){
  }
  return out.sort((a,b)=>b.overdue-a.overdue);
 }
-const api={norm,isAccepted,groupOf,capitalFor,chipsFor,tilesFor,fixTokens,fixOptions,starsFor,placeLevel,greetingFor,solvedParts,writeCheckList,hintFor,dueReviews};
+const api={norm,isAccepted,groupOf,capitalFor,chipsFor,tilesFor,fixTokens,fixOptions,starsFor,placeLevel,placementSummary,greetingFor,solvedParts,writeCheckList,hintFor,dueReviews};
 if(typeof module!=="undefined"&&module.exports){module.exports=api;return}
 
 /* ---------- Egoera ---------- */
@@ -839,7 +851,7 @@ function startReview(lessonId){syncState();if(guestLimited()){loginForMore();ret
  player={mode:"review",owner:keyFor(KEY),i:-1,L,phase:"play",queue:picked.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false,totalInit:picked.length};
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function startAgendaReview(){if(guestLimited()){loginForMore();return}const ag=root.HitzBiraAgenda?.agenda?.()||[],due=ag.find(r=>r.status==="due");if(due&&typeof root.startCurriculum==="function")root.startCurriculum(due.node,null,true,due.key)}
-function startTest(){syncState();if(guestLimited()){loginForMore();return}player={mode:"test",phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,score:0,row:0,state:null,quit:false,xp:0,combo:0,lastPct:0,lastXp:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
+function startTest(){syncState();if(guestLimited()){loginForMore();return}player={mode:"test",owner:keyFor(KEY),phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,answers:{},state:null,quit:false,xp:0,combo:0,lastPct:0,lastXp:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function close(silent){vocabularyRepo?.cancel();const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;root.HBData?.syncShell?.();if(!silent)refresh();const target=playerReturn;playerReturn=null;if(target?.isConnected&&!target.disabled)target.focus?.();else if(!silent)document.getElementById("app")?.focus?.()}
 function askQuit(){if(!player)return;if(player.mode==="episode"||player.mode==="worldgame"){saveEpisodeDraft();close();return}if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
 function cur(){return player.queue[player.pos]}
@@ -946,11 +958,11 @@ function play(){const it=cur().item,st=player.state,test=player.mode==="test",re
  const canHint=!test&&!st.checked&&!st.hintOn&&it.t!=="match"&&it.t!=="write";
  const side=deskSide();
  return `<div class="bd-pwrap${side?" has-desk-side":""}">${top()}${player.quit?`<div class="bd-quit"><p><strong>Irten nahi duzu?</strong> Saio honetako aurrerapena galduko da.</p><div class="bd-row"><button class="bd-btn bd-btn-small bd-btn-ghost" onclick="HBBidea.close()">Bai, irten</button><button class="bd-btn bd-btn-small" onclick="HBBidea.askQuit()">Jarraitu</button></div></div>`:""}
- <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked&&!st.neutral?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Ez dago akatsik: zure abiapuntua bilatzen ari gara</span>`:""}</div>${vocabularyNotice()}${body()}</main>
+ <div class="bd-pgrid"><div class="bd-pmain"><main class="bd-item bd-t-${it.t}${st.checked&&!st.neutral?(st.ok?" bd-pop":" bd-shake"):st.tries&&!st.checked?" bd-shake":""}"><div class="bd-ihead">${cur().retry||rev?`<span class="bd-chip bd-chip-retry">Errepasoa</span>`:""}<span class="bd-kicker">${esc(label)}</span>${test?`<span class="bd-chip">Aukeratu edo sakatu «Ez dakit»</span>`:""}</div>${vocabularyNotice()}${body()}</main>
  ${test?"":nudgeHtml()+feedback()+auditBox()}</div>${side}</div>
  ${test?`<footer class="bd-pfoot"><button class="bd-btn bd-btn-ghost" onclick="HBBidea.dunno()">Ez dakit</button></footer>`:`<footer class="bd-pfoot">${st.checked?`<button class="bd-btn bd-btn-main ${st.ok||st.neutral?"":"bd-btn-bad"}" data-focus onclick="HBBidea.next()">Jarraitu ${svg("arrow")}</button>`:it.t==="match"?"":`<div class="bd-pfoot-row">${player.kind==="rosco"?`<button type="button" class="bd-btn bd-btn-ghost" onclick="HBBidea.skipRosco()">Saltatu</button>`:""}${canHint?`<button type="button" class="bd-btn bd-btn-ghost bd-btn-hint" onclick="HBBidea.showHint()">${svg("bolt")} Pista</button>`:""}<button class="bd-btn bd-btn-main" ${ready()?"":"disabled"} ${it.t==="gap"||it.t==="write"?"":"data-focus"} onclick="HBBidea.check()">${it.t==="write"&&st.writeRetry?"Egiaztatu berriro":"Egiaztatu"}</button></div>`}</footer>`}</div>`}
 function showHint(){if(!player||player.phase!=="play"||player.mode==="test")return;const st=player.state;if(st.checked||st.hintOn)return;st.hintOn=true;st.hintUsed=true;sfx("tap");render()}
-function sel(o){const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a));return}render()}
+function sel(o){if(!player||player.phase!=="play"||player.owner&&player.owner!==keyFor(KEY)){if(player)close();return}const st=player.state;if(st.checked||st.wrongSel.includes(o))return;st.sel=o;sfx("tap");if(player.mode==="test"){testAnswer(isAccepted(o,cur().item.a)?"match":"mismatch");return}render()}
 function typed(v){player.state.typed=v;saveEpisodeDraft(true);const b=document.querySelector(".bd-pfoot .bd-btn-main");if(b)b.disabled=!ready()}
 function tile(k){const st=player.state;if(st.checked||st.picked.includes(k))return;st.picked.push(k);sfx("tap");render()}
 function untile(k){const st=player.state;if(st.checked)return;st.picked=st.picked.filter(x=>x!==k);render()}
@@ -1173,14 +1185,22 @@ function end(){const L=player.L,isRev=player.mode==="review",ni=nextLesson(),tot
  <footer class="bd-pfoot">${!isRev&&!player.supplementary&&ni>=0&&ni!==player.i?`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.start(${ni})">Hurrengo ikasgaia ${svg("arrow")}</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.close()">Amaitu</button>`:`<button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.close()">Amaitu</button>`}</footer></div>`}
 
 /* ---------- Maila-proba ---------- */
-function testAnswer(ok){const p=player;if(p.busy)return;p.busy=true;p.state.checked=false;if(ok){p.score++;p.row=0}else p.row++;render();
- setTimeout(()=>{p.busy=false;if(p!==player)return;p.pos++;if(p.row>=2||p.pos>=p.queue.length){p.level=placeLevel(p.score);p.phase="placed";sfx("done");render();return}p.state=fresh(cur());render()},260)}
-function dunno(){if(player&&player.mode==="test")testAnswer(false)}
-function placed(){const I=DATA.islands.find(x=>x.id===player.level),o=DATA.islands.find(x=>x.id!==player.level);
+function testAnswer(result){
+ const p=player;if(!p||p.mode!=="test"||p.phase!=="play"||p.busy||!["match","mismatch","skipped"].includes(result))return;
+ if(p.owner!==keyFor(KEY)){close();return}
+ const id=cur().item.id;if(Object.hasOwn(p.answers,id))return;p.answers[id]=result;
+ p.pos++;
+ if(p.pos>=p.queue.length){const summary=placementSummary(p.answers);p.level=summary.route;p.phase="placed";
+  syncState();S.placementV2={v:2,at:Date.now(),answers:{...p.answers}};save();sfx("done");render();return}
+ p.state=fresh(cur());render()
+}
+function dunno(){if(player&&player.mode==="test")testAnswer("skipped")}
+function placed(){const I=DATA.islands.find(x=>x.id===player.level),o=DATA.islands.find(x=>x.id!==player.level),s=placementSummary(player.answers);
  return `<div class="bd-pwrap bd-endwrap">${top()}<main class="bd-end bd-placed">${bira("celebrate","bd-bira-lg")}
- <span class="bd-kicker">ZURE ABIAPUNTUA</span><h1>${esc(I.title)}</h1><p>${esc(I.blurb)}</p><p class="bd-es" lang="es">${esc(I.es)}</p>
- <p class="bd-note">${player.score} erantzun zuzen. Bidean beste abentura bat aukeratu dezakezu.</p></main>
- <footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.setLevel('${I.id}',true,true)">${svg("play")} Hasi abentura</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}',true)">Nahiago dut ${esc(o.adventure.title)}</button></footer></div>`}
+ <span class="bd-kicker">ZURE ABIAPUNTUA</span><h1>Hasteko proposamena</h1><p>Proba labur honetan ${s.matched}/${s.items.length} aukera egoki hautatu dituzu. Ez da hizkuntza-mailaren egiaztapena.</p>
+ <div class="bd-placement-results">${s.items.map(x=>`<div><b>${esc(x.label)}</b><span class="${x.result==="match"?"is-match":""}">${x.result==="match"?"Aukera egokia":x.result==="skipped"?"Aztertzeke":"Berrikusteko"}</span></div>`).join("")}</div>
+ <p><strong>Hurrengo urratsa: ${esc(I.adventure.title)}</strong></p><p>${esc(I.blurb)}</p><p class="bd-note">Beste abentura bat ere aukera dezakezu. Zure jardunaren arabera egokituko ditugu praktikak.</p></main>
+ <footer class="bd-pfoot"><button class="bd-btn bd-btn-main" data-focus onclick="HBBidea.setLevel('${I.id}',true,false)">${svg("play")} Hasi abentura</button><button class="bd-btn bd-btn-ghost" onclick="HBBidea.setLevel('${o.id}',true)">Nahiago dut ${esc(o.adventure.title)}</button></footer></div>`}
 
 /* ---------- Ikuskaritza ---------- */
 function audit(v){syncState();const it=cur().item;AUD[it.id]={...(AUD[it.id]||{}),v,src:it.src,at:new Date().toISOString()};store(AKEY,AUD);render()}
@@ -1206,7 +1226,7 @@ function learningContext(){
  const n=route?episodeNumber():null,L=route?episodeLesson(n):null;
  const errors=Object.fromEntries(Object.entries(S.episodeErrorMemory||{}).map(([k,v])=>[k,{errors:v.errors,lastErrorAt:v.lastErrorAt,lastRecoveryAt:v.lastRecoveryAt,dueAt:v.dueAt}]));
  return {route,placed:S.placed===true,mission,episode:L?{id:L.id,title:L.title,number:n}:null,
-  focus:route==="b1b2"?["kau","ond"]:mission>=2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{}};
+  focus:route==="b1b2"?["kau","ond"]:mission>=2?["err","mod","ize"]:n===2?["ize","decl"]:["decl","ize","jos"],errors,recognitionEvidence:S.recognitionEvidence||{},placement:S.placementV2?.v===2?{v:2,at:S.placementV2.at,answers:Object.fromEntries(placementSummary(S.placementV2.answers).items.filter(x=>x.result!=="unseen").map(x=>[x.id,x.result]))}:null};
 }
 root.HBBidea={...api,reviewSentence,learningContext,dueRecallHtml,startDueRecall,observePractice,supplementaryPracticeHtml,chooseForestMission,loginForMore,guestLimited,gaur,bidea,mapa,ni,focused,isAuditor,chooseAdventure,start,startEpisode,finishEpisode,startWorldGame,skipRosco,setVocabularyTheme,startReview,startAgendaReview,startTest,begin,close,askQuit,sel,typed,tile,untile,tap,mL,mR,showHint,check,next,dunno,setLevel,toggleHelp,toggleSound,audit,auditNote,copyAudit,auditor,auditText,reset,_state:()=>{syncState();return S},_player:()=>player};
 if(document.readyState!=="loading")applyLevel();else document.addEventListener("DOMContentLoaded",applyLevel);

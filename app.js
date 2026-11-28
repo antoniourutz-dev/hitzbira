@@ -233,7 +233,12 @@ function updateLiveSlot(val){const s=document.getElementById("hb-live-slot");if(
 function setLessonStep(n){lessonStep=Math.max(0,Math.min(3,n));draw();scrollTo(0,0)}
 function lessonBack(){detail="";lessonStep=0;lessonReveal=false;lessonChoice=null;draw();scrollTo(0,0)}
 function lessonPick(i){if(lessonChoice!==null)return;lessonChoice=i;draw();document.getElementById("lesson-check")?.scrollIntoView({block:"nearest"})}
-function lessonOptions(c){return [c.answer,...c.wrong].sort((a,b)=>a.localeCompare(b,"eu"))}
+let lessonOptionMemo=null;
+function lessonOptions(c){
+ const key=JSON.stringify([window.HBData.keyFor("hitzbira-journey-v1"),c.id,c.answer,c.wrong]);
+ if(lessonOptionMemo?.key!==key)lessonOptionMemo={key,options:shuffle([c.answer,...c.wrong])};
+ return lessonOptionMemo.options;
+}
 function card(){let c=C(detail),g=catalogGroups.find(x=>x.ids.includes(c.family)),opts=lessonOptions(c),chosen=lessonChoice!==null?opts[lessonChoice]:"",ok=lessonChoice!==null&&chosen===c.answer,aud=!!window.HBBidea?.isAuditor?.();
 const stepLabels=["Behatu","Ulertu","Praktikatu","Sortu"];
 const stepNav=`<div class="lesson-step-nav">${lessonStep>0?`<button class="alt" onclick="setLessonStep(${lessonStep-1})">← ${stepLabels[lessonStep-1]}</button>`:'<span></span>'}${lessonStep<3?`<button onclick="setLessonStep(${lessonStep+1})">${stepLabels[lessonStep+1]} ${homeIcon("arrow")}</button>`:`<button class="alt" onclick="lessonBack()">← ${esc(F(c.family).title)}</button>`}</div>`;

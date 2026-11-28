@@ -834,3 +834,5 @@ html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="da
 body.hb-kit button.bd-chip-btn{min-height:44px}body.hb-kit button.bd-x{min-height:44px;min-width:44px;width:44px;height:44px}
 html[data-theme=dark] body[data-hb-level=a1a2] :is(button.bd-chip-btn.is-on,.bd-ch-n,button.bd-dot,.bd-placed .bd-level,button.bd-opt.is-sel kbd,button.bd-lvl-pill.is-on,.bd-ci-ico,.bd-world-step.is-ready .bd-world-step-num){color:#0b1f18}
 html[data-theme=dark] body[data-hb-level=a1a2] .bd-node.is-done button.bd-dot{color:#30234c}
+
+.bd-placement-results{display:grid;gap:8px;text-align:left;width:100%;max-width:440px;margin:12px auto}.bd-placement-results>div{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 14px;padding:11px 14px;background:var(--bd-paper);border:1px solid var(--bd-line);border-radius:12px}.bd-placement-results span{color:var(--bd-muted);font-size:.86rem}.bd-placement-results .is-match{color:var(--bd-ink);font-weight:700}#bd-player[data-mode="test"] .bd-end{justify-content:flex-start;padding-top:24px;padding-bottom:20px}#bd-player[data-mode="test"] .bd-end .bd-bira-lg{width:88px}
