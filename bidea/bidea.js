@@ -686,9 +686,18 @@ async function prepareVocabulary(){
  vocabularyThemes=[...new Set([...vocabularyThemes,...(result.themes||[])])];
  openWorldGame("words",result.mode==="live"?result.items:wordGameGroups(),{...result,level:filters.level});
 }
+function gameArt(kind){
+ const shapes={
+ words:'<rect x="9" y="14" width="40" height="33" rx="9" fill="#d9f3e9" stroke="#39896b" stroke-width="2"/><rect x="36" y="36" width="38" height="31" rx="8" fill="#f9e9b8" stroke="#ac7c2f" stroke-width="2"/><path d="M22 28h15m-15 7h10m26 12 6 5-6 5m-10-5h16" fill="none" stroke="#4a7366" stroke-width="3" stroke-linecap="round"/>',
+ links:'<path d="M13 54q15-36 32-16t25-15" fill="none" stroke="#9476d3" stroke-width="6" stroke-linecap="round"/><circle cx="15" cy="53" r="8" fill="#f5d47c"/><circle cx="43" cy="38" r="8" fill="#c7b4fc"/><circle cx="69" cy="23" r="8" fill="#91cbbb"/>',
+ verbs:'<rect x="14" y="13" width="24" height="24" rx="7" fill="#f8dfab"/><rect x="42" y="13" width="24" height="24" rx="7" fill="#c7e7d8"/><rect x="14" y="41" width="24" height="24" rx="7" fill="#dccdf7"/><rect x="42" y="41" width="24" height="24" rx="7" fill="#bedcec"/><path d="M22 24h8m20 0h8m-36 28 4 4 6-8m18 5h8" stroke="#57526d" stroke-width="3" fill="none" stroke-linecap="round"/>',
+ context:'<path d="M12 19q17-6 28 4 13-10 28-4v42q-14-5-28 4-12-9-28-4Z" fill="#fff5d7" stroke="#9b8251" stroke-width="2"/><path d="M40 23v42M20 30l13 2m-13 8 13 2m14-10 13-2m-13 12 13-2" stroke="#9b8251" stroke-width="2" fill="none" stroke-linecap="round"/>',
+ rosco:'<circle cx="40" cy="40" r="26" fill="none" stroke="#d3c6f0" stroke-width="3"/>'+[0,1,2,3,4,5].map((_,i)=>'<circle cx="'+(40+26*Math.sin(i*Math.PI/3))+'" cy="'+(40-26*Math.cos(i*Math.PI/3))+'" r="8" fill="'+(i===0?"#7650d6":i===1?"#83c4a0":"#d8c7f5")+'"/>').join("")+'<path d="m33 48 7-19 7 19m-11-7h8" fill="none" stroke="#7650d6" stroke-width="3" stroke-linecap="round"/>'
+ };return '<span class="bd-game-art" aria-hidden="true"><svg viewBox="0 0 80 80">'+shapes[kind]+'</svg></span>'
+}
 function worldGamesHtml(){
  const count=episodeIds().filter(id=>S.episodes?.[id]).length;
- return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+svg("map")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+svg("bolt")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+svg("bolt")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+svg("map")+'<span><strong>Irakurri eta erabaki</strong><small>'+(currentProfile().readingRepair?"Ulermena sendotzeko testu berriak":["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-rosco" onclick="HBBidea.startWorldGame(\'rosco\')">'+svg("star")+'<span><strong>Hitzen gurpila</strong><small>Asmatu hitzak, letraz letra</small></span>'+svg("arrow")+'</button></div></section>'
+ return '<section class="bd-card bd-world-games" aria-label="Jolastokia"><span class="bd-kicker">JOLASTOKIA</span><h2>Jolastu eta praktikatu</h2><p>'+(count?"Praktika librea, presarik eta zigorrik gabe.":"Hasi jolasean; altxor berriak aurkitzean, hitz gehiago landuko dituzu.")+'</p>'+vocabularyControls()+'<div class="bd-world-game-grid"><button class="bd-game-tile bd-game-words" onclick="HBBidea.startWorldGame(\'words\')">'+gameArt("words")+'<span><strong>Hitzak lotu</strong><small>Lotu hitzak eta esanahiak</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-links" onclick="HBBidea.startWorldGame(\'links\')">'+gameArt("links")+'<span><strong>'+(S.level==="a1a2"?"Non, nora, nondik?":"Loturen erronka")+'</strong><small>'+(S.level==="a1a2"?"Lekua, helmuga eta abiapuntua":"Kausa ala ondorioa?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-verbs" onclick="HBBidea.startWorldGame(\'verbs\')">'+gameArt("verbs")+'<span><strong>Aditzen erronka</strong><small>'+(currentProfile().stage==="foundation"?"Nor?":currentProfile().stage==="everyday"?"Nork eta zer?":"Nor, nork eta nori?")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-context" onclick="HBBidea.startWorldGame(\'context\')">'+gameArt("context")+'<span><strong>Irakurri eta erabaki</strong><small>'+(currentProfile().readingRepair?"Ulermena sendotzeko testu berriak":["foundation","everyday"].includes(currentProfile().stage)?"Egoera laburrak ulertu":"Ideiak eta esanahia bereizi")+'</small></span>'+svg("arrow")+'</button><button class="bd-game-tile bd-game-rosco" onclick="HBBidea.startWorldGame(\'rosco\')">'+gameArt("rosco")+'<span><strong>Hitzen gurpila</strong><small>Asmatu hitzak, letraz letra</small></span>'+svg("arrow")+'</button></div></section>'
 }
 function startWorldGame(kind){
  applyLevel();if(guestLimited()&&S.level!=="a1a2"){loginForMore();return}if(!["words","links","verbs","context","rosco"].includes(kind))return;if(kind==="words")return prepareVocabulary();openWorldGame(kind,worldGameItems(kind));
@@ -786,9 +795,9 @@ function worldMissionHtml(){
  const list=ids.map((id,i)=>{
   const n=i+1,L=episodeLesson(n),done=!!S.episodes?.[id],open=n===1||!!S.episodes?.[ids[i-1]],paused=draft?.id===id,blocked=!!draft&&!paused,can=!!L&&open&&!blocked;
   const current=can&&(paused||(!done&&n===episodeNumber()));const status=paused?"Jarraitu":done?"Amaituta · Berriro bizi":open?"Hasi":"Aurreko atala amaitu";
-  return '<li class="bd-world-step '+(done?"is-done":can?"is-ready":"is-locked")+(current?" is-current":"")+'"><button type="button" class="bd-world-step-btn" '+(current?'aria-current="step" ':"")+(can?'onclick="HBBidea.startEpisode('+n+')"':'disabled')+'><span class="bd-world-step-num">'+n+'</span><span class="bd-world-step-copy"><strong>'+esc(L?.title||"Atala")+'</strong><small>'+esc(blocked?"Jarraitu irekita duzun atala":status)+'</small></span>'+svg(can?(done?"check":"play"):"lock")+'</button></li>';
+  return '<li class="bd-world-step '+(done?"is-done":can?"is-ready":"is-locked")+(current?" is-current":"")+'"><button type="button" class="bd-world-step-btn" '+(current?'aria-current="step" ':"")+(can?'onclick="HBBidea.startEpisode('+n+')"':'disabled')+'><span class="bd-world-step-num">'+(done?svg("check"):n)+'</span><span class="bd-world-step-copy"><strong>'+esc(L?.title||"Atala")+'</strong><small>'+esc(blocked?"Jarraitu irekita duzun atala":status)+'</small></span>'+svg(can?(done?"check":"play"):"lock")+'</button></li>';
  }).join("");
- return '<div class="bd-world-mission"><span class="bd-kicker">'+(S.level==="a1a2"?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+'</span><div class="bd-world-mission-head"><h2>'+(S.level==="a1a2"?forestTitle():"Uraren misterioa")+'</h2></div>'+missionProgress(false)+'<p class="bd-note">Jarraitu istorioa, atalez atal.</p><ol class="bd-world-path">'+list+'</ol></div>'
+ return '<div class="bd-world-mission"><span class="bd-kicker">'+(S.level==="a1a2"?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+'</span><div class="bd-world-mission-head"><h2>'+(S.level==="a1a2"?forestTitle():"Uraren misterioa")+'</h2></div>'+'<div class="bd-mission-preview">'+episodeLandscape(episodeNumber())+'</div>'+missionProgress(false)+'<p class="bd-note">Jarraitu istorioa, atalez atal.</p><ol class="bd-world-path">'+list+'</ol></div>'
 }
 function resumeLabel(){const d=activeDraft();if(!d)return "";const phase=({gogoratu:"Gogoratu",intro:"Eszena",play:"Erronka",altxorra:"Altxorra"})[d.phase];return phase?"<p class=\"bd-note\">Gordetako urratsa: "+esc(phase)+(d.phase==="play"&&d.segment==="story"?" · "+Math.min(d.pos+1,7)+"/7":"")+"</p>":""}
 function episodeCard(){if(S.level==="a1a2"&&!inMirror()&&mirrorUnlocked()&&!S.forestDraft&&!S.episodes?.[MIRROR_IDS[0]])return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">KONDAIREN ZAINDARIAK · ABENTURA BERRIA</span><h2>Lamiaren ispilua</h2><p>Errekan arrasto distiratsu bat dago. Zatoz lagunekin!</p><button class="bd-btn bd-btn-main" onclick="HBBidea.chooseForestMission(3,true)">'+svg("play")+' Hasi abentura berria</button></div><div class="bd-today-art">'+bira("curious","bd-bira-hero")+'</div></section>';if(S.level==="a1a2"&&!inMirror()&&!inShelter()&&shelterUnlocked()&&!S.forestDraft&&!S.episodes?.[SHELTER_IDS[0]])return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">KONDAIREN ZAINDARIAK · ABENTURA BERRIA</span><h2>Aterpetxeko giltza</h2><p>Euria hasi da! Lagundu Aneri eta Ikerri aterpea aurkitzen.</p><button class="bd-btn bd-btn-main" onclick="HBBidea.chooseForestMission(2,true)">'+svg("play")+' Hasi abentura berria</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>';const n=episodeNumber(),L=episodeLesson(n);if(!L)return "";return '<section class="bd-card bd-today"><div class="bd-today-body"><span class="bd-kicker">'+(L.forest?"KONDAIREN ZAINDARIAK":"HITZBIRA WORLD")+' · '+n+'. ATALA</span><h2>'+esc(L.title)+'</h2><p>'+(L.mirror?"Errekako sekretua argitu lagunekin.":L.shelter?"Ane eta Ikerrekin argitu aterpetxeko misterioa.":L.forest?"Ane, Iker eta Lurrekin aurkitu basoko mezua.":"Argirekin ikertu herriko uraren misterioa.")+'</p><div class="bd-hero-meta"><span class="bd-chip">7 erronka</span><span class="bd-chip">8–12 min inguru</span></div>'+resumeLabel()+'<button class="bd-btn bd-btn-main" onclick="HBBidea.startEpisode()">'+svg("play")+' '+(activeDraft()?.id===L.id?"Jarraitu abenturarekin":S.episodes?.[L.id]?"Berriro bizi":"Abentura hasi")+'</button></div><div class="bd-today-art" aria-hidden="true">'+bira("curious","bd-bira-hero")+'</div></section>'}
@@ -965,7 +974,8 @@ const WRITE_NOR=[
  ["zuek","zarete",["dut","duzu","duzue","dugu","dute"]],
  ["ane","da",["du","ditu","dut","dute"]],
  ["iker","da",["du","ditu","dut","dute"]],
- ["lagunak","dira",["du","ditu","dute","dituzte"]]
+ ["lagunak","dira",["du","ditu","dute","dituzte"]],
+ ["lur","da",["du","ditu","dute"]],["txinpart","da",["du","ditu","dute"]]
 ];
 const WRITE_NORK=[
  ["nik","dut",["naiz","zara","da","gara","dira"],["ura edan","giltza hartu","ispilua hartu","orrazia ikusi","liburua irakurri","atea ireki"]],
@@ -975,18 +985,36 @@ const WRITE_NORK=[
  ["ikerrek","du",["naiz","da","dira"],["orrazia ikusi","kutxa ireki"]],
  ["nik","ditut",["dut","naiz"],["bi gutun aurkitu","bi liburu irakurri"]],
  ["guk","ditugu",["dugu","gara"],["bi gutun irakurri","bi botila bete"]],
- ["lagunek","dituzte",["dute","dira"],["bi objektu aurkitu","ispilua eta orrazia itzuli"]]
+ ["lagunek","dituzte",["dute","dira"],["bi objektu aurkitu"]],
+ ["ikerrek","ditu",["du","da"],["bi gutun aurkitu","bi orrazi ikusi"]],
+ ["anek","ditu",["du","da"],["bi gutun aurkitu","bi sagar erosi"]],
+ ["jonek","ditu",["du","da"],["bi liburu ekarri"]]
 ];
+/* Goal-specific locatives: a different case can be grammatical with a different
+   meaning. Do not mark it a normative error merely for missing the task goal. */
+function locativeGoal(it,plain){
+ const tasks={
+ "HB-EP-FOREST-01-OPEN":{forms:["errekan","errekara","errekatik"],target:1,pattern:/^(?:ni )?(errekan|errekara|errekatik) (?:noa|joan naiz)$/},
+ "HB-EP-FOREST-02-OPEN":{forms:["basoan","basora","basotik"],target:0,pattern:/^(?:ni )?(basoan|basora|basotik) bizi naiz$/},
+ "HB-EP-FOREST-03-OPEN":{forms:["mendian","mendira","menditik"],target:1,pattern:/^(?:ni )?(mendian|mendira|menditik) (?:noa|joan naiz)$/}
+ };
+ const rule=tasks[it.id];if(!rule)return null;const m=plain.match(rule.pattern);if(!m)return null;
+ // Past vs present is outside this contrast; do not certify the full task.
+ const form=m[1],target=rule.forms[rule.target],code=["non","nora","nondik"][rule.target];
+ if(form===target)return {status:"observed",message:rule.target===0?"Lekua adierazteko forma egokia erabili duzu.":"Helmuga adierazteko forma egokia erabili duzu."};
+ return {status:"task_case",code,from:form,to:target,message:rule.target===0?"Atazak non bizi zaren galdetzen du. Bereizi lekua, helmuga eta abiapuntua.":"Atazak nora zoazen galdetzen du. Hemen helmuga adierazi behar duzu.",example:plain.replace(form,target)};
+}
 function reviewSentence(it,answer){
  const raw=String(answer||"").trim();
  if(it?.t!=="write"||!raw||raw.length>600)return {status:"unverified"};
  // Keep punctuation and clause boundaries: we only parse a single plain affirmative sentence.
  const plain=raw.toLowerCase().normalize("NFC").replace(/\s+/g," ").replace(/[.]$/,"").trim();
  const known=(it.model&&norm(raw)===norm(it.model));
+ const goalCase=locativeGoal(it,plain);if(goalCase)return goalCase;
  if(/^[\p{L} ]+$/u.test(plain)&&!/\b(?:ez|omen|ote|ba|baina|eta)\b/.test(plain.replace("ispilua eta orrazia","ispilua orrazia"))){
   const words=plain.split(" "),aux=words.at(-1),prefix=words.slice(0,-1).join(" ");
   const issue=(code,expected,message)=>({status:"contrast",code,from:aux,to:expected,message,example:raw.replace(new RegExp(aux+"([.]?)$","i"),(_,p)=>expected+p)});
-  const matchNor=prefix.match(/^(ni|zu|gu|zuek|ane|iker|lagunak) (?:(?:aterpera|mendira|errekara|etxera|basora|eskolara|haitzulora|barrura|elkarrekin|errekaren ondoan) )?(?:joan|etorri|iritsi|sartu|eseri)$/);
+  const matchNor=prefix.match(/^(ni|zu|gu|zuek|ane|iker|lagunak|lur|txinpart) (?:(?:aterpera|mendira|errekara|etxera|basora|eskolara|haitzulora|barrura|elkarrekin|errekaren ondoan) )?(?:joan|etorri|iritsi|sartu|eseri|atera)$/);
   if(matchNor){const [,sub]=matchNor,rule=WRITE_NOR.find(r=>r[0]===sub);if(rule[2].includes(aux))return issue("nor",rule[1],"Begiratu nor joan edo iritsi den: hemen NOR laguntzailea behar dugu.");if(aux===rule[1])return {status:"observed",message:"NOR laguntzailea egoki erabili duzu esaldi honetan."}}
   // With an omitted subject, infer person only when the task explicitly supplies it.
   const goal=/^HB-EP-SHELTER-01-OPEN$/.test(it.id)&&prefix==="aterpera joan";
@@ -1002,16 +1030,18 @@ function checkEpisodeWriting(it,st){
  if(st.writeOriginal===undefined)st.writeOriginal=st.typed;
  const assessment=reviewSentence(it,st.typed);
  st.writeAssessment=assessment;
- if(assessment.status==="contrast"&&!st.writeErrorRecorded){
-  st.writeErrorRecorded=true;storeDifficulty(assessment.code,assessment.from);
+ if(["contrast","task_case"].includes(assessment.status)){
+  const recorded=st.writeRecordedCodes||(st.writeRecordedCodes=[]);
+  if(!recorded.includes(assessment.code)&&!(st.writeErrorRecorded&&recorded.length===0)){recorded.push(assessment.code);storeDifficulty(assessment.code,assessment.from)}
  }
  // One guided rewrite, no forced loop. Unknown alternatives remain unverified.
- if(["contrast","task"].includes(assessment.status)&&!st.writeRetry){st.writeRetry=true;st.hintUsed=true;render();return}
+ if(["contrast","task","task_case"].includes(assessment.status)&&!st.writeRetry){st.writeRetry=true;st.hintUsed=true;render();return}
  st.checked=true;st.neutral=true;st.ok=false;render()
 }
 function writeFeedback(it,st){
  const a=st.writeAssessment;if(!a)return "";
  if(a.status==="contrast")return '<section class="bd-write-review is-repair" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg("bolt")+'</span><div><span class="bd-kicker">ZUZENDU ETA IKASI</span><h3>Laguntzailea berrikusi</h3></div></div><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Begiratu hitzari</small><del>'+esc(a.from)+'</del></span>'+(st.checked?'<span><small>Proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p class="bd-write-example">'+esc(a.example)+'</p><p class="bd-note">Egitura hau bakarrik aztertu dugu.</p>':'<p class="bd-write-next">Aldatu esaldia eta egiaztatu berriro.</p>')+'</section>';
+ if(a.status==="task_case")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Kasuari erreparatu</h3><p>'+esc(a.message)+'</p><div class="bd-write-contrast"><span><small>Zure forma</small><b>'+esc(a.from)+'</b></span>'+(st.checked?'<span><small>Atazarako proposamena</small><ins>'+esc(a.to)+'</ins></span>':"")+'</div>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Aldatu kasua eta saiatu berriro.</p>')+'</section>';
  if(a.status==="task")return '<section class="bd-write-review is-reflect" role="status"><span class="bd-kicker">ATAZAREN HELBURUA</span><h3>Berrikusi eskakizuna</h3><p>'+esc(a.message)+'</p>'+(st.checked?'<p><b>Eredu bat:</b> '+esc(it.model)+'</p>':'<p>Osatu zure erantzuna eta saiatu berriro.</p>')+'</section>';
  if(!st.checked)return "";
  return '<section class="bd-write-review '+(a.status==="observed"?"is-observed":"is-reflect")+'" role="status"><div class="bd-write-status"><span class="bd-write-symbol">'+svg(a.status==="observed"?"check":"map")+'</span><div><span class="bd-kicker">'+(a.status==="observed"?"EGITURA LANDUA":"ALDERATU ETA IKASI")+'</span><h3>'+ (a.status==="observed"?(st.writeRetry?"Egitura berrikusi duzu":"Egitura egokia"):"Zure esaldia prest dago")+'</h3></div></div><p>'+esc(a.message||"Beste formulazio egoki batzuk ere egon daitezke.")+'</p><div class="bd-write-example"><span class="bd-kicker">EREDU BAT</span><p><b>Eredu bat:</b> '+esc(it.model)+'</p></div><p class="bd-note">'+(a.status==="observed"?"Egitura edo eredua egiaztatu dugu, ez testu osoa.":"Erantzuna ez da automatikoki baliozkotu.")+'</p></section>'

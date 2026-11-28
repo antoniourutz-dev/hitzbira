@@ -369,6 +369,13 @@ check('writeCheckList avoids -ra and -an false positives',(()=>{const r=Object.f
  check('quoted or multi-clause answer is not mechanically diagnosed',review(write,'«Ni mendira joan dut», esan du.').status==='unverified');
  check('plural object agreement contrasted',review(write,'Nik bi gutun aurkitu dut.').to==='ditut');
  check('task compliance is separate from language error',review({id:'HB-EP-CAUSE-01-OPEN',t:'write',model:'X'},'Hodia hautsi da. Horregatik, urik ez dago.').status==='task');
+ const loc={id:'HB-EP-FOREST-01-OPEN',t:'write',model:'Errekara noa.'};
+ check('locative case feedback is task alignment not blanket grammar judgement',review(loc,'Errekatik noa.').status==='task_case'&&review(loc,'Errekatik noa.').to==='errekara');
+ check('valid alternate locative matches target',review(loc,'Ni errekara noa.').status==='observed');
+ check('different plausible movement context is unverified',review(loc,'Errekan gora noa.').status==='unverified');
+ check('extra plural agreement pattern returns precise auxiliary',review(write,'Ikerrek bi gutun aurkitu du.').to==='ditu');
+ check('different valid spelling or clause cannot be marked erroneous by rule',review(write,'Ane eta Iker elkarrekin joan dira.').status==='unverified');
+ check('new visual route reuses current artwork and five game illustrations',w.HBBidea.bidea().includes('bd-mission-preview')&&(w.HBBidea.gaur().match(/class="bd-game-art"/g)||[]).length===5);
  const bcss=fs.readFileSync(path.join(__dirname,'../bidea/bidea.css'),'utf8');
  const source=fs.readFileSync(path.join(__dirname,'../bidea/bidea.js'),'utf8');
  check('onboarding offers direct entry to both adventures and optional test',source.includes('Hasi zuzenean')&&source.includes('Beste abentura bat: HitzBira World')&&source.includes('Zure abiapuntua ezagutu (aukerakoa)'));

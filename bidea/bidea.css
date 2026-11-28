@@ -773,3 +773,18 @@ html[data-theme=dark] .bd-game-verbs>.bd-ico:first-child{color:#ffd49d;backgroun
 #bd-player .bd-item .bd-q{line-height:1.4}#bd-player .bd-btn:focus-visible,#bd-player .bd-opt:focus-visible{outline:3px solid #9878f2;outline-offset:2px}
 @media(max-width:480px){.bd-write-task{gap:10px}.bd-write-task-ico{width:38px;height:38px}.bd-write-review{border-radius:14px}#bd-player .bd-t-write .bd-write{min-height:100px;font-size:16px}}
 html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="dark"] .bd-write-contrast ins{color:#83dbb0}html[data-theme="dark"] .bd-write-symbol,html[data-theme="dark"] .bd-write-task-ico{background:#3a2e64;color:#ddd0ff}
+
+/* Adventure artwork is reused on the route; game tiles communicate activity type visually. */
+.bd-mission-preview{overflow:hidden;border-radius:20px;margin:12px 0 14px}
+.bd-mission-preview .bd-episode-landscape{position:relative;margin:0;min-height:110px;max-height:185px;overflow:hidden;border-radius:20px}
+.bd-mission-preview .bd-episode-landscape>svg{display:block;width:100%;height:clamp(110px,18vw,185px);object-fit:cover}
+.bd-world-step.is-current .bd-world-step-num{box-shadow:0 0 0 4px color-mix(in srgb,var(--bd-acc) 12%,transparent)}
+.bd-world-step-num svg{width:19px;height:19px}
+.bd-world-games .bd-game-art{width:64px;height:64px;display:grid;place-items:center;border-radius:18px;flex:none;background:var(--bd-canvas)}
+.bd-world-games .bd-game-art svg{display:block;width:60px;height:60px}
+.bd-world-games .bd-game-tile{gap:12px;min-height:108px;border-radius:20px;padding:14px 30px 14px 14px;text-align:left}
+.bd-world-games .bd-game-tile strong{line-height:1.25;font-size:1rem}
+.bd-world-games .bd-game-tile small{line-height:1.4}
+.bd-world-games .bd-game-tile:focus-visible{outline:3px solid var(--bd-acc);outline-offset:2px}
+@media(min-width:760px){.bd-gaur-polished .bd-world-games .bd-world-game-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.bd-gaur-polished .bd-world-games .bd-game-tile{display:flex;flex-direction:row;align-items:center;min-height:112px}.bd-gaur-polished .bd-world-games .bd-game-tile:last-child{grid-column:1/-1}}
+@media(max-width:759px){.bd-world-games .bd-game-art{width:52px;height:52px;border-radius:14px}.bd-world-games .bd-game-art svg{width:50px;height:50px}.bd-gaur-polished .bd-world-games .bd-game-tile,.bd-mapa-meta .bd-world-games .bd-game-tile{min-height:76px;gap:10px;padding:10px 32px 10px 10px;flex-direction:row;align-items:center}}
