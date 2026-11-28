@@ -175,7 +175,7 @@ async function serviceRequest(url,options,label){try{return await fetch(url,{...
 async function tokenRequest(type,payload){const r=await serviceRequest(BASE+"/auth/v1/token?grant_type="+type,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(payload),cache:"no-store"},"Saioa hasteko zerbitzua");if(!r.ok)throw authError(r.status===429?"Saiakera gehiegi. Saiatu geroago.":"Egiaztatu erabiltzailea eta pasahitza.",r.status);return r.json()}
 async function currentToken(){if(!session)throw authError("Hasi saioa berriro.",401);if(session.expires_at>Date.now()/1000+30)return session.access_token;if(!session.refresh_token)throw authError("Saioa iraungi da.",401);if(!refreshing)refreshing=(async()=>{const uid=session.uid;const x=await tokenRequest("refresh_token",{refresh_token:session.refresh_token});const c=claims(x.access_token||"");if(c.sub!==uid||c.role!==ROLE)throw authError("Saioa ez da baliozkoa.",403);saveSession(x);return session.access_token})().finally(()=>{refreshing=null});return refreshing}
 async function gateway(body,token,signal){const r=await serviceRequest(ENDPOINT,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify(body),cache:"no-store",...(signal?{signal}:{})},"Kontuaren konexioa");const x=await r.json().catch(()=>({}));if(!r.ok)throw authError(x.error||"Zerbitzua ezin izan da erabili.",r.status);return x}
-async function verify(){const token=await currentToken();const info=await gateway({action:"check"},token);if(!info.ok||info.release!==RELEASE||info.username!==session.username)throw authError("Kontuak ez du baimenik.",403);authorized=true}
+async function verify(){const token=await currentToken();const info=await gateway({action:"check"},token);if(!info.ok||info.username!==session.username)throw authError("Kontuak ez du baimenik.",403);if(info.release!==RELEASE)throw authError("Zerbitzuaren bertsioa ez dator bat. Saiatu berriro.",409);authorized=true}
 async function signIn(name,password){const email=emailFor(name),x=await tokenRequest("password",{email,password});saveSession(x,email.split("@")[0]);try{await verify()}catch(e){clearSession();throw e}}
 function lockAndReload(){clearSession();document.body.classList.add("hb-locked");location.reload()}
 async function signOut(){const old=session;clearSession();document.body.classList.add("hb-locked");try{if(old?.access_token)await fetch(BASE+"/auth/v1/logout?scope=local",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+old.access_token},cache:"no-store",signal:AbortSignal.timeout(3000)})}catch{}location.reload()}
@@ -228,7 +228,7 @@ function paintAccount(){
   }
  }
 }
-window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak,avatars:AVATARS,currentAvatar,uiReady};
+window.HBData={meta:META,count,aux,synthetic,grammar,vocabulary,isRemote:()=>authorized,guestLimited:()=>!authorized,streakSummary:()=>authorized?streak:null,release:RELEASE,keyFor,save,loadBidea,saveBidea,activity,flush,clearLocalStreak,avatars:AVATARS,currentAvatar,uiReady,syncShell};
 const form=document.getElementById("hb-login-form"),submit=document.getElementById("hb-login-submit"),msg=document.getElementById("hb-login-message"),status=document.getElementById("hb-account-name"),out=document.getElementById("hb-sign-out"),login=document.getElementById("hb-show-login"),close=document.getElementById("hb-login-close"),modal=document.getElementById("hb-login"),streakBtn=document.getElementById("hb-streak-btn"),streakPop=document.getElementById("hb-streak-pop"),acctBtn=document.getElementById("hb-account-btn"),acctPop=document.getElementById("hb-account-pop");
 function setStreakOpen(open){if(!streakBtn||!streakPop)return;if(open)setAcctOpen(false);streakPop.hidden=!open;streakBtn.setAttribute("aria-expanded",String(open))}
 function setAcctOpen(open){if(!acctBtn||!acctPop)return;if(open&&streakPop&&!streakPop.hidden){streakPop.hidden=true;streakBtn?.setAttribute("aria-expanded","false")}acctPop.hidden=!open;acctBtn.setAttribute("aria-expanded",String(open))}
@@ -240,7 +240,7 @@ if((streakBtn&&streakPop)||(acctBtn&&acctPop)){
 }
 function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(Error("Aplikazioa ezin izan da kargatu."));document.head.appendChild(script)})}
 let loginReturn=null;
-function syncShell(){const loading=document.body?.dataset.hbLoading==="true",opened=modal&&!modal.hidden;for(const node of document.querySelectorAll?.("body > #hb-sidebar, body > header, body > main, body > footer, body > nav, body > .hb-skip-link")||[]){node.inert=!!(opened||loading&&node.id!=="app")}}
+function syncShell(){const loading=document.body?.dataset.hbLoading==="true",opened=modal&&!modal.hidden,lesson=document.getElementById("bd-player"),playing=lesson&&!lesson.hidden;for(const node of document.querySelectorAll?.("body > #hb-sidebar, body > header, body > main, body > footer, body > nav, body > .hb-skip-link")||[]){node.inert=!!(opened||playing||loading&&node.id!=="app")}if(lesson)lesson.inert=!!opened}
 function uiReady(){if(document.body){document.body.dataset.hbLoading="false";document.getElementById("app")?.setAttribute("aria-busy","false")}syncShell();paintAccount()}
 function showLogin(){if(!modal.hidden)return;loginReturn=document.activeElement;modal.hidden=false;msg.textContent="";msg.classList.toggle("connection-ok",false);syncShell();form.elements.identifier.focus()}
 function hideLogin(){if(submit.disabled)return;modal.hidden=true;form.reset();msg.textContent="";syncShell();const target=loginReturn?.isConnected&&!loginReturn.hidden?loginReturn:login;target?.focus();loginReturn=null}
@@ -254,5 +254,23 @@ if(connectionButton)connectionButton.onclick=async()=>{connectionButton.disabled
 out.onclick=async()=>{if(!confirm("Saioa itxi? Sinkronizatu gabeko jarduna gailu honetan mantenduko da."))return;await Promise.race([flush(),new Promise(resolve=>setTimeout(resolve,2500))]);const old=session;clearSession();try{if(old?.access_token)await fetch(BASE+"/auth/v1/logout?scope=local",{method:"POST",headers:{apikey:KEY,Authorization:"Bearer "+old.access_token},cache:"no-store",signal:AbortSignal.timeout(2500)})}catch{}location.reload()};
 form.onsubmit=async e=>{e.preventDefault();if(submit.disabled)return;busy(true);msg.classList.toggle("connection-ok",false);msg.textContent="";try{await signIn(form.elements.identifier.value,form.elements.password.value);location.reload()}catch(err){form.elements.password.value="";msg.textContent=err.status===403?"Ez duzu sartzeko baimenik. Jarri harremanetan arduradunarekin.":err.message||"Konexio-arazoa."}finally{busy(false)}};
 window.addEventListener("online",()=>{if(authorized)void flush()});window.addEventListener("pagehide",()=>{if(authorized)void flush()});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&authorized)void flush()});setInterval(()=>{if(authorized&&Date.now()>=retryAt)void flush()},10000);
-(async()=>{if(session){try{await verify();await hydrate()}catch(e){const reason=e.message||"Ezin izan da saioa egiaztatu.";clearSession();await start();showLogin();msg.textContent=reason;return}}await start()})();
+// Keep an unverified account locked, not silently downgraded to a guest.
+let restoringAccount=false;
+function accountRecovery(denied){
+ const app=document.getElementById("app");if(!app)return;
+ app.setAttribute("aria-busy","false");
+ app.innerHTML='<section class="hb-account-recovery panel" role="region" aria-labelledby="hb-recovery-title"><h1 id="hb-recovery-title">'+(denied?'Saioa berritu behar duzu':'Ezin izan dugu kontua kargatu')+'</h1><p>'+(denied?'Hasi saioa berriro zure kontuko jardunarekin jarraitzeko.':'Konexioa edo zerbitzua ez dago prest. Zure kontuko tokiko jarduna ez dugu ezabatu.')+'</p><button type="button" id="hb-recovery-retry">'+(denied?'Saioa berritu':'Saiatu berriro')+'</button>'+(denied?'':'<button type="button" class="alt" id="hb-recovery-reauth">Saioa berritu</button>')+'</section>';
+ const retry=document.getElementById("hb-recovery-retry"),reauth=document.getElementById("hb-recovery-reauth");
+ function renew(){clearSession();location.reload()}
+ if(retry){retry.onclick=denied?renew:()=>{retry.disabled=true;if(reauth)reauth.disabled=true;app.setAttribute("aria-busy","true");void restoreAccount()};retry.focus?.()}
+ if(reauth)reauth.onclick=renew;
+}
+async function restoreAccount(){
+ if(restoringAccount)return;restoringAccount=true;
+ try{
+  if(session){authorized=false;try{await verify();await hydrate()}catch(e){authorized=false;const denied=e.status===401||e.status===403;if(denied)clearSession();accountRecovery(denied);return}}
+  await start()
+ }finally{restoringAccount=false}
+}
+void restoreAccount();
 })();

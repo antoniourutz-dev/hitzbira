@@ -523,7 +523,7 @@ function shelterEpisode(n){
  items[3]={...items[3],q:"Ane aterpera joan da. Aldatu Ane → Gu.",a:["Gu aterpera joan gara."],ex:"Gu gara joan garenak."};
  items[4]={...items[4],q:"Zu / aterpetik / atera.",a:["Zu aterpetik atera zara."],ex:"Zu zara atera dena."};
  items[5]={...items[5],q:"Nik bi gutun irakurri dut.",a:["Nik bi gutun irakurri ditut."],hint:"Bi gutun dira.",ex:"Bi gutun irakurri ditut."}}
- items.push({id:SHELTER_IDS[n-1]+"-OPEN",src:"Jatorrizko fikziozko ekoizpena / "+base.id,t:"write",q:"Birari kontatu zer gertatu den.",instr:["Esan aterpera joan zarela.","Kontatu zer egin duzuen giltzarekin. Erabili «guk».","Esan bi gutun aurkitu dituzula. Erabili «nik».","Idatzi bi esaldi: adierazi Ane sartu dela eta Lurrek kutxa ireki duela.","Idatzi bi esaldi: nora joan zareten eta zer aurkitu duzuen."][n-1],model,a:["(irekia)"],ex:"Alderatu zure esaldia ereduarekin. Beste formulazio zuzen batzuk ere egon daitezke."});
+ items.push({id:SHELTER_IDS[n-1]+"-OPEN",src:"Jatorrizko fikziozko ekoizpena / "+base.id,t:"write",q:"Birari kontatu zer gertatu den.",instr:["Esan aterpera joan zarela.","Kontatu zer egin duzuen giltzarekin. Erabili «guk».","Esan bi gutun aurkitu dituzula. Erabili «nik».","Idatzi bi esaldi bereizi. Kontatu Anek eta Lurrek zer egin duten.","Idatzi bi esaldi: nora joan zareten eta zer aurkitu duzuen."][n-1],model,a:["(irekia)"],ex:"Alderatu zure esaldia ereduarekin. Beste formulazio zuzen batzuk ere egon daitezke."});
  return {...base,id:SHELTER_IDS[n-1],n,title,es,forest:true,shelter:true,talk:undefined,scene,sceneEs,patterns:{},items,tip:n===3?"Gauza bat ala bi? Laguntzailea ere alda daiteke.":"Nor joan da? Nork egin du zerbait? Begiratu pertsonari eta adizkiari.",tipEs:n===3?"¿Una cosa o varias? También puede cambiar el auxiliar.":"¿Quién ha ido? ¿Quién ha hecho algo? Observa la persona y el auxiliar.",example:model,exampleEs:modelEs}
 }
 
@@ -830,7 +830,8 @@ function episodeEnd(){if(player.L.mirror){const n=player.L.n,t=MIRROR_TREASURES[
 
 function updatePlayerViewport(){const el=document.getElementById("bd-player"),v=root.visualViewport;if(el?.style&&v?.height>0)el.style.setProperty("--bd-visible-height",Math.floor(v.height)+"px")}
 root.visualViewport?.addEventListener?.("resize",updatePlayerViewport);
-function ensureEl(){let el=document.getElementById("bd-player");if(!el){el=document.createElement("div");el.id="bd-player";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Ikasgaia");document.body.appendChild(el)}document.documentElement.classList.add("bd-lock");el.hidden=false;updatePlayerViewport();return el}
+let playerReturn=null;
+function ensureEl(){let el=document.getElementById("bd-player");if(!el||el.hidden)playerReturn=document.activeElement;if(!el){el=document.createElement("div");el.id="bd-player";el.setAttribute("role","dialog");el.setAttribute("aria-modal","true");el.setAttribute("aria-label","Ikasgaia");el.tabIndex=-1;document.body.appendChild(el)}document.documentElement.classList.add("bd-lock");el.hidden=false;root.HBData?.syncShell?.();updatePlayerViewport();return el}
 function supplementaryPracticeHtml(){syncState();if(guestLimited()||!S.level)return "";return `<details class="academy-search"><summary>Abenturako praktika gehiago</summary><div class="bd-supplementary-list">${lessons().map((L,i)=>`<button class="bd-game-tile" onclick="HBBidea.start(${i},true)">${svg("play")}<span><strong>${esc(L.title)}</strong><small>${done(L.id)?"Berriro praktikatu":"Praktikatu"}</small></span>${svg("arrow")}</button>`).join("")}</div></details>`}
 function start(i,supplementary=false){syncState();if(guestLimited()){loginForMore();return}const L=lessons()[i];if(!L||(!supplementary&&!unlocked(i)))return;player={mode:"lesson",owner:keyFor(KEY),supplementary:supplementary===true,i,L,phase:"intro",queue:L.items.map(x=>({item:x,retry:false})),pos:0,first:0,errors:new Set(),combo:0,best:0,xp:0,lastPct:0,lastXp:0,state:null,quit:false};
  const el=ensureEl();render();el.focus?.()}
@@ -839,7 +840,7 @@ function startReview(lessonId){syncState();if(guestLimited()){loginForMore();ret
  player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
 function startAgendaReview(){if(guestLimited()){loginForMore();return}const ag=root.HitzBiraAgenda?.agenda?.()||[],due=ag.find(r=>r.status==="due");if(due&&typeof root.startCurriculum==="function")root.startCurriculum(due.node,null,true,due.key)}
 function startTest(){syncState();if(guestLimited()){loginForMore();return}player={mode:"test",phase:"play",queue:DATA.placement.map(x=>({item:x})),pos:0,score:0,row:0,state:null,quit:false,xp:0,combo:0,lastPct:0,lastXp:0};player.state=fresh(cur());const el=ensureEl();render();el.focus?.()}
-function close(silent){vocabularyRepo?.cancel();const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;if(!silent)refresh()}
+function close(silent){vocabularyRepo?.cancel();const el=document.getElementById("bd-player");if(el){el.hidden=true;el.innerHTML=""}document.documentElement.classList.remove("bd-lock");player=null;root.HBData?.syncShell?.();if(!silent)refresh();const target=playerReturn;playerReturn=null;if(target?.isConnected&&!target.disabled)target.focus?.();else if(!silent)document.getElementById("app")?.focus?.()}
 function askQuit(){if(!player)return;if(player.mode==="episode"||player.mode==="worldgame"){saveEpisodeDraft();close();return}if(player.phase!=="play"||player.mode==="test"){close();return}player.quit=!player.quit;render()}
 function cur(){return player.queue[player.pos]}
 function fresh(entry){const it=entry.item,st={sel:null,typed:"",tiles:[],picked:[],tapped:null,mistap:false,checked:false,ok:false,tries:0,wrongSel:[],hintOn:false,hintUsed:false};
@@ -858,7 +859,7 @@ function render(){const el=document.getElementById("bd-player");if(!el||!player)
  if(player.mode!=="episode"&&bar&&prevPct!==prog.pct&&typeof root.requestAnimationFrame==="function"){bar.style.width=prevPct+"%";root.requestAnimationFrame(()=>{bar.style.width=prog.pct+"%"})}
  player.lastPct=prog.pct;player.lastXp=player.xp;
  const content=el.querySelector(".bd-pgrid,.bd-intro,.bd-end");if(content)content.scrollTop=changed?0:oldScroll;
- const f=el.querySelector("[data-focus]");if(f)f.focus({preventScroll:true})}
+ const f=el.querySelector("[data-focus]");if(f)f.focus({preventScroll:true});else if(!el.contains?.(document.activeElement))el.focus?.({preventScroll:true})}
 function episodeProgress(){
  const p=player,stage=p.phase==="gogoratu"||(p.phase==="play"&&p.segment==="recall")?0:p.phase==="intro"?1:p.phase==="play"?2:p.phase==="altxorra"?3:4;
  const items=p.queue,done=items.slice(0,p.pos).filter(e=>!e.retry).length+(p.state?.checked&&!items[p.pos]?.retry?1:0),total=stage===2?p.L.items.length:stage===0?p.recall.length:0;
@@ -1182,7 +1183,9 @@ function auditText(){syncState();const all=allLessons().flatMap(l=>l.items);retu
 async function copyAudit(btn){const t=auditText();try{await navigator.clipboard.writeText(t);if(btn)btn.textContent="Kopiatuta ✓"}catch{const w=document.createElement("textarea");w.value=t;document.body.appendChild(w);w.select();try{document.execCommand("copy");if(btn)btn.textContent="Kopiatuta ✓"}catch{}w.remove()}}
 function auditor(on){syncState();if(guestLimited())return;S.auditor=!!on;save();refresh()}
 
-document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altKey)return;const tag=e.target&&e.target.tagName;if(e.key==="Escape"){askQuit();return}
+document.addEventListener("keydown",e=>{if(!player||e.metaKey||e.ctrlKey||e.altKey)return;const login=document.getElementById("hb-login");if(login&&!login.hidden)return;const el=document.getElementById("bd-player");if(!el||el.hidden)return;
+ if(e.key==="Tab"){const nodes=Array.from(el.querySelectorAll?.('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href], [tabindex="0"]')||[]).filter(x=>!x.hidden&&(!x.getClientRects||x.getClientRects().length));const first=nodes[0],last=nodes[nodes.length-1],active=document.activeElement;if(!first){e.preventDefault();el.focus?.()}else if(!nodes.includes(active)||(e.shiftKey&&active===first)||(!e.shiftKey&&active===last)){e.preventDefault();(e.shiftKey?last:first).focus()}return}
+ const tag=e.target&&e.target.tagName;if(e.key==="Escape"){e.preventDefault();askQuit();return}
  if(tag!=="INPUT"&&tag!=="TEXTAREA"&&player.phase==="play"){
   if(/^[1-4]$/.test(e.key)){const b=document.querySelectorAll("#bd-player .bd-opt")[+e.key-1];if(b&&!b.disabled){e.preventDefault();b.click()}return}
   if(e.key.toLowerCase()==="h"&&player.mode!=="test"){e.preventDefault();showHint();return}

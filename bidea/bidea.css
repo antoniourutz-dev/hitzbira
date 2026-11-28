@@ -1,8 +1,8 @@
 /* HitzBira · Bidea 0.6 — Gaur, Bidea eta ikasgai-erreproduzitzailea. UI Kit-eko tokenak berrerabiltzen ditu. */
 :root{--bd-acc:#5b3cc4;--bd-acc-2:#8b5cf6;--bd-hero-a:#4323a6;--bd-hero-b:#6b48db;--bd-hero-glow:#a78bfa;--bd-acc-ink:#fff;--bd-sun:#ffdc79;--bd-ok:#12a150;--bd-ok-bg:#e3f8ea;--bd-bad:#d6455d;--bd-bad-bg:#fde8ec;--bd-r:20px;--bd-ink:var(--kit-ink,#30234c);--bd-paper:var(--kit-paper,#fff);--bd-canvas:var(--kit-canvas,#faf9f5);--bd-muted:var(--kit-muted,#5f526f);--bd-line:var(--kit-line,#e7e2ee);--bd-lav:var(--kit-lav,#ede6fc);--bd-ease:cubic-bezier(.22,1,.36,1)}
 html[data-theme=dark]{--bd-ok-bg:#12311f;--bd-bad-bg:#3a1820;--bd-ok:#4ade80;--bd-bad:#ff8097}
-body[data-hb-level=a1a2]{--bd-acc:#0d8a64;--bd-acc-2:#14b8a6;--bd-hero-a:#085d47;--bd-hero-b:#0f906d;--bd-hero-glow:#34d399;--bd-sun:#ffe082;--bd-lav:#e4f5ee}
-html[data-theme=dark] body[data-hb-level=a1a2]{--bd-acc:#22b582;--bd-acc-2:#2dd4bf;--bd-hero-a:#0a4d3b;--bd-hero-b:#0f7559;--bd-hero-glow:#34d399;--bd-lav:#16352a}
+body[data-hb-level=a1a2]{--bd-acc:#0a7455;--bd-acc-2:#14b8a6;--bd-hero-a:#085d47;--bd-hero-b:#0f906d;--bd-hero-glow:#34d399;--bd-sun:#ffe082;--bd-lav:#e4f5ee}
+html[data-theme=dark] body[data-hb-level=a1a2]{--bd-acc:#22b582;--bd-acc-ink:#0b1f18;--bd-acc-2:#2dd4bf;--bd-hero-a:#0a4d3b;--bd-hero-b:#0f7559;--bd-hero-glow:#34d399;--bd-lav:#16352a}
 /* Leku-kasuen koloreak: NON berdea, NORA urdina, NONDIK laranja */
 :root{--c-in:#0f9f6e;--c-to:#2563eb;--c-from:#e0620d}
 html[data-theme=dark]{--c-in:#34d399;--c-to:#60a5fa;--c-from:#fb923c}
@@ -829,3 +829,8 @@ html[data-theme="dark"] .bd-write-contrast del{color:#ff9c90}html[data-theme="da
 @media(max-width:540px){.bd-forest-scene{aspect-ratio:16/7}.bd-forest-scene .bd-location{font-size:.72rem;left:10px;bottom:8px}}
 
 #bd-player .bd-pfoot .bd-btn-main:disabled{background:var(--bd-line)!important;color:var(--bd-muted)!important;box-shadow:none!important;border:1px solid var(--bd-line);cursor:not-allowed;opacity:.72;transform:none;filter:none}
+
+/* Accessibility: actual 44px targets and contrast on green solid surfaces. */
+body.hb-kit button.bd-chip-btn{min-height:44px}body.hb-kit button.bd-x{min-height:44px;min-width:44px;width:44px;height:44px}
+html[data-theme=dark] body[data-hb-level=a1a2] :is(button.bd-chip-btn.is-on,.bd-ch-n,button.bd-dot,.bd-placed .bd-level,button.bd-opt.is-sel kbd,button.bd-lvl-pill.is-on,.bd-ci-ico,.bd-world-step.is-ready .bd-world-step-num){color:#0b1f18}
+html[data-theme=dark] body[data-hb-level=a1a2] .bd-node.is-done button.bd-dot{color:#30234c}

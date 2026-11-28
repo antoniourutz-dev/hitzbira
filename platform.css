@@ -477,3 +477,7 @@ body.hb-kit .hb-site-footer summary{display:inline-flex;align-items:center;min-h
 html[data-theme="dark"] .hb-day-cell small{color:#c4bad7}
 html[data-theme="dark"] .hb-day-cell.today small{color:#c5b6ff}
 @media(max-width:859px){body.hb-kit .hb-site-footer{padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}}
+
+.hb-account-recovery{max-width:520px;margin:clamp(24px,8vh,88px) auto;padding:24px}.hb-account-recovery h1{font-size:1.5rem;line-height:1.25}.hb-account-recovery p{line-height:1.6}.hb-account-recovery button{min-height:44px;margin:8px 8px 0 0}
+@media(max-width:859px){body[data-hb-loading="true"] #app{min-height:min(662px,76vh)}}
+body.hb-kit .hb-side-prefs button.bd-chip-btn{min-height:44px}
